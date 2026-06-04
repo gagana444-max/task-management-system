@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
+from fastapi import HTTPException
+from sqlalchemy import or_
 from models.user_model import UserCreate, UserUpdate, UserRoleUpdate, UserStatusUpdate
 from models.db_models import DBUser
 
@@ -13,6 +15,10 @@ def to_dict(db_user: DBUser):
     }
 
 def create_user(db: Session, user_data: UserCreate):
+    existing_user = db.query(DBUser).filter(DBUser.email == user_data.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     db_user = DBUser(
         user_name=user_data.name,
         email=user_data.email,

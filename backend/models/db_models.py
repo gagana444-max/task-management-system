@@ -8,6 +8,6 @@ class DBUser(Base):
     user_name = Column(String(100), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
     user_password = Column(String(255), nullable=False)
-    user_role = Column(Enum('Admin', 'User', 'Manager'), nullable=False)
+    user_role = Column(Enum('Admin', 'ProjectManager', 'Collaborator'), nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))

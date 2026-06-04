@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/users", tags=["Users"])
 
 # Dependency
 def get_current_admin_user(x_user_role: str = Header(default="User", description="Mock header for auth")):
-    if x_user_role.lower() != "admin":
+    if x_user_role != "Admin":
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return {"role": x_user_role}
 

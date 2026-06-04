@@ -1,13 +1,15 @@
-FROM node:20-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY package*.json ./
+# Install dependencies first to leverage Docker layer caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN npm install
-
+# Copy the rest of the backend files
 COPY . .
 
-EXPOSE 5000
+EXPOSE 8000
 
-CMD ["npm", "run", "dev"]
+# Launch the FastAPI server
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--reload"]
