@@ -3,9 +3,19 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import IntegrityError
-from routes import user_routes
+from fastapi.middleware.cors import CORSMiddleware
+from routes import user_routes, comment_routes, onboarding_routes
 
-app = FastAPI(title="Task Management System - User API")
+app = FastAPI(title="Task Management System API")
+
+# CORS middleware — allows frontend to connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Structured Error Handlers ---
 @app.exception_handler(StarletteHTTPException)
@@ -43,3 +53,10 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
 
 # --- Routes ---
 app.include_router(user_routes.router)
+app.include_router(comment_routes.router)
+app.include_router(onboarding_routes.router)
+
+# Health check
+@app.get("/")
+async def root():
+    return {"message": "TMS API is running", "version": "1.0.0"}
