@@ -119,4 +119,25 @@ function App() {
   )
 }
 
-export default App
+
+
+// frontend/src/App.jsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import TasksList from './pages/TasksList';
+import TaskDetail from './pages/TaskDetail';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <Routes>
+        <Route path="/tasks" element={<TasksList />} />
+        <Route path="/tasks/:id" element={<TaskDetail />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
