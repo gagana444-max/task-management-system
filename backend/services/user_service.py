@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy import or_
 from models.user_model import UserCreate, UserUpdate, UserRoleUpdate, UserStatusUpdate
 from models.db_models import DBUser
+from services.auth_service import get_password_hash
 
 def to_dict(db_user: DBUser):
     return {
@@ -22,7 +23,7 @@ def create_user(db: Session, user_data: UserCreate):
     db_user = DBUser(
         user_name=user_data.name,
         email=user_data.email,
-        user_password=user_data.password,
+        user_password=get_password_hash(user_data.password),
         user_role=user_data.role,
         is_active=True
     )
