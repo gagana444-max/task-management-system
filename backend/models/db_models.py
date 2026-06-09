@@ -38,4 +38,14 @@ class DBAttachment(Base):
     uploaded_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
     uploader = relationship("DBUser", back_populates="attachments")
-    
+
+class DBNotification(Base):
+    __tablename__ = "notifications"
+    notification_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    message = Column(Text, nullable=False)
+    event_type = Column(String(50), nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+
+    user = relationship("DBUser", backref="notifications")

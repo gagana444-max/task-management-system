@@ -51,10 +51,15 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
         }
     )
 
+from config.socketio import socket_app
+
 # --- Routes ---
 app.include_router(user_routes.router)
 app.include_router(comment_routes.router)
 app.include_router(onboarding_routes.router)
+
+# Mount Socket.IO
+app.mount("/ws", socket_app)
 
 # Health check
 @app.get("/")
