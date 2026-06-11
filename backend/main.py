@@ -36,8 +36,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content={
             "error": {
                 "code": "VALIDATION_ERROR",
-                "message": "Invalid request parameters",
-                "details": exc.errors()
+                "message": "Invalid request parameters"
             }
         }
     )

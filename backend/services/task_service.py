@@ -55,9 +55,31 @@ def create_task(task_data: TaskCreate):
     cursor = connection.cursor()
 
     try:
+        # Check whether assigned user exists
+        cursor.execute(
+            "SELECT user_id FROM users WHERE user_id = %s",
+            (task_data.assigned_user_id,)
+        )
+
+        user = cursor.fetchone()
+
+        if not user:
+            raise HTTPException(
+                status_code=400,
+                detail="Assigned user does not exist"
+            )
+
+        # Create task
         cursor.execute(
             """
-            INSERT INTO tasks (title, task_description, assigned_user_id, due_date, priority, task_status)
+            INSERT INTO tasks (
+                title,
+                task_description,
+                assigned_user_id,
+                due_date,
+                priority,
+                task_status
+            )
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
@@ -69,17 +91,26 @@ def create_task(task_data: TaskCreate):
                 "To Do",
             ),
         )
+
         connection.commit()
 
         cursor.execute(
             """
-            SELECT task_id, title, task_description, assigned_user_id, due_date, priority, task_status
+            SELECT task_id,
+                   title,
+                   task_description,
+                   assigned_user_id,
+                   due_date,
+                   priority,
+                   task_status
             FROM tasks
             WHERE task_id = %s
             """,
             (cursor.lastrowid,),
         )
+
         return _row_to_task(cursor.fetchone())
+
     finally:
         cursor.close()
         connection.close()
