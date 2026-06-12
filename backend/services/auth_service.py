@@ -1,27 +1,21 @@
 from datetime import datetime, timedelta
 import os
 from typing import Optional, Dict
-
-from passlib.context import CryptContext
+import bcrypt
 import jwt
 from sqlalchemy.orm import Session
 from models.db_models import DBUser
 
-# Config (simple env-backed)
+# Config
 SECRET_KEY = os.environ.get('JWT_SECRET', 'dev-secret-key')
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
-
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def create_access_token(data: Dict[str, str], expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
@@ -33,14 +27,12 @@ def create_access_token(data: Dict[str, str], expires_delta: Optional[timedelta]
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-
 def decode_access_token(token: str) -> Optional[dict]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except Exception:
         return None
-
 
 def authenticate_user(db: Session, email: str, password: str):
     user = db.query(DBUser).filter(DBUser.email == email).first()

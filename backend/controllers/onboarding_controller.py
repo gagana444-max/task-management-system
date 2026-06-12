@@ -1,16 +1,14 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 from models.db_models import DBUser
 from services.email_service import generate_temp_password, validate_password_policy, send_onboarding_email
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
 
 def hash_password(password: str):
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(plain: str, hashed: str):
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
 
 async def onboard_user(user_id: int, db: Session):
     user = db.query(DBUser).filter(DBUser.user_id == user_id).first()

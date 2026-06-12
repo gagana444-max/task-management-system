@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Load user from localStorage on app start
   useEffect(() => {
     const savedUser = localStorage.getItem('user')
     const token = localStorage.getItem('token')
@@ -19,17 +18,23 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password })
-const { token, user } = response.data.data    
-localStorage.setItem('token', token)
+    const { access_token } = response.data
+    localStorage.setItem('token', access_token)
+
+    // Build user object from what we know
+    const user = { email, role: 'Admin', name: email.split('@')[0] }
     localStorage.setItem('user', JSON.stringify(user))
     setUser(user)
     return user
   }
 
-  const register = async (name, email, password) => {
-    const response = await api.post('/auth/register', { name, email, password })
-const { token, user } = response.data.data
-    localStorage.setItem('token', token)
+  const register = async (name, email, password, role = 'Collaborator') => {
+    const response = await api.post('/auth/register', { name, email, password, role })
+    const user = response.data
+    // Now login to get token
+    const loginResponse = await api.post('/auth/login', { email, password })
+    const { access_token } = loginResponse.data
+    localStorage.setItem('token', access_token)
     localStorage.setItem('user', JSON.stringify(user))
     setUser(user)
     return user
