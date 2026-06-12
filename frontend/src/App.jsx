@@ -5,6 +5,8 @@ import MainLayout from './layouts/MainLayout'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import TasksList from './pages/TasksList'
+import TaskDetail from './pages/TaskDetail'
 
 export default function App() {
   return (
@@ -20,17 +22,12 @@ export default function App() {
           } />
           <Route path="/tasks" element={
             <ProtectedRoute>
-              <MainLayout><div className="text-gray-500 text-sm">Task board coming in Phase 2</div></MainLayout>
+              <MainLayout><TasksList /></MainLayout>
             </ProtectedRoute>
           } />
-          <Route path="/notifications" element={
+          <Route path="/tasks/:id" element={
             <ProtectedRoute>
-              <MainLayout><div className="text-gray-500 text-sm">Notifications coming in Phase 2</div></MainLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/admin" element={
-            <ProtectedRoute allowedRoles={['Admin']}>
-              <MainLayout><div className="text-gray-500 text-sm">Admin panel coming in Phase 3</div></MainLayout>
+              <MainLayout><TaskDetail /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/" element={<Navigate to="/login" replace />} />
