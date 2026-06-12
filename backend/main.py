@@ -57,6 +57,8 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
         }
     )
 
+from config.socketio import socket_app
+
 # --- Routes ---
 app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
