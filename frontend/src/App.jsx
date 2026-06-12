@@ -1,37 +1,39 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import MainLayout from './layouts/MainLayout'
 import ProtectedRoute from './components/ProtectedRoute'
+import MainLayout from './layouts/MainLayout'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
-import Tasks from './pages/Tasks'
-import './App.css'
+import TasksList from './pages/TasksList'
+import TaskDetail from './pages/TaskDetail'
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
         <Routes>
-          {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
-          {/* 🚀 Testing route - allows /tasks without auth (for testing without backend) */}
-          <Route path="/tasks" element={<MainLayout><Tasks /></MainLayout>} />
-
-          {/* Protected routes with layout */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<MainLayout><Dashboard /></MainLayout>} />
-            <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
-          </Route>
-
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <MainLayout><Dashboard /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/tasks" element={
+            <ProtectedRoute>
+              <MainLayout><TasksList /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/tasks/:id" element={
+            <ProtectedRoute>
+              <MainLayout><TaskDetail /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
-
-export default App
