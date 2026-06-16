@@ -17,16 +17,29 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async (email, password) => {
-    const response = await api.post('/auth/login', { email, password })
-    const { access_token } = response.data
-    localStorage.setItem('token', access_token)
+  const response = await api.post('/auth/login', { email, password })
+  const { access_token } = response.data
+  localStorage.setItem('token', access_token)
 
-    // Build user object from what we know
-    const user = { email, role: 'Admin', name: email.split('@')[0] }
-    localStorage.setItem('user', JSON.stringify(user))
-    setUser(user)
-    return user
+  // Decode JWT to get user id and role
+  const payload = JSON.parse(atob(access_token.split('.')[1]))
+  const user = { 
+    email, 
+    role: payload.role, 
+    name: email.split('@')[0],
+    id: parseInt(payload.sub)
   }
+  localStorage.setItem('user', JSON.stringify(user))
+  setUser(user)
+
+  // Check if first login
+  const firstLoginCheck = await api.get(`/onboarding/check-first-login/${user.id}`)
+  if (firstLoginCheck.data.is_first_login) {
+    return { ...user, requiresPasswordReset: true }
+  }
+
+  return user
+}
 
   const register = async (name, email, password, role = 'Collaborator') => {
     const response = await api.post('/auth/register', { name, email, password, role })

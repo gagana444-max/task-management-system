@@ -25,8 +25,9 @@ export default function Login() {
       setLoading(true)
       const user = await login(form.email, form.password)
 
-      if (user.role === 'Admin') navigate('/admin')
-      else navigate('/dashboard')
+if (user.requiresPasswordReset) navigate('/first-login-reset')
+else if (user.role === 'Admin') navigate('/admin')
+else navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password.')
     } finally {
