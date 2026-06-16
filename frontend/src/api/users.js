@@ -16,7 +16,12 @@ export const updateUserRole = (id, role) =>
   api.patch(`/users/${id}/role`, { role })
 
 export const sendOnboardingEmail = (id) =>
-  api.post(`/onboarding/send-credentials/${id}`)
+  api.post(`/onboarding/send-credentials/${id}`, {}, {
+    headers: {
+      'x-user-id': JSON.parse(localStorage.getItem('user'))?.id || 1,
+      'x-user-role': JSON.parse(localStorage.getItem('user'))?.role || 'Admin'
+    }
+  })
 
 export const checkFirstLogin = (id) =>
   api.get(`/onboarding/check-first-login/${id}`)
