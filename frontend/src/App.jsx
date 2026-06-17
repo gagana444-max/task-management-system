@@ -9,6 +9,7 @@ import TasksList from './pages/TasksList'
 import TaskDetail from './pages/TaskDetail'
 import AdminPanel from './pages/AdminPanel'
 import FirstLoginReset from './pages/FirstLoginReset'
+import Notifications from './pages/Notifications'
 
 export default function App() {
   return (
@@ -34,6 +35,11 @@ export default function App() {
           <Route path="/tasks/:id" element={
             <ProtectedRoute>
               <MainLayout><TaskDetail /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/notifications" element={
+            <ProtectedRoute>
+              <MainLayout><Notifications /></MainLayout>
             </ProtectedRoute>
           } />
 
