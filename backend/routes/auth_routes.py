@@ -18,11 +18,17 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return created
 
 
+from pydantic import BaseModel
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
 @router.post('/login')
-def login(form_data: dict, db: Session = Depends(get_db)):
+def login(form_data: LoginRequest, db: Session = Depends(get_db)):
     # Expect JSON with `email` and `password`
-    email = form_data.get('email')
-    password = form_data.get('password')
+    email = form_data.email
+    password = form_data.password
     if not email or not password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password required")
 
