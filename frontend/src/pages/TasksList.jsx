@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
@@ -10,9 +11,15 @@ const slabel = (s) => s === 'todo' ? 'To Do' : s === 'in_progress' ? 'In Progres
 const spill = (s) => s === 'todo' ? { bg: '#fef9e7', color: '#d97706' } : s === 'in_progress' ? { bg: '#eff6ff', color: '#2563eb' } : { bg: '#ecfdf5', color: '#059669' }
 const strip = (s) => s === 'todo' ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' : s === 'in_progress' ? 'linear-gradient(90deg,#60a5fa,#3b82f6)' : 'linear-gradient(90deg,#34d399,#10b981)'
 const pdot = (p) => p === 'high' ? '#dc2626' : p === 'medium' ? '#d97706' : '#059669'
+const normalizeStatus = (s) => {
+  if (!s) return 'todo'
+  const map = { 'to do': 'todo', 'in progress': 'in_progress', 'done': 'completed', 'todo': 'todo', 'in_progress': 'in_progress', 'completed': 'completed' }
+  return map[s.toLowerCase()] || 'todo'
+}
 
 export default function TasksList() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -28,7 +35,7 @@ export default function TasksList() {
 
   useEffect(() => {
     fetchTasks()
-    if (canCreate) fetchUsers()
+    fetchUsers()
   }, [])
 
   const fetchTasks = async () => {
@@ -48,6 +55,12 @@ export default function TasksList() {
       const res = await api.get('/users')
       setUsers(res.data)
     } catch { }
+  }
+
+  const getUserName = (assigned_user_id) => {
+    if (!assigned_user_id) return null
+    const u = users.find(u => u.id === assigned_user_id)
+    return u ? u.name : null
   }
 
   const moveTask = async (id, status) => {
@@ -72,7 +85,9 @@ export default function TasksList() {
     if (!form.title.trim()) return setError('Title is required.')
     try {
       setCreating(true)
-      const res = await api.post('/tasks', form)
+      const payload = { ...form }
+      if (!payload.assigned_user_id) delete payload.assigned_user_id
+      const res = await api.post('/tasks', payload)
       setTasks([...tasks, res.data])
       setShowCreate(false)
       setForm({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', due_date: '' })
@@ -139,9 +154,9 @@ export default function TasksList() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flexShrink: 0 }}>
         {[
-          { label: 'To Do', icon: '📋', bg: '#fef9e7', ibg: '#fef3c7', count: tasks.filter(t => t.status === 'todo').length },
-          { label: 'In Progress', icon: '⚡', bg: '#eff6ff', ibg: '#dbeafe', count: tasks.filter(t => t.status === 'in_progress').length },
-          { label: 'Completed', icon: '✅', bg: '#ecfdf5', ibg: '#d1fae5', count: tasks.filter(t => t.status === 'completed').length },
+          { label: 'To Do', icon: '📋', bg: '#fef9e7', ibg: '#fef3c7', count: tasks.filter(t => normalizeStatus(t.status) === 'todo').length },
+          { label: 'In Progress', icon: '⚡', bg: '#eff6ff', ibg: '#dbeafe', count: tasks.filter(t => normalizeStatus(t.status) === 'in_progress').length },
+          { label: 'Completed', icon: '✅', bg: '#ecfdf5', ibg: '#d1fae5', count: tasks.filter(t => normalizeStatus(t.status) === 'completed').length },
         ].map(s => (
           <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: '11px 14px', border: '1.5px solid #e8e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 30, height: 30, borderRadius: 8, background: s.ibg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>{s.icon}</div>
@@ -159,7 +174,7 @@ export default function TasksList() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}>
           {cols.map(status => {
             const cs = colStyle[status]
-            const colTasks = filtered.filter(t => t.status === status)
+            const colTasks = filtered.filter(t => normalizeStatus(t.status) === status)
             return (
               <div key={status} style={{ background: cs.bg, border: `1.5px solid ${cs.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexShrink: 0 }}>
@@ -171,28 +186,31 @@ export default function TasksList() {
                     <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8' }}>Loading...</div>
                   ) : colTasks.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8', border: `1.5px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>No tasks</div>
-                  ) : colTasks.map(t => (
-                    <div
-                      key={t.id}
-                      onClick={() => setActiveId(activeId === t.id ? null : t.id)}
-                      style={{
-                        background: '#fff', borderRadius: 9, padding: '11px 13px', cursor: 'pointer',
-                        border: activeId === t.id ? '1.5px solid #818cf8' : '1.5px solid rgba(0,0,0,0.05)',
-                        boxShadow: activeId === t.id ? '0 2px 12px rgba(129,140,248,0.2)' : 'none',
-                        transition: 'all 0.15s'
-                      }}
-                    >
-                      <div style={{ fontSize: 11, fontWeight: 500, color: status === 'completed' ? '#9090a0' : '#1a1a2e', lineHeight: 1.45, textDecoration: status === 'completed' ? 'line-through' : 'none' }}>
-                        {t.title}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
-                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: avc(t.assigned_user?.name || ''), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 700, color: '#fff' }}>
-                          {ini(t.assigned_user?.name || '')}
+                  ) : colTasks.map(t => {
+                    const assignedName = getUserName(t.assigned_user_id)
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => setActiveId(activeId === t.id ? null : t.id)}
+                        style={{
+                          background: '#fff', borderRadius: 9, padding: '11px 13px', cursor: 'pointer',
+                          border: activeId === t.id ? '1.5px solid #818cf8' : '1.5px solid rgba(0,0,0,0.05)',
+                          boxShadow: activeId === t.id ? '0 2px 12px rgba(129,140,248,0.2)' : 'none',
+                          transition: 'all 0.15s'
+                        }}
+                      >
+                        <div style={{ fontSize: 11, fontWeight: 500, color: normalizeStatus(t.status) === 'completed' ? '#9090a0' : '#1a1a2e', lineHeight: 1.45, textDecoration: normalizeStatus(t.status) === 'completed' ? 'line-through' : 'none' }}>
+                          {t.title}
                         </div>
-                        <span style={{ fontSize: 9, color: isLate(t.due_date, t.status) ? '#dc2626' : '#b0b0c0' }}>{fmt(t.due_date)}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 700, color: '#fff' }}>
+                            {assignedName ? ini(assignedName) : '?'}
+                          </div>
+                          <span style={{ fontSize: 9, color: isLate(t.due_date, normalizeStatus(t.status)) ? '#dc2626' : '#b0b0c0' }}>{fmt(t.due_date)}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )
@@ -200,63 +218,72 @@ export default function TasksList() {
         </div>
 
         {/* Detail Panel */}
-        {activeTask && (
-          <div style={{ width: 285, flexShrink: 0, marginLeft: 10, transition: 'width 0.38s cubic-bezier(0.4,0,0.2,1)' }}>
-            <div style={{ width: 285, height: '100%', background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ height: 4, background: strip(activeTask.status), flexShrink: 0 }} />
-              <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button onClick={() => setActiveId(null)} style={{ background: '#f0f0f8', border: 'none', width: 22, height: 22, borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#9090a0' }}>✕</button>
-                </div>
+        {activeTask && (() => {
+          const assignedName = getUserName(activeTask.assigned_user_id)
+          const ns = normalizeStatus(activeTask.status)
+          return (
+            <div style={{ width: 285, flexShrink: 0, marginLeft: 10 }}>
+              <div style={{ width: 285, height: '100%', background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ height: 4, background: strip(ns), flexShrink: 0 }} />
+                <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button onClick={() => setActiveId(null)} style={{ background: '#f0f0f8', border: 'none', width: 22, height: 22, borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#9090a0' }}>✕</button>
+                  </div>
 
-                <div style={{ background: spill(activeTask.status).bg, borderRadius: 10, padding: 12 }}>
-                  <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Task Details</div>
-                  <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 13, color: '#1a1a2e', lineHeight: 1.4, marginBottom: 6 }}>{activeTask.title}</div>
-                  <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', fontSize: 8, padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
-                    {activeTask.project?.toUpperCase() || 'TASK'}
-                  </span>
-                </div>
+                  <div style={{ background: spill(ns).bg, borderRadius: 10, padding: 12 }}>
+                    <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Task Details</div>
+                    <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 13, color: '#1a1a2e', lineHeight: 1.4, marginBottom: 6 }}>{activeTask.title}</div>
+                    <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', fontSize: 8, padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>TASK</span>
+                  </div>
 
-                <div style={{ height: 1, background: '#f0f0f8' }} />
+                  <div style={{ height: 1, background: '#f0f0f8' }} />
 
-                <div>
-                  <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Details</div>
-                  {[
-                    { key: 'Status', val: <span style={{ fontSize: 8, padding: '2px 7px', borderRadius: 7, fontWeight: 700, background: spill(activeTask.status).bg, color: spill(activeTask.status).color }}>{slabel(activeTask.status)}</span> },
-                    { key: 'Priority', val: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: pdot(activeTask.priority?.toLowerCase()), display: 'inline-block' }} /><span style={{ fontSize: 9, color: '#1a1a2e', fontWeight: 500, textTransform: 'capitalize' }}>{activeTask.priority}</span></span> },
-                    { key: 'Assigned', val: <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 16, height: 16, borderRadius: '50%', background: avc(activeTask.assigned_user?.name || ''), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 700, color: '#fff' }}>{ini(activeTask.assigned_user?.name || '')}</span><span style={{ fontSize: 9, color: '#1a1a2e', fontWeight: 500 }}>{activeTask.assigned_user?.name || '—'}</span></span> },
-                    { key: 'Due Date', val: <span style={{ fontSize: 9, color: isLate(activeTask.due_date, activeTask.status) ? '#dc2626' : '#1a1a2e', fontWeight: 500 }}>{fmt(activeTask.due_date)}</span> },
-                  ].map(r => (
-                    <div key={r.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <span style={{ fontSize: 9, color: '#9090a0' }}>{r.key}</span>
-                      {r.val}
-                    </div>
-                  ))}
-                </div>
+                  <div>
+                    <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Details</div>
+                    {[
+                      { key: 'Status', val: <span style={{ fontSize: 8, padding: '2px 7px', borderRadius: 7, fontWeight: 700, background: spill(ns).bg, color: spill(ns).color }}>{slabel(ns)}</span> },
+                      { key: 'Priority', val: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: pdot(activeTask.priority?.toLowerCase()), display: 'inline-block' }} /><span style={{ fontSize: 9, color: '#1a1a2e', fontWeight: 500, textTransform: 'capitalize' }}>{activeTask.priority}</span></span> },
+                      { key: 'Assigned', val: <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 16, height: 16, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 700, color: '#fff' }}>{assignedName ? ini(assignedName) : '?'}</span><span style={{ fontSize: 9, color: '#1a1a2e', fontWeight: 500 }}>{assignedName || '—'}</span></span> },
+                      { key: 'Due Date', val: <span style={{ fontSize: 9, color: isLate(activeTask.due_date, ns) ? '#dc2626' : '#1a1a2e', fontWeight: 500 }}>{fmt(activeTask.due_date)}</span> },
+                    ].map(r => (
+                      <div key={r.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <span style={{ fontSize: 9, color: '#9090a0' }}>{r.key}</span>
+                        {r.val}
+                      </div>
+                    ))}
+                  </div>
 
-                <div style={{ height: 1, background: '#f0f0f8' }} />
+                  <div style={{ height: 1, background: '#f0f0f8' }} />
 
-                {activeTask.description && (
-                  <>
-                    <div>
-                      <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Description</div>
-                      <div style={{ fontSize: 9, color: '#6060a0', lineHeight: 1.6, background: '#fafafa', borderRadius: 7, padding: '8px 10px', border: '1px solid #f0f0f8' }}>{activeTask.description}</div>
-                    </div>
-                    <div style={{ height: 1, background: '#f0f0f8' }} />
-                  </>
-                )}
+                  {activeTask.description && (
+                    <>
+                      <div>
+                        <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Description</div>
+                        <div style={{ fontSize: 9, color: '#6060a0', lineHeight: 1.6, background: '#fafafa', borderRadius: 7, padding: '8px 10px', border: '1px solid #f0f0f8' }}>{activeTask.description}</div>
+                      </div>
+                      <div style={{ height: 1, background: '#f0f0f8' }} />
+                    </>
+                  )}
 
-                <div>
-                  <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Actions</div>
-                  {activeTask.status !== 'todo' && <button onClick={() => moveTask(activeTask.id, 'todo')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fde68a', background: '#fef9e7', color: '#d97706', marginBottom: 5 }}>Move to To Do</button>}
-                  {activeTask.status !== 'in_progress' && <button onClick={() => moveTask(activeTask.id, 'in_progress')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #bfdbfe', background: '#eff6ff', color: '#2563eb', marginBottom: 5 }}>Move to In Progress</button>}
-                  {activeTask.status !== 'completed' && <button onClick={() => moveTask(activeTask.id, 'completed')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #a7f3d0', background: '#ecfdf5', color: '#059669', marginBottom: 5 }}>Mark as Completed</button>}
-                  {canCreate && <button onClick={() => deleteTask(activeTask.id)} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fecaca', background: '#fff5f5', color: '#dc2626' }}>Delete Task</button>}
+                  <div>
+                    <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Actions</div>
+
+                    {/* View Full Details button */}
+                    <button onClick={() => navigate(`/tasks/${activeTask.id}`)}
+                      style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', marginBottom: 5 }}>
+                      💬 Comments & Attachments →
+                    </button>
+
+                    {ns !== 'todo' && <button onClick={() => moveTask(activeTask.id, 'To Do')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fde68a', background: '#fef9e7', color: '#d97706', marginBottom: 5 }}>Move to To Do</button>}
+                    {ns !== 'in_progress' && <button onClick={() => moveTask(activeTask.id, 'In Progress')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #bfdbfe', background: '#eff6ff', color: '#2563eb', marginBottom: 5 }}>Move to In Progress</button>}
+                    {ns !== 'completed' && <button onClick={() => moveTask(activeTask.id, 'Done')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #a7f3d0', background: '#ecfdf5', color: '#059669', marginBottom: 5 }}>Mark as Completed</button>}
+                    {canCreate && <button onClick={() => deleteTask(activeTask.id)} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fecaca', background: '#fff5f5', color: '#dc2626' }}>Delete Task</button>}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </div>
 
       {/* Create Task Modal */}
