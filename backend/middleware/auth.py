@@ -1,5 +1,5 @@
 from fastapi import Header, HTTPException, Depends
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 from sqlalchemy.orm import Session
 from services.auth_service import decode_access_token
 from config.database import get_db
@@ -24,7 +24,11 @@ def get_current_user(authorization: Optional[str] = Header(None), db: Session = 
     user_id = payload.get('sub')
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
-    user = db.query(DBUser).filter(DBUser.user_id == int(user_id)).first()
+    try:
+        user_id_int = int(user_id)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+    user = db.query(DBUser).filter(DBUser.user_id == user_id_int).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return {
@@ -41,3 +45,12 @@ def role_required(role: str) -> Callable:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient privileges")
         return current_user
     return _dependency
+
+
+def roles_allowed(allowed_roles: List[str]) -> Callable:
+    def _dependency(current_user: dict = Depends(get_current_user)):
+        if current_user.get('role') not in allowed_roles:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient privileges")
+        return current_user
+    return _dependency
+

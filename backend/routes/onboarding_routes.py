@@ -1,28 +1,18 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from config.database import get_db
 from controllers import onboarding_controller
 from models.comment_model import PasswordResetRequest
+from middleware.auth import role_required
 
 router = APIRouter(prefix="/api/onboarding", tags=["User Onboarding"])
 
-def get_admin_user(
-    x_user_id: int = Header(..., description="Current user ID"),
-    x_user_role: str = Header(..., description="Current user role")
-):
-    if x_user_role != "Admin":
-        raise HTTPException(status_code=403, detail={
-            "error_code": "FORBIDDEN",
-            "message": "Admin privileges required",
-            "description": "Only Admins can trigger user onboarding"
-        })
-    return {"user_id": x_user_id, "role": x_user_role}
 
 # Send onboarding email with temp password — Admin only
 @router.post("/send-credentials/{user_id}", status_code=200)
 async def send_onboarding_email(
     user_id: int,
-    admin: dict = Depends(get_admin_user),
+    admin: dict = Depends(role_required("Admin")),
     db: Session = Depends(get_db)
 ):
     return await onboarding_controller.onboard_user(
@@ -61,4 +51,4 @@ async def reset_password(
         new_password=request.new_password,
         confirm_password=request.confirm_password,
         db=db
-    )
+    )
