@@ -1,3 +1,4 @@
+import html
 from typing import Optional, Literal
 from pydantic import BaseModel, Field, EmailStr, field_validator
 
@@ -11,9 +12,9 @@ class UserCreate(BaseModel):
 
     @field_validator('name', mode='before')
     @classmethod
-    def strip_whitespace(cls, v):
+    def sanitize_name(cls, v):
         if isinstance(v, str):
-            return v.strip()
+            return html.escape(v.strip())
         return v
 
     @field_validator('email', mode='before')
@@ -21,6 +22,15 @@ class UserCreate(BaseModel):
     def lower_email(cls, v):
         if isinstance(v, str):
             return v.lower()
+        return v
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v):
+        from services.email_service import validate_password_policy
+        errors = validate_password_policy(v)
+        if errors:
+            raise ValueError(" | ".join(errors))
         return v
 
 class UserOut(BaseModel):
@@ -36,9 +46,9 @@ class UserUpdate(BaseModel):
 
     @field_validator('name', mode='before')
     @classmethod
-    def strip_whitespace(cls, v):
+    def sanitize_name(cls, v):
         if isinstance(v, str):
-            return v.strip()
+            return html.escape(v.strip())
         return v
 
     @field_validator('email', mode='before')
@@ -53,3 +63,4 @@ class UserRoleUpdate(BaseModel):
 
 class UserStatusUpdate(BaseModel):
     is_active: bool
+

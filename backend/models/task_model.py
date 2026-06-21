@@ -1,3 +1,4 @@
+import html
 from datetime import date
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal
@@ -8,6 +9,13 @@ class TaskCreate(BaseModel):
     assigned_user_id: int = Field(..., gt=0)
     due_date: date
     priority: Literal["Low", "Medium", "High"]
+
+    @field_validator("title", "description", mode="before")
+    @classmethod
+    def sanitize_strings(cls, value):
+        if isinstance(value, str):
+            return html.escape(value.strip())
+        return value
 
     @field_validator("due_date")
     @classmethod
@@ -33,7 +41,14 @@ class TaskUpdate(BaseModel):
     assigned_user_id: Optional[int] = Field(None, gt=0)
     due_date: Optional[date] = None
     priority: Optional[Literal["Low", "Medium", "High"]] = None
-    status: Optional[Literal["To Do", "In Progress", "Done"]] = None
+    status: Optional[Literal["To Do", "In Progress", "Completed"]] = None
+
+    @field_validator("title", "description", mode="before")
+    @classmethod
+    def sanitize_strings(cls, value):
+        if isinstance(value, str):
+            return html.escape(value.strip())
+        return value
 
     @field_validator("due_date")
     @classmethod
