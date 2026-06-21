@@ -35,9 +35,30 @@ def get_connection():
         raise HTTPException(status_code=500, detail=f"Database connection failed: {exc}") from exc
 
 
+STATUS_MAP_API_TO_DB = {
+    "to-do": "To Do",
+    "in-progress": "In Progress",
+    "done": "Completed",
+    "To Do": "To Do",
+    "In Progress": "In Progress",
+    "Completed": "Completed"
+}
+
+STATUS_MAP_DB_TO_API = {
+    "To Do": "to-do",
+    "In Progress": "in-progress",
+    "Completed": "done",
+    "to-do": "to-do",
+    "in-progress": "in-progress",
+    "done": "done"
+}
+
 def _row_to_task(row):
     if row is None:
         return None
+
+    db_status = row[6]
+    api_status = STATUS_MAP_DB_TO_API.get(db_status, db_status)
 
     return {
         "id": row[0],
@@ -46,7 +67,7 @@ def _row_to_task(row):
         "assigned_user_id": row[3],
         "due_date": row[4].isoformat() if row[4] else None,
         "priority": row[5],
-        "status": row[6],
+        "status": api_status,
     }
 
 
@@ -196,6 +217,8 @@ def update_task(task_id: int, task_data):
     connection = get_connection()
     cursor = connection.cursor()
 
+    db_status = STATUS_MAP_API_TO_DB.get(task_data.status, "To Do") if task_data.status is not None else None
+
     try:
         cursor.execute(
             """
@@ -214,7 +237,7 @@ def update_task(task_id: int, task_data):
                 task_data.assigned_user_id,
                 task_data.due_date,
                 task_data.priority,
-                task_data.status,
+                db_status,
                 task_id,
             ),
         )
@@ -242,6 +265,43 @@ def update_task(task_id: int, task_data):
     finally:
         cursor.close()
         connection.close()        
+
+
+def patch_task(task_id: int, status: str):
+    connection = get_connection()
+    cursor = connection.cursor()
+    
+    db_status = STATUS_MAP_API_TO_DB.get(status, "To Do")
+
+    try:
+        cursor.execute(
+            """
+            UPDATE tasks
+            SET task_status=%s
+            WHERE task_id=%s
+            """,
+            (db_status, task_id),
+        )
+        connection.commit()
+
+        cursor.execute(
+            """
+            SELECT task_id, title, task_description,
+                   assigned_user_id, due_date,
+                   priority, task_status
+            FROM tasks
+            WHERE task_id=%s
+            """,
+            (task_id,),
+        )
+        
+        task = cursor.fetchone()
+        if not task:
+            return None
+        return _row_to_task(task)
+    finally:
+        cursor.close()
+        connection.close()
 
 
 

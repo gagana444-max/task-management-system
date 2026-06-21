@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field
+import html
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
 
@@ -6,24 +7,36 @@ class CommentCreate(BaseModel):
     task_id: int
     content: str = Field(..., min_length=1, max_length=2000)
 
+    @field_validator("content", mode="before")
+    @classmethod
+    def sanitize_content(cls, v):
+        if isinstance(v, str):
+            return html.escape(v.strip())
+        return v
+
+
+class UserBrief(BaseModel):
+    name: str
+
 class CommentOut(BaseModel):
-    comment_id: int
-    task_id: int
-    user_id: int
+    id: int
+    taskId: int
+    userId: int
     content: str
-    created_at: datetime
+    createdAt: datetime
+    user: Optional[UserBrief] = None
 
     class Config:
         from_attributes = True
 
 class AttachmentOut(BaseModel):
-    attachment_id: int
-    task_id: int
-    user_id: int
-    file_name: str
-    file_path: str
-    file_size: int
-    uploaded_at: datetime
+    id: int
+    taskId: int
+    userId: int
+    filename: str
+    filePath: str
+    size: int
+    uploadedAt: datetime
 
     class Config:
         from_attributes = True

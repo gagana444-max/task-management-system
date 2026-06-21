@@ -74,9 +74,14 @@ async def upload_attachment(task_id: int, user_id: int, file: UploadFile, db: Se
         })
 
     # Save file
+    import re
+    safe_filename = re.sub(r'[^a-zA-Z0-9_.-]', '_', os.path.basename(file.filename))
+    if not safe_filename or safe_filename in ('.', '..'):
+        safe_filename = 'uploaded_file'
+
     task_dir = os.path.join(UPLOAD_DIR, str(task_id))
     os.makedirs(task_dir, exist_ok=True)
-    file_path = os.path.join(task_dir, file.filename)
+    file_path = os.path.join(task_dir, safe_filename)
 
     with open(file_path, "wb") as f:
         f.write(contents)
@@ -84,7 +89,7 @@ async def upload_attachment(task_id: int, user_id: int, file: UploadFile, db: Se
     attachment = DBAttachment(
         task_id=task_id,
         user_id=user_id,
-        file_name=file.filename,
+        file_name=safe_filename,
         file_path=file_path,
         file_size=len(contents)
     )
