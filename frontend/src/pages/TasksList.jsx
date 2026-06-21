@@ -16,6 +16,7 @@ const normalizeStatus = (s) => {
   const map = { 'to do': 'todo', 'in progress': 'in_progress', 'done': 'completed', 'todo': 'todo', 'in_progress': 'in_progress', 'completed': 'completed' }
   return map[s.toLowerCase()] || 'todo'
 }
+const roleLabel = (r) => r === 'ProjectManager' ? 'Project Manager' : r
 
 export default function TasksList() {
   const { user } = useAuth()
@@ -32,6 +33,7 @@ export default function TasksList() {
   const [error, setError] = useState('')
 
   const canCreate = user?.role === 'Admin' || user?.role === 'ProjectManager'
+  const isCollaborator = user?.role === 'Collaborator'
 
   useEffect(() => {
     fetchTasks()
@@ -57,9 +59,13 @@ export default function TasksList() {
     } catch { }
   }
 
-  const getUserName = (assigned_user_id) => {
+  const getUser = (assigned_user_id) => {
     if (!assigned_user_id) return null
-    const u = users.find(u => u.id === assigned_user_id)
+    return users.find(u => u.id === assigned_user_id) || null
+  }
+
+  const getUserName = (assigned_user_id) => {
+    const u = getUser(assigned_user_id)
     return u ? u.name : null
   }
 
@@ -99,7 +105,13 @@ export default function TasksList() {
     }
   }
 
-  const filtered = tasks.filter(t =>
+  // Role-based visibility: Collaborators only see tasks assigned to them.
+  // Admin and Project Manager see all tasks (per SRS: PM has "full task control").
+  const visibleTasks = isCollaborator
+    ? tasks.filter(t => t.assigned_user_id === user?.id)
+    : tasks
+
+  const filtered = visibleTasks.filter(t =>
     t.title?.toLowerCase().includes(search.toLowerCase()) &&
     (priority ? t.priority?.toLowerCase() === priority.toLowerCase() : true)
   )
@@ -112,7 +124,7 @@ export default function TasksList() {
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
 
-  const activeTask = tasks.find(t => t.id === activeId)
+  const activeTask = visibleTasks.find(t => t.id === activeId)
 
   return (
     <div style={{ fontFamily: "'Instrument Sans', sans-serif", display: 'flex', flexDirection: 'column', height: '100vh', padding: 18, gap: 12, background: '#f5f4f0', overflow: 'hidden' }}>
@@ -121,7 +133,9 @@ export default function TasksList() {
       <div className="flex items-center justify-between flex-shrink-0">
         <div>
           <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 20, color: '#1a1a2e', letterSpacing: '-0.5px' }}>Task Board</h1>
-          <p style={{ fontSize: 10, color: '#9090a0', marginTop: 2 }}>Click any task card to view full details</p>
+          <p style={{ fontSize: 10, color: '#9090a0', marginTop: 2 }}>
+            {isCollaborator ? 'Showing tasks assigned to you' : 'Click any task card to view full details'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -154,9 +168,9 @@ export default function TasksList() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flexShrink: 0 }}>
         {[
-          { label: 'To Do', icon: '📋', bg: '#fef9e7', ibg: '#fef3c7', count: tasks.filter(t => normalizeStatus(t.status) === 'todo').length },
-          { label: 'In Progress', icon: '⚡', bg: '#eff6ff', ibg: '#dbeafe', count: tasks.filter(t => normalizeStatus(t.status) === 'in_progress').length },
-          { label: 'Completed', icon: '✅', bg: '#ecfdf5', ibg: '#d1fae5', count: tasks.filter(t => normalizeStatus(t.status) === 'completed').length },
+          { label: 'To Do', icon: '📋', bg: '#fef9e7', ibg: '#fef3c7', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'todo').length },
+          { label: 'In Progress', icon: '⚡', bg: '#eff6ff', ibg: '#dbeafe', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'in_progress').length },
+          { label: 'Completed', icon: '✅', bg: '#ecfdf5', ibg: '#d1fae5', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'completed').length },
         ].map(s => (
           <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: '11px 14px', border: '1.5px solid #e8e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 30, height: 30, borderRadius: 8, background: s.ibg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>{s.icon}</div>
@@ -321,7 +335,7 @@ export default function TasksList() {
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>Assign To</label>
                   <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e8e8f0', fontSize: 12, fontFamily: "'Instrument Sans', sans-serif", outline: 'none' }}>
                     <option value="">Unassigned</option>
-                    {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                    {users.map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
                   </select>
                 </div>
               </div>
