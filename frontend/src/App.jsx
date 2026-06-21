@@ -7,14 +7,20 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import TasksList from './pages/TasksList'
 import TaskDetail from './pages/TaskDetail'
+import AdminPanel from './pages/AdminPanel'
+import FirstLoginReset from './pages/FirstLoginReset'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/first-login-reset" element={<FirstLoginReset />} />
+
+          {/* Protected routes — all roles */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <MainLayout><Dashboard /></MainLayout>
@@ -30,6 +36,15 @@ export default function App() {
               <MainLayout><TaskDetail /></MainLayout>
             </ProtectedRoute>
           } />
+
+          {/* Admin only */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={['Admin']}>
+              <MainLayout><AdminPanel /></MainLayout>
+            </ProtectedRoute>
+          } />
+
+          {/* Default redirect */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

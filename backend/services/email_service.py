@@ -1,6 +1,10 @@
 import os
 import random
 import string
+import ssl
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,12 +35,11 @@ def validate_password_policy(password: str):
     return errors
 
 async def send_onboarding_email(email: str, name: str, temp_password: str):
-    # Email configuration from environment
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_FROM = os.getenv("MAIL_FROM", "noreply@tms.com")
     MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_PORT = int(os.getenv("MAIL_PORT", "465"))
 
     email_body = f"""
     Dear {name},
@@ -64,10 +67,6 @@ async def send_onboarding_email(email: str, name: str, temp_password: str):
     """
 
     try:
-        import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-
         msg = MIMEMultipart()
         msg['From'] = MAIL_FROM
         msg['To'] = email
@@ -75,16 +74,14 @@ async def send_onboarding_email(email: str, name: str, temp_password: str):
         msg.attach(MIMEText(email_body, 'plain'))
 
         if MAIL_USERNAME and MAIL_PASSWORD:
-            with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
-                server.starttls()
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
                 server.login(MAIL_USERNAME, MAIL_PASSWORD)
                 server.sendmail(MAIL_FROM, email, msg.as_string())
             print(f"Email sent successfully to {email}")
         else:
-            # If no email config, just print to console (development mode)
             print(f"[DEV MODE] Email to {email}:")
             print(email_body)
 
     except Exception as e:
         print(f"Email sending failed: {e}")
-        # Don't raise exception — user is still created even if email fails
