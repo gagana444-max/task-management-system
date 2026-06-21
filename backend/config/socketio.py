@@ -31,7 +31,7 @@ async def connect(sid, environ, auth):
         session['user_id'] = str(user_id)
         
     # Join private room
-    sio.enter_room(sid, str(user_id))
+    await sio.enter_room(sid, str(user_id))
     print(f"Socket.IO client {sid} connected as user {user_id}")
 
 @sio.on('disconnect')

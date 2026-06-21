@@ -57,7 +57,7 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
         }
     )
 
-from config.socketio import socket_app
+from config.socketio import socket_app, sio
 
 # --- Routes ---
 app.include_router(auth_routes.router)
@@ -70,3 +70,6 @@ app.include_router(task_routes.router)
 @app.get("/")
 async def root():
     return {"message": "TMS API is running", "version": "1.0.0"}
+
+# Mount Socket.IO server
+app.mount("/socket.io", socket_app)

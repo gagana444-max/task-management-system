@@ -241,8 +241,42 @@ def update_task(task_id: int, task_data):
 
     finally:
         cursor.close()
-        connection.close()        
+        connection.close()
 
+
+def update_task_status(task_id: int, status: str):
+    """Lightweight status-only update that skips full task validation (e.g. due_date past-date check)."""
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            "UPDATE tasks SET task_status=%s WHERE task_id=%s",
+            (status, task_id),
+        )
+
+        connection.commit()
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Task not found")
+
+        cursor.execute(
+            """
+            SELECT task_id, title, task_description,
+                   assigned_user_id, due_date,
+                   priority, task_status
+            FROM tasks
+            WHERE task_id=%s
+            """,
+            (task_id,),
+        )
+
+        task = cursor.fetchone()
+        return _row_to_task(task)
+
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def delete_task(task_id: int):

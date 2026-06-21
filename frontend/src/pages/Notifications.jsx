@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import api from '../api/axios'
+import { useSocket } from '../context/SocketContext'
 
 const fmt = (d) => {
   if (!d) return ''
@@ -12,52 +11,7 @@ const fmt = (d) => {
 }
 
 export default function Notifications() {
-  const [notifications, setNotifications] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true)
-      const res = await api.get('/notifications')
-      setNotifications(res.data)
-    } catch {
-      // Use mock data if API not ready
-      setNotifications([
-        { id: 1, message: 'You have been assigned to task: Design Homepage', is_read: false, created_at: new Date().toISOString() },
-        { id: 2, message: 'Task status changed to: in_progress — Polish UI components', is_read: false, created_at: new Date(Date.now() - 900000).toISOString() },
-        { id: 3, message: 'You have been assigned to task: Test notification system', is_read: false, created_at: new Date(Date.now() - 86400000).toISOString() },
-        { id: 4, message: 'Task status changed to: completed — Setup database schema', is_read: true, created_at: new Date(Date.now() - 90000000).toISOString() },
-        { id: 5, message: 'You have been assigned to task: Create API endpoints', is_read: true, created_at: new Date(Date.now() - 172800000).toISOString() },
-      ])
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const markRead = async (id) => {
-    try {
-      await api.patch(`/notifications/${id}/read`)
-    } catch { }
-    setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n))
-  }
-
-  const markAllRead = async () => {
-    try {
-      await api.patch('/notifications/read-all')
-    } catch { }
-    setNotifications(notifications.map(n => ({ ...n, is_read: true })))
-  }
-
-  const deleteNotif = async (id) => {
-    try {
-      await api.delete(`/notifications/${id}`)
-    } catch { }
-    setNotifications(notifications.filter(n => n.id !== id))
-  }
+  const { notifications, markRead, markAllRead, deleteNotification } = useSocket()
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
@@ -79,12 +33,11 @@ export default function Notifications() {
       </div>
 
       {/* Notification list */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#9090a0', fontSize: 13 }}>Loading...</div>
-      ) : notifications.length === 0 ? (
+      {notifications.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, color: '#9090a0' }}>
           <div style={{ fontSize: 32, marginBottom: 10 }}>🔔</div>
           <div style={{ fontSize: 13, fontWeight: 500 }}>No notifications yet</div>
+          <div style={{ fontSize: 11, marginTop: 6, color: '#b0b0c0' }}>You'll see live updates here when tasks are assigned or change status.</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -125,7 +78,7 @@ export default function Notifications() {
                     Mark read
                   </button>
                 )}
-                <button onClick={() => deleteNotif(n.id)}
+                <button onClick={() => deleteNotification(n.id)}
                   style={{ padding: '5px 10px', borderRadius: 6, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fecaca', background: '#fff5f5', color: '#dc2626' }}>
                   Delete
                 </button>
