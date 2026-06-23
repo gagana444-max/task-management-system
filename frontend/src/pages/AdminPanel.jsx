@@ -42,8 +42,6 @@ export default function AdminPanel() {
     if (!form.name.trim()) errors.name = 'Name is required.'
     if (!form.email.trim()) errors.email = 'Email is required.'
     else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = 'Invalid email.'
-    if (!form.password) errors.password = 'Password is required.'
-    else if (form.password.length < 8) errors.password = 'Min 8 characters.'
     if (!form.role) errors.role = 'Role is required.'
     return errors
   }
@@ -56,7 +54,8 @@ export default function AdminPanel() {
     if (Object.keys(errors).length > 0) { setFormErrors(errors); return }
     try {
       setCreating(true)
-      const res = await createUser(form)
+      const submitData = { ...form, password: 'DummyPassword123!' }
+      const res = await createUser(submitData)
       const newUser = res.data
       await sendOnboardingEmail(newUser.id)
       setGlobalSuccess(`User ${newUser.name} created and onboarding email sent!`)
@@ -163,7 +162,6 @@ export default function AdminPanel() {
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
               { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
-              { label: 'Temporary Password', key: 'password', type: 'password', placeholder: 'Min 8 characters' },
             ].map(f => (
               <div key={f.key}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>{f.label}</label>

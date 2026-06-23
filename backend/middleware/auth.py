@@ -7,17 +7,11 @@ from models.db_models import DBUser
 from starlette import status
 
 
-def _get_token_from_header(authorization: Optional[str]):
-    if not authorization:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization header")
-    parts = authorization.split()
-    if parts[0].lower() != 'bearer' or len(parts) != 2:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Authorization header format")
-    return parts[1]
+from fastapi.security import OAuth2PasswordBearer
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
-    token = _get_token_from_header(authorization)
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_access_token(token)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")

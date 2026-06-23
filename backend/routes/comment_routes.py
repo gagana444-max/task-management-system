@@ -7,17 +7,7 @@ from typing import List
 
 router = APIRouter(prefix="/api/comments", tags=["Comments & Attachments"])
 
-def get_current_user(
-    x_user_id: int = Header(..., description="Current user ID"),
-    x_user_role: str = Header(..., description="Current user role")
-):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail={
-            "error_code": "UNAUTHORIZED",
-            "message": "Authentication required",
-            "description": "Please provide x_user_id and x_user_role headers"
-        })
-    return {"user_id": x_user_id, "role": x_user_role}
+from middleware.auth import get_current_user
 
 # Comments endpoints
 @router.post("/tasks/{task_id}", status_code=201, response_model=CommentOut)
@@ -29,7 +19,7 @@ async def add_comment(
 ):
     return comment_controller.create_comment(
         task_id=task_id,
-        user_id=current_user["user_id"],
+        user_id=current_user["id"],
         content=comment.content,
         db=db
     )
@@ -50,7 +40,7 @@ async def delete_comment(
 ):
     return comment_controller.delete_comment(
         comment_id=comment_id,
-        user_id=current_user["user_id"],
+        user_id=current_user["id"],
         user_role=current_user["role"],
         db=db
     )
@@ -65,7 +55,7 @@ async def upload_attachment(
 ):
     return await comment_controller.upload_attachment(
         task_id=task_id,
-        user_id=current_user["user_id"],
+        user_id=current_user["id"],
         file=file,
         db=db
     )
@@ -86,7 +76,7 @@ async def delete_attachment(
 ):
     return comment_controller.delete_attachment(
         attachment_id=attachment_id,
-        user_id=current_user["user_id"],
+        user_id=current_user["id"],
         user_role=current_user["role"],
         db=db
     )
