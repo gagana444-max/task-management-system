@@ -51,4 +51,4 @@ async def reset_password(
         new_password=request.new_password,
         confirm_password=request.confirm_password,
         db=db
-    )
+    )

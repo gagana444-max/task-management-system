@@ -8,7 +8,6 @@ from middleware.auth import get_current_user, role_required
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
-
 @router.post("", status_code=201, response_model=UserOut)
 async def create_user(
     user: UserCreate,
