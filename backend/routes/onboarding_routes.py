@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from config.database import get_db
 from controllers import onboarding_controller
 from models.comment_model import PasswordResetRequest
-
 from middleware.auth import role_required
 
 router = APIRouter(prefix="/api/onboarding", tags=["User Onboarding"])

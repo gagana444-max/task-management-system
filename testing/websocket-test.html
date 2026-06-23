@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #status { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+    #events { margin-top: 20px; font-family: monospace; background: #f5f5f5; padding: 10px; border-radius: 5px; }
+    .event { padding: 4px 0; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h2>TMS WebSocket Notification Test</h2>
+  <div id="status" style="color:gray">Not connected</div>
+  <div id="events"><p style="color:gray">Events will appear here...</p></div>
+
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+  <script>
+    const token = prompt("Paste your JWT token here:");
+    
+    const log = (msg) => {
+      const div = document.getElementById('events');
+      const p = document.createElement('p');
+      p.className = 'event';
+      p.textContent = new Date().toLocaleTimeString() + ': ' + msg;
+      div.prepend(p);
+    };
+
+    const socket = io('http://localhost:8000', {
+      auth: { token: token }
+    });
+
+    socket.on('connect', () => {
+      document.getElementById('status').textContent = 'Connected ✓';
+      document.getElementById('status').style.color = 'green';
+      log('Connected to WebSocket server');
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('status').textContent = 'Disconnected';
+      document.getElementById('status').style.color = 'red';
+      log('Disconnected from server');
+    });
+
+    socket.on('connect_error', (err) => {
+      document.getElementById('status').textContent = 'Connection Failed ✗';
+      document.getElementById('status').style.color = 'red';
+      log('Connection error: ' + err.message);
+    });
+
+    socket.on('task:assigned', (data) => log('NOTIFICATION - task:assigned → ' + JSON.stringify(data)));
+    socket.on('task:statusChanged', (data) => log('NOTIFICATION - task:statusChanged → ' + JSON.stringify(data)));
+    socket.on('task:comment', (data) => log('NOTIFICATION - task:comment → ' + JSON.stringify(data)));
+    socket.on('notification', (data) => log('NOTIFICATION → ' + JSON.stringify(data)));
+    socket.on('error', (err) => log('ERROR: ' + err));
+  </script>
+</body>
+</html>
