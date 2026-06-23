@@ -29,9 +29,15 @@ export default function MainLayout({ children }) {
       <aside className="w-48 min-w-[192px] bg-[#1a1a2e] flex flex-col py-5">
         {/* Logo */}
         <div className="px-5 pb-5 border-b border-[#2a2a44] mb-3">
-          <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '20px', color: '#fff', letterSpacing: '-0.5px' }}>
-            Task<span style={{ color: '#818cf8' }}>Flow</span>
-          </span>
+          <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '22px', letterSpacing: '-0.5px' }}>
+  <span style={{ color: '#ffffff' }}>Task</span>
+  <span style={{ 
+    background: 'linear-gradient(135deg, #818cf8, #a78bfa)', 
+    WebkitBackgroundClip: 'text', 
+    WebkitTextFillColor: 'transparent',
+    fontWeight: 900
+  }}>ify</span>
+</span>
         </div>
 
         {/* Nav */}

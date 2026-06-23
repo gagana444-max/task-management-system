@@ -11,12 +11,19 @@ const slabel = (s) => s === 'todo' ? 'To Do' : s === 'in_progress' ? 'In Progres
 const spill = (s) => s === 'todo' ? { bg: '#fef9e7', color: '#d97706' } : s === 'in_progress' ? { bg: '#eff6ff', color: '#2563eb' } : { bg: '#ecfdf5', color: '#059669' }
 const strip = (s) => s === 'todo' ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' : s === 'in_progress' ? 'linear-gradient(90deg,#60a5fa,#3b82f6)' : 'linear-gradient(90deg,#34d399,#10b981)'
 const pdot = (p) => p === 'high' ? '#dc2626' : p === 'medium' ? '#d97706' : '#059669'
+const statusBorder = (s) => s === 'todo' ? '#f59e0b' : s === 'in_progress' ? '#3b82f6' : '#10b981'
 const normalizeStatus = (s) => {
   if (!s) return 'todo'
   const map = { 'to do': 'todo', 'in progress': 'in_progress', 'done': 'completed', 'todo': 'todo', 'in_progress': 'in_progress', 'completed': 'completed' }
   return map[s.toLowerCase()] || 'todo'
 }
 const roleLabel = (r) => r === 'ProjectManager' ? 'Project Manager' : r
+
+const EMPTY_MESSAGES = {
+  todo: 'No tasks to do',
+  in_progress: 'Nothing in progress',
+  completed: 'No completed tasks yet',
+}
 
 export default function TasksList() {
   const { user } = useAuth()
@@ -31,6 +38,7 @@ export default function TasksList() {
   const [form, setForm] = useState({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', due_date: '' })
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [newlyCreatedId, setNewlyCreatedId] = useState(null)
 
   const canCreate = user?.role === 'Admin' || user?.role === 'ProjectManager'
   const isCollaborator = user?.role === 'Collaborator'
@@ -95,6 +103,8 @@ export default function TasksList() {
       if (!payload.assigned_user_id) delete payload.assigned_user_id
       const res = await api.post('/tasks', payload)
       setTasks([...tasks, res.data])
+      setNewlyCreatedId(res.data.id)
+      setTimeout(() => setNewlyCreatedId(null), 900)
       setShowCreate(false)
       setForm({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', due_date: '' })
       setError('')
@@ -128,6 +138,19 @@ export default function TasksList() {
 
   return (
     <div style={{ fontFamily: "'Instrument Sans', sans-serif", display: 'flex', flexDirection: 'column', height: '100vh', padding: 18, gap: 12, background: '#f5f4f0', overflow: 'hidden' }}>
+
+      <style>{`
+        @keyframes taskPop {
+          0% { opacity: 0; transform: scale(0.92) translateY(6px); }
+          60% { opacity: 1; transform: scale(1.02) translateY(0); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes checkBounce {
+          0% { transform: scale(0.6); }
+          50% { transform: scale(1.25); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
 
       {/* Topbar */}
       <div className="flex items-center justify-between flex-shrink-0">
@@ -199,28 +222,36 @@ export default function TasksList() {
                   {loading ? (
                     <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8' }}>Loading...</div>
                   ) : colTasks.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8', border: `1.5px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>No tasks</div>
+                    <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8', border: `1.5px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
+                      {EMPTY_MESSAGES[status]}
+                    </div>
                   ) : colTasks.map(t => {
                     const assignedName = getUserName(t.assigned_user_id)
+                    const ns = normalizeStatus(t.status)
+                    const isNew = t.id === newlyCreatedId
                     return (
                       <div
                         key={t.id}
                         onClick={() => setActiveId(activeId === t.id ? null : t.id)}
                         style={{
-                          background: '#fff', borderRadius: 9, padding: '11px 13px', cursor: 'pointer',
-                          border: activeId === t.id ? '1.5px solid #818cf8' : '1.5px solid rgba(0,0,0,0.05)',
+                          background: '#fff', borderRadius: 9, padding: '11px 13px 11px 11px', cursor: 'pointer',
+                          borderTop: '1.5px solid rgba(0,0,0,0.05)',
+                          borderRight: '1.5px solid rgba(0,0,0,0.05)',
+                          borderBottom: '1.5px solid rgba(0,0,0,0.05)',
+                          borderLeft: activeId === t.id ? `3px solid #818cf8` : `3px solid ${statusBorder(ns)}`,
                           boxShadow: activeId === t.id ? '0 2px 12px rgba(129,140,248,0.2)' : 'none',
-                          transition: 'all 0.15s'
+                          transition: 'box-shadow 0.15s, border-color 0.15s',
+                          animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
                         }}
                       >
-                        <div style={{ fontSize: 11, fontWeight: 500, color: normalizeStatus(t.status) === 'completed' ? '#9090a0' : '#1a1a2e', lineHeight: 1.45, textDecoration: normalizeStatus(t.status) === 'completed' ? 'line-through' : 'none' }}>
+                        <div style={{ fontSize: 11, fontWeight: 500, color: ns === 'completed' ? '#9090a0' : '#1a1a2e', lineHeight: 1.45, textDecoration: ns === 'completed' ? 'line-through' : 'none' }}>
                           {t.title}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
                           <div style={{ width: 18, height: 18, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 700, color: '#fff' }}>
                             {assignedName ? ini(assignedName) : '?'}
                           </div>
-                          <span style={{ fontSize: 9, color: isLate(t.due_date, normalizeStatus(t.status)) ? '#dc2626' : '#b0b0c0' }}>{fmt(t.due_date)}</span>
+                          <span style={{ fontSize: 9, color: isLate(t.due_date, ns) ? '#dc2626' : '#b0b0c0' }}>{fmt(t.due_date)}</span>
                         </div>
                       </div>
                     )

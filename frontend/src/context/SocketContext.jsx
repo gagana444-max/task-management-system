@@ -34,8 +34,9 @@ export function SocketProvider({ children }) {
     })
 
     socket.on('task_assigned', (data) => {
-      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
-    })
+  console.log('Received task_assigned:', data)
+  setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+})
 
     socket.on('status_changed', (data) => {
       setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])

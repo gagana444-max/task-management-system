@@ -12,6 +12,12 @@ const normalizeStatus = (s) => {
 }
 const fmtShort = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : ''
 const statusDot = { todo: '#f59e0b', in_progress: '#3b82f6', completed: '#10b981' }
+const getGreeting = () => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -91,7 +97,7 @@ export default function Dashboard() {
           <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '26px', color: '#1a1a2e', letterSpacing: '-0.8px' }}>
             Dashboard
           </h1>
-          <p className="text-sm text-[#9090a0] mt-0.5">Welcome back, {user?.name} 👋</p>
+          <p className="text-sm text-[#9090a0] mt-0.5">{getGreeting()}, {user?.name}</p>
         </div>
         <button
           onClick={() => navigate('/notifications')}
