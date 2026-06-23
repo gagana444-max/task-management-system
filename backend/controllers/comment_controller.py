@@ -24,10 +24,13 @@ def create_comment(task_id: int, user_id: int, content: str, db: Session):
     db.add(comment)
     db.commit()
     db.refresh(comment)
+    comment.author_name = comment.author.user_name if comment.author else None
     return comment
 
 def get_comments(task_id: int, db: Session):
     comments = db.query(DBComment).filter(DBComment.task_id == task_id).all()
+    for c in comments:
+        c.author_name = c.author.user_name if c.author else None
     return comments
 
 def delete_comment(comment_id: int, user_id: int, user_role: str, db: Session):

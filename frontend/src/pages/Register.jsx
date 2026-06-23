@@ -36,7 +36,6 @@ export default function Register() {
       setErrors(validationErrors)
       return
     }
-
     try {
       setLoading(true)
       await register(form.name, form.email, form.password)
@@ -48,106 +47,77 @@ export default function Register() {
     }
   }
 
-  const inputClass = (field) =>
-    `w-full px-4 py-2.5 rounded-lg border text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
-      errors[field] ? 'border-red-400 bg-red-50' : 'border-gray-300'
-    }`
+  const inp = (field) => ({
+    width: '100%', padding: '10px 12px', borderRadius: 8,
+    border: `1.5px solid ${errors[field] ? '#f87171' : '#3a3a5a'}`,
+    background: '#1a1a2e', fontSize: 13, color: '#fff',
+    fontFamily: "'Instrument Sans', sans-serif", outline: 'none', boxSizing: 'border-box',
+  })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div style={{ fontFamily: "'Instrument Sans', sans-serif", minHeight: '100vh', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div style={{ width: '100%', maxWidth: 380 }}>
 
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-600 rounded-2xl mb-4 shadow-lg">
-            <span className="text-white text-2xl font-bold">T</span>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 32, color: '#fff', letterSpacing: '-1px' }}>
+            Task<span style={{ color: '#818cf8' }}>Flow</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create an account</h1>
-          <p className="text-gray-500 text-sm mt-1">Join Task Management System</p>
+          <p style={{ color: '#9090b0', fontSize: 13, marginTop: 4 }}>Create your account</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div style={{ background: '#22223a', borderRadius: 16, padding: 28, border: '1.5px solid #2a2a44' }}>
 
           {globalError && (
-            <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <span className="text-red-500 text-sm">⚠</span>
-              <p className="text-red-600 text-sm">{globalError}</p>
+            <div style={{ marginBottom: 16, padding: '10px 12px', background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 8 }}>
+              <p style={{ fontSize: 12, color: '#f87171' }}>⚠ {globalError}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} noValidate>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="John Smith"
-                className={inputClass('name')}
-              />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#9090b0', marginBottom: 6 }}>Full name</label>
+              <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="John Smith" style={inp('name')} />
+              {errors.name && <p style={{ fontSize: 10, color: '#f87171', marginTop: 4 }}>{errors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                className={inputClass('email')}
-              />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#9090b0', marginBottom: 6 }}>Email address</label>
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="you@example.com" style={inp('email')} />
+              {errors.email && <p style={{ fontSize: 10, color: '#f87171', marginTop: 4 }}>{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Min. 6 characters"
-                className={inputClass('password')}
-              />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#9090b0', marginBottom: 6 }}>Password</label>
+              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Min. 6 characters" style={inp('password')} />
+              {errors.password && <p style={{ fontSize: 10, color: '#f87171', marginTop: 4 }}>{errors.password}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Re-enter password"
-                className={inputClass('confirmPassword')}
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#9090b0', marginBottom: 6 }}>Confirm password</label>
+              <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Re-enter password" style={inp('confirmPassword')} />
+              {errors.confirmPassword && <p style={{ fontSize: 10, color: '#f87171', marginTop: 4 }}>{errors.confirmPassword}</p>}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg text-sm transition flex items-center justify-center gap-2 mt-2"
+              style={{ width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}
             >
-              {loading && (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              )}
+              {loading && <span style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block' }} />}
               {loading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p style={{ textAlign: 'center', fontSize: 12, color: '#9090b0', marginTop: 20 }}>
             Already have an account?{' '}
-            <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link to="/login" style={{ color: '#818cf8', fontWeight: 500, textDecoration: 'none' }}>
               Sign in
             </Link>
           </p>
         </div>
-      </div>
+
+        </div>
     </div>
   )
 }
