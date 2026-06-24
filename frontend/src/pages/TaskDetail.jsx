@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
-import { ArrowLeft, X, MessageSquare, Paperclip, Upload } from 'lucide-react'
+import { ArrowLeft, MessageSquare, Paperclip, Upload } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -40,13 +41,9 @@ export default function TaskDetail() {
     'x-user-role': String(user?.role || '')
   })
 
-  useEffect(() => {
-    fetchTask()
-    fetchComments()
-    fetchAttachments()
-  }, [id])
 
-  const fetchTask = async () => {
+
+  async function fetchTask() {
     try {
       setLoading(true)
       const res = await api.get(`/tasks/${id}`)
@@ -58,19 +55,26 @@ export default function TaskDetail() {
     }
   }
 
-  const fetchComments = async () => {
+  async function fetchComments() {
     try {
       const res = await api.get(`/comments/tasks/${id}`, { headers: getHeaders() })
       setComments(res.data)
-    } catch { setComments([]) }
+    } catch (e) { console.error(e); setComments([]) }
   }
 
-  const fetchAttachments = async () => {
+  async function fetchAttachments() {
     try {
       const res = await api.get(`/comments/tasks/${id}/attachments`, { headers: getHeaders() })
       setAttachments(res.data)
-    } catch { setAttachments([]) }
+    } catch (e) { console.error(e); setAttachments([]) }
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchTask()
+    fetchComments()
+    fetchAttachments()
+  }, [id])
 
   const postComment = async (e) => {
     e.preventDefault()
@@ -163,6 +167,13 @@ export default function TaskDetail() {
       <button onClick={() => navigate('/tasks')} style={{ fontSize: 12, color: '#533afd', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 5 }}>
         <ArrowLeft size={13} /> Back to Task Board
       </button>
+
+      <PageHeader
+        title={task.title}
+        subtitle={`Priority: ${task.priority}`}
+        statText={`Due Date: ${fmt(task.due_date)}`}
+        statColor={pdot(task.priority?.toLowerCase())}
+      />
 
       {error && (
         <div style={{ marginBottom: 14, padding: '10px 14px', background: '#fdecea', border: '1px solid #f7d4d0', borderRadius: 10, fontSize: 12, color: '#ea2261', display: 'flex', justifyContent: 'space-between' }}>

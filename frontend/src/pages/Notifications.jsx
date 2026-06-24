@@ -1,5 +1,6 @@
 import { useSocket } from '../context/SocketContext'
 import { Bell, Check, X } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
 
 const fmt = (d) => {
   if (!d) return ''
@@ -20,18 +21,20 @@ export default function Notifications() {
     <div style={{ fontFamily: "'Inter', sans-serif", padding: 22, minHeight: '100vh', background: '#f6f9fc' }}>
 
       {/* Topbar */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
-        <div>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 22, color: '#0d253d', letterSpacing: '-0.3px' }}>Notifications</h1>
-          <p style={{ fontSize: 11, color: '#64748d', marginTop: 2 }}>{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</p>
-        </div>
-        {unreadCount > 0 && (
+      <PageHeader
+        title="Notifications"
+        subtitle={unreadCount > 0 ? `You have ${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}` : 'No unread notifications'}
+        statText="Live updates from your workspace"
+        statColor="#533afd"
+      />
+      {unreadCount > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
           <button onClick={markAllRead}
             style={{ background: '#533afd', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400 }}>
             Mark all as read
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Notification list */}
       {notifications.length === 0 ? (
