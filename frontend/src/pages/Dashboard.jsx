@@ -76,15 +76,15 @@ export default function Dashboard() {
     .map(t => {
       const due = new Date(t.due_date)
       const diffDays = Math.ceil((due - now) / 86400000)
-      const urgency = diffDays < 0 ? 'urgent' : diffDays <= 3 ? 'urgent' : diffDays <= 7 ? 'soon' : 'ok'
+      const urgency = diffDays < 0 ? 'urgent' : diffDays <= 1 ? 'soon' : 'ok'
       const dateLabel = diffDays < 0 ? 'Overdue' : diffDays === 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : fmtShort(t.due_date)
       return { title: t.title, date: dateLabel, urgency }
     })
 
   const urgencyStyle = {
-    urgent: { dot: '#ea2261', text: '#ea2261' },
-    soon: { dot: '#c4922f', text: '#c4922f' },
-    ok: { dot: '#64748d', text: '#64748d' },
+    urgent: { dot: '#ea2261', text: '#ea2261' }, // Red (Overdue)
+    soon: { dot: '#c4922f', text: '#c4922f' }, // Yellow/Orange (Today/Tomorrow)
+    ok: { dot: '#0f6e56', text: '#0f6e56' }, // Green (Future)
   }
 
   return (
@@ -232,17 +232,17 @@ export default function Dashboard() {
             <div className="text-center py-10 text-[#a8c3de] text-sm flex-1">No upcoming deadlines.</div>
           ) : (
             /* Default Timeline View */
-            <div className="relative pl-7 flex-1 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
+            <div className="relative pl-8 flex-1 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
               {/* Vertical connecting line */}
-              <div className="absolute left-[13px] top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#ea2261] via-[#c4922f] to-[#533afd] opacity-30 rounded-full"></div>
+              <div className="absolute left-[15px] top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#ea2261] via-[#c4922f] to-[#0f6e56] opacity-20 rounded-full"></div>
               
               <div className="flex flex-col gap-4 relative">
                 {upcoming.map(d => {
                   const s = urgencyStyle[d.urgency]
                   return (
-                    <div key={d.title} className="flex items-center gap-5 group cursor-pointer" onClick={() => navigate('/tasks')}>
+                    <div key={d.title} className="flex items-center group cursor-pointer relative" onClick={() => navigate('/tasks')}>
                       {/* Timeline dot */}
-                      <div className="absolute left-[9px] w-2.5 h-2.5 rounded-full bg-white border-[2.5px] z-10 transition-transform group-hover:scale-125" style={{ borderColor: s.dot, boxShadow: `0 0 0 4px var(--bg)` }}></div>
+                      <div className="absolute -left-[20px] w-3 h-3 rounded-full bg-white border-[3px] z-10 transition-transform group-hover:scale-125" style={{ borderColor: s.dot, boxShadow: `0 0 0 4px var(--bg)` }}></div>
                       
                       {/* Task Card */}
                       <div className="flex-1 flex items-center justify-between p-4 rounded-xl border border-white bg-white/60 hover:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] hover:border-[#d9d6fe] transition-all overflow-hidden relative">
