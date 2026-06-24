@@ -83,7 +83,7 @@ export default function Dashboard() {
 
   const urgencyStyle = {
     urgent: { dot: '#ea2261', text: '#ea2261' }, // Red (Overdue)
-    soon: { dot: '#c4922f', text: '#c4922f' }, // Yellow/Orange (Today/Tomorrow)
+    soon: { dot: '#533afd', text: '#533afd' }, // Primary Blue (Today/Tomorrow)
     ok: { dot: '#0f6e56', text: '#0f6e56' }, // Green (Future)
   }
 
