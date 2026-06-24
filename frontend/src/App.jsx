@@ -12,6 +12,8 @@ import TaskDetail from './pages/TaskDetail'
 import AdminPanel from './pages/AdminPanel'
 import FirstLoginReset from './pages/FirstLoginReset'
 import Notifications from './pages/Notifications'
+import Projects from './pages/Projects'
+
 
 export default function App() {
   return (
@@ -46,6 +48,12 @@ export default function App() {
                   <MainLayout><Notifications /></MainLayout>
                 </ProtectedRoute>
               } />
+              <Route path="/projects" element={
+                <ProtectedRoute>
+                  <MainLayout><Projects /></MainLayout>
+                </ProtectedRoute>
+              } />
+
 
               {/* Admin only */}
               <Route path="/admin" element={
