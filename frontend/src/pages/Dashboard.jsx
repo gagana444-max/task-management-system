@@ -172,7 +172,7 @@ export default function Dashboard() {
         })}
       </div>
       {/* Two Column Layout */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-[1fr_320px] gap-6">
         
         {/* Left Column: Timeline OR Selected Day Details */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
@@ -232,25 +232,22 @@ export default function Dashboard() {
             <div className="text-center py-10 text-[#a8c3de] text-sm flex-1">No upcoming deadlines.</div>
           ) : (
             /* Default Timeline View */
-            <div className="relative pl-3 flex-1 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
+            <div className="relative pl-7 flex-1 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
               {/* Vertical connecting line */}
-              <div className="absolute left-3.5 top-2 bottom-4 w-px bg-[#e3e8ee]"></div>
+              <div className="absolute left-[13px] top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#ea2261] via-[#c4922f] to-[#533afd] opacity-30 rounded-full"></div>
               
               <div className="flex flex-col gap-4 relative">
                 {upcoming.map(d => {
                   const s = urgencyStyle[d.urgency]
                   return (
-                    <div key={d.title} className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate('/tasks')}>
+                    <div key={d.title} className="flex items-center gap-5 group cursor-pointer" onClick={() => navigate('/tasks')}>
                       {/* Timeline dot */}
-                      <div className="w-2 h-2 rounded-full ring-4 ring-white relative z-10" style={{ backgroundColor: s.dot, boxShadow: `0 0 0 1px ${s.dot}40` }}></div>
+                      <div className="absolute left-[9px] w-2.5 h-2.5 rounded-full bg-white border-[2.5px] z-10 transition-transform group-hover:scale-125" style={{ borderColor: s.dot, boxShadow: `0 0 0 4px var(--bg)` }}></div>
                       
                       {/* Task Card */}
-                      <div className="flex-1 flex items-center justify-between p-3.5 rounded-xl border border-white bg-white/40 hover:bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-all overflow-hidden relative">
-                        {/* Urgency Edge Bar */}
-                        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: s.dot }}></div>
-                        
-                        <span className="text-[13px] font-semibold text-[#0d253d] group-hover:text-[#533afd] transition-colors ml-2 truncate">{d.title}</span>
-                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-md ml-2 shrink-0" style={{ color: s.text, backgroundColor: `${s.dot}15` }}>{d.date}</span>
+                      <div className="flex-1 flex items-center justify-between p-4 rounded-xl border border-white bg-white/60 hover:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] hover:border-[#d9d6fe] transition-all overflow-hidden relative">
+                        <span className="text-[14px] font-semibold text-[#0d253d] group-hover:text-[#533afd] transition-colors truncate">{d.title}</span>
+                        <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg shrink-0" style={{ color: s.text, backgroundColor: `${s.dot}15` }}>{d.date}</span>
                       </div>
                     </div>
                   )
