@@ -37,20 +37,20 @@ def get_connection():
 
 STATUS_MAP_API_TO_DB = {
     "to-do": "To Do",
+    "to do": "To Do",
     "in-progress": "In Progress",
+    "in progress": "In Progress",
     "done": "Completed",
-    "To Do": "To Do",
-    "In Progress": "In Progress",
-    "Completed": "Completed"
+    "completed": "Completed"
 }
 
 STATUS_MAP_DB_TO_API = {
-    "To Do": "to-do",
-    "In Progress": "in-progress",
-    "Completed": "done",
+    "to do": "to-do",
+    "in progress": "in-progress",
+    "completed": "done",
+    "done": "done",
     "to-do": "to-do",
-    "in-progress": "in-progress",
-    "done": "done"
+    "in-progress": "in-progress"
 }
 
 def _row_to_task(row):
@@ -217,7 +217,8 @@ def update_task(task_id: int, task_data):
     connection = get_connection()
     cursor = connection.cursor()
 
-    db_status = STATUS_MAP_API_TO_DB.get(task_data.status, "To Do") if task_data.status is not None else None
+    status_lower = task_data.status.lower() if task_data.status else ""
+    db_status = STATUS_MAP_API_TO_DB.get(status_lower, "To Do") if task_data.status is not None else None
 
     try:
         cursor.execute(
@@ -272,7 +273,8 @@ def update_task_status(task_id: int, status: str):
     connection = get_connection()
     cursor = connection.cursor()
 
-    db_status = STATUS_MAP_API_TO_DB.get(status, status)
+    status_lower = status.lower() if status else ""
+    db_status = STATUS_MAP_API_TO_DB.get(status_lower, "To Do")
 
     try:
         cursor.execute(
