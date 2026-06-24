@@ -37,3 +37,20 @@ async def connect(sid, environ, auth):
 @sio.on('disconnect')
 async def disconnect(sid):
     print(f"Socket.IO client {sid} disconnected")
+
+@sio.on('typing')
+async def handle_typing(sid, data):
+    """
+    Broadcast typing status to all other connected clients.
+    data payload expects: {"task_id": "1", "is_typing": True/False}
+    """
+    async with sio.session(sid) as session:
+        user_id = session.get('user_id')
+        if not user_id:
+            return
+            
+    await sio.emit('typing', {
+        'user_id': user_id,
+        'task_id': data.get('task_id'),
+        'is_typing': data.get('is_typing', False)
+    }, skip_sid=sid)

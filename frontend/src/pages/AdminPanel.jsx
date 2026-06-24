@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { getUsers, createUser, deactivateUser, updateUserRole, sendOnboardingEmail } from '../api/users'
+import { Users, CheckCircle2, Lock, Plus, X, Mail, UserX, UserCheck } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
 
 const ROLES = ['Admin', 'ProjectManager', 'Collaborator']
 
 const roleStyle = {
-  Admin: { card: { background: '#f5f3ff', border: '1.5px solid #ddd6fe' }, av: 'linear-gradient(135deg,#818cf8,#6366f1)', badge: { background: '#ede9fe', color: '#7c3aed' } },
-  ProjectManager: { card: { background: '#f0fdf4', border: '1.5px solid #bbf7d0' }, av: 'linear-gradient(135deg,#34d399,#10b981)', badge: { background: '#d1fae5', color: '#059669' } },
-  Collaborator: { card: { background: '#eff6ff', border: '1.5px solid #bfdbfe' }, av: 'linear-gradient(135deg,#60a5fa,#3b82f6)', badge: { background: '#dbeafe', color: '#2563eb' } },
+  Admin: { card: { background: '#f5f4fe', border: '1px solid #dcd9fb' }, av: '#533afd', badge: { background: '#eeedfe', color: '#534ab7' } },
+  ProjectManager: { card: { background: '#eaf8f1', border: '1px solid #bfe4d6' }, av: '#0f6e56', badge: { background: '#e1f5ee', color: '#0f6e56' } },
+  Collaborator: { card: { background: 'var(--bg)', border: '1px solid var(--border)' }, av: '#185fa5', badge: { background: '#e6f1fb', color: '#185fa5' } },
 }
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
@@ -95,10 +97,10 @@ export default function AdminPanel() {
   }
 
   const inp = (field) => ({
-    width: '100%', padding: '8px 10px', borderRadius: 8,
-    border: `1.5px solid ${formErrors[field] ? '#fca5a5' : '#e8e8f0'}`,
-    background: formErrors[field] ? '#fff5f5' : '#fff',
-    fontSize: 12, fontFamily: "'Instrument Sans', sans-serif", outline: 'none'
+    width: '100%', padding: '8px 10px', borderRadius: 6,
+    border: `1px solid ${formErrors[field] ? '#ea2261' : '#e3e8ee'}`,
+    background: formErrors[field] ? '#fdecea' : '#fff',
+    fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none'
   })
 
   const totalUsers = users.length
@@ -106,33 +108,30 @@ export default function AdminPanel() {
   const inactiveUsers = users.filter(u => !u.is_active).length
 
   return (
-    <div style={{ fontFamily: "'Instrument Sans', sans-serif", padding: 22, minHeight: '100vh', background: '#f5f4f0' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", padding: 22, minHeight: '100vh', background: 'var(--bg)' }}>
 
       {/* Topbar */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
-        <div>
-          <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 22, color: '#1a1a2e', letterSpacing: '-0.5px' }}>Team Members</h1>
-          <p style={{ fontSize: 11, color: '#9090a0', marginTop: 2 }}>Manage users and their roles</p>
-        </div>
-        <button onClick={() => { setShowCreate(!showCreate); setFormErrors({}); setGlobalError(''); setGlobalSuccess('') }}
-          style={{ background: '#1a1a2e', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 7, fontSize: 12, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ background: '#818cf8', color: '#fff', width: 16, height: 16, borderRadius: 3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>+</span>
-          {showCreate ? 'Cancel' : 'Add User'}
-        </button>
-      </div>
+      <PageHeader
+        title="Team Members"
+        subtitle="Manage users and their roles"
+        statText={loading ? 'Loading users...' : `Total: ${totalUsers} user${totalUsers !== 1 ? 's' : ''} (${activeUsers} active)`}
+        statColor="#0f6e56"
+      />
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 16 }}>
         {[
-          { icon: '👥', label: 'Total Users', value: totalUsers, bg: '#fdf4ff', ibg: '#f3e8ff' },
-          { icon: '✅', label: 'Active', value: activeUsers, bg: '#eff6ff', ibg: '#dbeafe' },
-          { icon: '🔒', label: 'Inactive', value: inactiveUsers, bg: '#ecfdf5', ibg: '#d1fae5' },
+          { Icon: Users, label: 'Total Users', value: totalUsers, chipBg: '#eeedfe', chipColor: '#534ab7' },
+          { Icon: CheckCircle2, label: 'Active', value: activeUsers, chipBg: '#e1f5ee', chipColor: '#0f6e56' },
+          { Icon: Lock, label: 'Inactive', value: inactiveUsers, chipBg: '#fdf6e8', chipColor: '#9b6829' },
         ].map(s => (
-          <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: '12px 14px', border: '1.5px solid #e8e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: s.ibg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{s.icon}</div>
+          <div key={s.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: s.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <s.Icon size={15} color={s.chipColor} strokeWidth={2} />
+            </div>
             <div>
-              <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 20, color: '#1a1a2e', lineHeight: 1 }}>{s.value}</div>
-              <div style={{ fontSize: 10, color: '#9090a0', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</div>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 20, color: 'var(--text)', lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -140,45 +139,42 @@ export default function AdminPanel() {
 
       {/* Alerts */}
       {globalError && (
-        <div style={{ marginBottom: 14, padding: '10px 14px', background: '#fff5f5', border: '1.5px solid #fecaca', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: '#dc2626' }}>⚠</span>
-          <span style={{ fontSize: 12, color: '#dc2626', flex: 1 }}>{globalError}</span>
-          <button onClick={() => setGlobalError('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fca5a5', fontSize: 12 }}>✕</button>
+        <div style={{ marginBottom: 14, padding: '10px 14px', background: '#fdecea', border: '1px solid #f7d4d0', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, color: '#ea2261', flex: 1 }}>{globalError}</span>
+          <button onClick={() => setGlobalError('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ea2261', fontSize: 12 }}>✕</button>
         </div>
       )}
       {globalSuccess && (
-        <div style={{ marginBottom: 14, padding: '10px 14px', background: '#f0fdf4', border: '1.5px solid #a7f3d0', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: '#059669' }}>✓</span>
-          <span style={{ fontSize: 12, color: '#059669', flex: 1 }}>{globalSuccess}</span>
-          <button onClick={() => setGlobalSuccess('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6ee7b7', fontSize: 12 }}>✕</button>
+        <div style={{ marginBottom: 14, padding: '10px 14px', background: '#eaf8f1', border: '1px solid #bfe4d6', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, color: '#0f6e56', flex: 1 }}>{globalSuccess}</span>
+          <button onClick={() => setGlobalSuccess('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0f6e56', fontSize: 12 }}>✕</button>
         </div>
       )}
 
       {/* Create Form */}
       {showCreate && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', padding: 18, marginBottom: 16 }}>
-          <h2 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 14, color: '#1a1a2e', marginBottom: 14 }}>Create New User</h2>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', padding: 18, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: 'var(--text)', marginBottom: 14 }}>Create New User</h2>
           <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} noValidate>
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
               { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
             ].map(f => (
               <div key={f.key}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>{f.label}</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>{f.label}</label>
                 <input type={f.type} value={form[f.key]} onChange={e => { setForm({ ...form, [f.key]: e.target.value }); setFormErrors({ ...formErrors, [f.key]: '' }) }} placeholder={f.placeholder} style={inp(f.key)} />
-                {formErrors[f.key] && <p style={{ fontSize: 10, color: '#dc2626', marginTop: 3 }}>{formErrors[f.key]}</p>}
+                {formErrors[f.key] && <p style={{ fontSize: 10, color: '#ea2261', marginTop: 3 }}>{formErrors[f.key]}</p>}
               </div>
             ))}
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>Role</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Role</label>
               <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={inp('role')}>
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => setShowCreate(false)} style={{ padding: '7px 14px', borderRadius: 7, border: '1.5px solid #e8e8f0', background: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif" }}>Cancel</button>
-              <button type="submit" disabled={creating} style={{ padding: '7px 14px', borderRadius: 7, border: 'none', background: '#1a1a2e', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", fontWeight: 500, opacity: creating ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                {creating && <span style={{ width: 12, height: 12, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />}
+              <button type="button" onClick={() => setShowCreate(false)} style={{ padding: '7px 16px', borderRadius: 9999, border: '1px solid var(--border)', background: 'var(--bg-card)', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", color: 'var(--text)' }}>Cancel</button>
+              <button type="submit" disabled={creating} style={{ padding: '7px 16px', borderRadius: 9999, border: 'none', background: 'var(--primary)', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, opacity: creating ? 0.6 : 1 }}>
                 {creating ? 'Creating...' : 'Create & Send Email'}
               </button>
             </div>
@@ -188,52 +184,57 @@ export default function AdminPanel() {
 
       {/* Filter bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍  Search by name or email..."
-          style={{ flex: 1, background: '#fff', border: '1.5px solid #e8e8f0', borderRadius: 7, padding: '7px 12px', fontSize: 12, color: '#1a1a2e', outline: 'none', fontFamily: "'Instrument Sans', sans-serif" }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..."
+          style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: "'Inter', sans-serif" }} />
         <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
-          style={{ background: '#fff', border: '1.5px solid #e8e8f0', borderRadius: 7, padding: '7px 12px', fontSize: 12, color: '#1a1a2e', outline: 'none', fontFamily: "'Instrument Sans', sans-serif" }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: "'Inter', sans-serif" }}>
           <option value="">All Roles</option>
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
+        <button onClick={() => { setShowCreate(!showCreate); setFormErrors({}); setGlobalError(''); setGlobalSuccess('') }}
+          style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {showCreate ? <X size={13} /> : <Plus size={13} />}
+          {showCreate ? 'Cancel' : 'Add User'}
+        </button>
       </div>
 
       {/* User Cards Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#9090a0', fontSize: 13 }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>Loading...</div>
       ) : users.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#9090a0', fontSize: 13 }}>No users found.</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>No users found.</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
           {users.map(user => {
             const rs = roleStyle[user.role] || roleStyle.Collaborator
             return (
-              <div key={user.id} style={{ ...rs.card, borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', opacity: user.is_active ? 1 : 0.65 }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: rs.av, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 8, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <div key={user.id} style={{ ...rs.card, borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', opacity: user.is_active ? 1 : 0.6 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: rs.av, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500, color: '#fff', marginBottom: 8 }}>
                   {ini(user.name)}
                 </div>
-                <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 13, color: '#1a1a2e', marginBottom: 2 }}>{user.name}</div>
-                <div style={{ fontSize: 10, color: '#9090a0', marginBottom: 8 }}>{user.email}</div>
-                <div style={{ ...rs.badge, fontSize: 9, padding: '2px 8px', borderRadius: 20, fontWeight: 700, letterSpacing: '0.5px', marginBottom: 6, textTransform: 'uppercase' }}>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, color: 'var(--text)', marginBottom: 2 }}>{user.name}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>{user.email}</div>
+                <div style={{ ...rs.badge, fontSize: 9, padding: '2px 10px', borderRadius: 9999, fontWeight: 500, letterSpacing: '0.3px', marginBottom: 6, textTransform: 'uppercase' }}>
                   {user.role === 'ProjectManager' ? 'PROJECT MANAGER' : user.role.toUpperCase()}
                 </div>
-                <div style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, marginBottom: 10, fontWeight: 600, background: user.is_active ? '#dcfce7' : '#fee2e2', color: user.is_active ? '#16a34a' : '#dc2626' }}>
-                  ● {user.is_active ? 'Active' : 'Inactive'}
+                <div style={{ fontSize: 10, padding: '2px 9px', borderRadius: 9999, marginBottom: 10, fontWeight: 400, background: user.is_active ? '#e1f5ee' : '#fdecea', color: user.is_active ? '#0f6e56' : '#ea2261' }}>
+                  {user.is_active ? 'Active' : 'Inactive'}
                 </div>
 
-                {/* Role selector */}
                 <select value={user.role} onChange={e => handleRoleChange(user, e.target.value)}
-                  style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1.5px solid #e8e8f0', background: '#fff', fontSize: 10, fontFamily: "'Instrument Sans', sans-serif", marginBottom: 6, outline: 'none', color: '#1a1a2e' }}>
+                  style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg-card)', fontSize: 10, fontFamily: "'Inter', sans-serif", marginBottom: 6, outline: 'none', color: 'var(--text)' }}>
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
 
                 <div style={{ display: 'flex', gap: 5, width: '100%' }}>
                   <button onClick={() => handleDeactivate(user)}
-                    style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: user.is_active ? '1.5px solid #fecaca' : '1.5px solid #a7f3d0', background: user.is_active ? '#fff5f5' : '#f0fdf4', color: user.is_active ? '#dc2626' : '#059669' }}>
-                    {user.is_active ? '🚫 Deactivate' : '✅ Activate'}
+                    style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: user.is_active ? '1px solid #f7d4d0' : '1px solid #bfe4d6', background: user.is_active ? '#fdecea' : '#eaf8f1', color: user.is_active ? '#ea2261' : '#0f6e56', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    {user.is_active ? <UserX size={11} /> : <UserCheck size={11} />}
+                    {user.is_active ? 'Deactivate' : 'Activate'}
                   </button>
                   <button onClick={() => handleSendCredentials(user)}
-                    style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed' }}>
-                    📧 Email
+                    style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <Mail size={11} /> Email
                   </button>
                 </div>
               </div>

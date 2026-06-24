@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
+import { ClipboardList, Zap, CheckCircle2, Users, Bell, ChevronLeft, ChevronRight } from 'lucide-react'
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth, isSameDay } from 'date-fns'
+import PageHeader from '../components/PageHeader'
 
 const ini = (name) => name?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
-const avc = (n) => ['#818cf8', '#34d399', '#60a5fa', '#f472b6', '#fb923c'][n?.charCodeAt(0) % 5] || '#818cf8'
 const normalizeStatus = (s) => {
   if (!s) return 'todo'
   const map = { 'to do': 'todo', 'in progress': 'in_progress', 'done': 'completed', 'todo': 'todo', 'in_progress': 'in_progress', 'completed': 'completed' }
   return map[s.toLowerCase()] || 'todo'
 }
 const fmtShort = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : ''
-const statusDot = { todo: '#f59e0b', in_progress: '#3b82f6', completed: '#10b981' }
 const getGreeting = () => {
   const hour = new Date().getHours()
   if (hour < 12) return 'Good morning'
@@ -25,10 +26,8 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState([])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchData()
-  }, [])
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(null)
 
   const fetchData = async () => {
     try {
@@ -44,11 +43,11 @@ export default function Dashboard() {
     }
   }
 
-  const getUserName = (assigned_user_id) => {
-    if (!assigned_user_id) return null
-    const u = users.find(u => u.id === assigned_user_id)
-    return u ? u.name : null
-  }
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+
 
   const todoCount = tasks.filter(t => normalizeStatus(t.status) === 'todo').length
   const inProgressCount = tasks.filter(t => normalizeStatus(t.status) === 'in_progress').length
@@ -57,19 +56,18 @@ export default function Dashboard() {
   const completedPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
   const activeUsers = users.filter(u => u.is_active).length
 
+  const today = new Date()
+  const dueTodayCount = tasks.filter(t => t.due_date && normalizeStatus(t.status) !== 'completed' && isSameDay(new Date(t.due_date), today)).length
+
   const stats = [
-    { icon: '📋', label: 'Total Tasks', value: totalTasks, trend: 'pending', trendLabel: `${todoCount} pending`, bg: '#fef9e7', ibg: '#fef3c7' },
-    { icon: '⚡', label: 'In Progress', value: inProgressCount, trend: 'up', trendLabel: 'Active', bg: '#eff6ff', ibg: '#dbeafe' },
-    { icon: '✅', label: 'Completed', value: completedCount, trend: 'up', trendLabel: `${completedPct}%`, bg: '#ecfdf5', ibg: '#d1fae5' },
-    { icon: '👥', label: 'Team Members', value: activeUsers, trend: 'up', trendLabel: 'Active', bg: '#fdf4ff', ibg: '#f3e8ff' },
+    { Icon: ClipboardList, label: 'Total Tasks', value: totalTasks, trendLabel: `${todoCount} pending`, trendBg: '#fdf6e8', trendColor: '#c4922f', chipBg: '#fdf6e8', chipColor: '#c4922f' },
+    { Icon: Zap, label: 'In Progress', value: inProgressCount, trendLabel: 'Active', trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#e6f1fb', chipColor: '#185fa5' },
+    { Icon: CheckCircle2, label: 'Completed', value: completedCount, trendLabel: `${completedPct}%`, trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#e1f5ee', chipColor: '#0f6e56' },
+    { Icon: Users, label: 'Team Members', value: activeUsers, trendLabel: 'Active', trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#eeedfe', chipColor: '#534ab7' },
   ]
 
-  // Recent tasks: most recently created, top 5
-  const recentTasks = [...tasks]
-    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-    .slice(0, 5)
 
-  // Upcoming deadlines: tasks with due dates, not completed, soonest first
+
   const now = new Date()
   const upcoming = tasks
     .filter(t => t.due_date && normalizeStatus(t.status) !== 'completed')
@@ -78,103 +76,320 @@ export default function Dashboard() {
     .map(t => {
       const due = new Date(t.due_date)
       const diffDays = Math.ceil((due - now) / 86400000)
-      const urgency = diffDays < 0 ? 'urgent' : diffDays <= 3 ? 'urgent' : diffDays <= 7 ? 'soon' : 'ok'
+      const urgency = diffDays < 0 ? 'urgent' : diffDays <= 1 ? 'soon' : 'ok'
       const dateLabel = diffDays < 0 ? 'Overdue' : diffDays === 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : fmtShort(t.due_date)
       return { title: t.title, date: dateLabel, urgency }
     })
 
   const urgencyStyle = {
-    urgent: { bg: '#fef2f2', border: '#fecaca', color: '#dc2626' },
-    soon: { bg: '#fef9e7', border: '#fde68a', color: '#d97706' },
-    ok: { bg: '#ecfdf5', border: '#a7f3d0', color: '#059669' },
+    urgent: { dot: '#ea2261', text: '#ea2261' }, // Red (Overdue)
+    soon: { dot: '#533afd', text: '#533afd' }, // Primary Blue (Today/Tomorrow)
+    ok: { dot: '#0f6e56', text: '#0f6e56' }, // Green (Future)
   }
 
   return (
-    <div style={{ fontFamily: "'Instrument Sans', sans-serif" }} className="p-6 min-h-screen bg-[#f5f4f0]">
-      {/* Topbar */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '26px', color: '#1a1a2e', letterSpacing: '-0.8px' }}>
-            Dashboard
-          </h1>
-          <p className="text-sm text-[#9090a0] mt-0.5">{getGreeting()}, {user?.name}</p>
-        </div>
+    <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[var(--bg)]">
+
+      <PageHeader
+        title="Dashboard"
+        subtitle={`${getGreeting()}, ${user?.name}`}
+        statText={loading ? 'Loading your tasks...' : `You have ${dueTodayCount} task${dueTodayCount !== 1 ? 's' : ''} due today`}
+      />
+
+      {/* Notification bell, top right (kept separate from header) */}
+      <div className="flex justify-end mb-3" style={{ marginTop: -56 }}>
         <button
           onClick={() => navigate('/notifications')}
-          className="w-9 h-9 rounded-lg bg-white border-[1.5px] border-[#e8e8f0] flex items-center justify-center relative text-base hover:border-[#818cf8] transition"
+          className="w-9 h-9 rounded-lg bg-white border border-[#e3e8ee] flex items-center justify-center relative hover:border-[#533afd] transition"
+          style={{ position: 'relative', zIndex: 2 }}
         >
-          🔔
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full border-2 border-[#f5f4f0]" />
+          <Bell size={16} color="#64748d" strokeWidth={2} />
         </button>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-3 mb-5">
-        {stats.map(s => (
-          <div key={s.label} style={{ background: '#fff', borderRadius: '12px', border: '1.5px solid #e8e8f0', padding: '16px' }}>
-            <div className="flex items-center justify-between mb-2.5">
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: s.ibg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
-                {s.icon}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {stats.map(s => {
+          const isCompleted = s.label === 'Completed';
+          const isTeam = s.label === 'Team Members';
+
+          return (
+            <div
+              key={s.label}
+              className="group border border-white/80 rounded-2xl p-4 shadow-[0_4px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_35px_rgba(83,58,253,0.12)] hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden"
+              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 100%)', backdropFilter: 'blur(12px)' }}
+            >
+              <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none" style={{ background: s.chipColor }}></div>
+              <div className="relative z-10 flex items-center justify-between mb-3">
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: s.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <s.Icon size={18} color={s.chipColor} strokeWidth={2} />
+                </div>
+                {!isCompleted && !isTeam && (
+                  <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 9999, fontWeight: 500, background: s.trendBg, color: s.trendColor }}>
+                    {s.trendLabel}
+                  </span>
+                )}
+                {isCompleted && (
+                  <div style={{ position: 'relative', width: 40, height: 40 }}>
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                      <circle cx="20" cy="20" r="16" fill="none" stroke="#e1f5ee" strokeWidth="4" />
+                      <circle cx="20" cy="20" r="16" fill="none" stroke="#0f6e56" strokeWidth="4" strokeDasharray="100.53" strokeDashoffset={100.53 - (100.53 * completedPct / 100)} strokeLinecap="round" transform="rotate(-90 20 20)" style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#0f6e56]">
+                      {completedPct}%
+                    </div>
+                  </div>
+                )}
               </div>
-              <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, fontWeight: 600, background: s.trend === 'up' ? '#ecfdf5' : '#fef9e7', color: s.trend === 'up' ? '#059669' : '#d97706' }}>
-                {s.trendLabel}
-              </span>
+
+              <div className="flex items-end justify-between">
+                <div>
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 32, color: 'var(--text)', lineHeight: 1 }}>
+                    {loading ? '—' : s.value}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>
+                    {s.label}
+                  </div>
+                </div>
+
+                {isTeam && (
+                  <div className="flex -space-x-2">
+                    {users.filter(u => u.is_active).slice(0, 3).map((u, i) => (
+                      <div key={u.id} className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white shadow-sm" style={{ backgroundColor: ['#533afd', '#ea2261', '#c4922f', '#0f6e56'][i % 4], zIndex: 3 - i }}>
+                        {ini(u.name)}
+                      </div>
+                    ))}
+                    {activeUsers > 3 && (
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-[#533afd] bg-[#eeedfe] border-2 border-white shadow-sm" style={{ zIndex: 0 }}>
+                        +{activeUsers - 3}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 28, color: '#1a1a2e', lineHeight: 1 }}>
-              {loading ? '—' : s.value}
-            </div>
-            <div style={{ fontSize: 11, color: '#9090a0', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-              {s.label}
+          )
+        })}
+      </div>
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-[1fr_320px] gap-6">
+        
+        {/* Left Column: Timeline OR Selected Day Details */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>
+              {selectedDate ? `Tasks for ${format(selectedDate, 'MMM d, yyyy')}` : 'Upcoming Deadlines'}
+            </span>
+            <div className="flex items-center gap-3">
+              {selectedDate && (
+                <span onClick={() => setSelectedDate(null)} className="text-xs text-[#64748d] cursor-pointer hover:text-[#ea2261] font-medium transition-colors">Clear selection</span>
+              )}
+              <span onClick={() => navigate('/tasks')} className="text-xs text-[#533afd] cursor-pointer hover:underline font-medium">See all →</span>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Upcoming Deadlines — full width since no projects */}
-      <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', padding: 16, marginBottom: 14 }}>
-        <div className="flex items-center justify-between mb-4">
-          <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 14, color: '#1a1a2e' }}>Upcoming Deadlines</span>
-          <span onClick={() => navigate('/tasks')} style={{ fontSize: 11, color: '#818cf8', cursor: 'pointer' }}>See all →</span>
-        </div>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>Loading...</div>
-        ) : upcoming.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>No upcoming deadlines.</div>
-        ) : upcoming.map(d => {
-          const s = urgencyStyle[d.urgency]
-          return (
-            <div key={d.title} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 8, padding: '8px 10px', marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: s.color }}>{d.title}</span>
-              <span style={{ fontSize: 11, color: '#9090a0' }}>{d.date}</span>
+          
+          {loading ? (
+            <div className="text-center py-10 text-[#a8c3de] text-sm flex-1">Loading...</div>
+          ) : selectedDate ? (
+            /* Selected Date View */
+            <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
+              {(() => {
+                const dayTasks = tasks.filter(t => t.due_date && isSameDay(new Date(t.due_date), selectedDate))
+                if (dayTasks.length === 0) {
+                  return (
+                    <div className="text-center flex-1 flex flex-col items-center justify-center text-[#a8c3de]">
+                      <CheckCircle2 size={36} className="mb-3 opacity-40 text-[#533afd]" strokeWidth={1.5} />
+                      <span className="text-sm font-medium text-[#64748d]">No tasks due on this day!</span>
+                      <span className="text-xs mt-1">Enjoy your free time.</span>
+                    </div>
+                  )
+                }
+                return dayTasks.map(t => {
+                  const assignedName = users.find(u => u.id === t.assigned_user_id)?.name
+                  return (
+                    <div key={t.id} className="p-4 rounded-xl border border-white bg-white/60 hover:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#d9d6fe] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] transition-all cursor-pointer flex flex-col gap-3" onClick={() => navigate(`/tasks/${t.id}`)}>
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="text-[14px] font-semibold text-[#0d253d] leading-snug">{t.title}</span>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shrink-0" style={{ backgroundColor: '#f0efff', color: 'var(--primary)' }}>{t.status || 'To do'}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="flex items-center gap-2">
+                          {assignedName ? (
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: '#533afd' }}>{ini(assignedName)}</div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-[#64748d] bg-[var(--bg)] border border-[#e3e8ee]">?</div>
+                          )}
+                          <span className="text-xs font-medium text-[#64748d]">{assignedName || 'Unassigned'}</span>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-[#fff4f4] text-[#d92d20] capitalize">{t.priority || 'Medium'} priority</span>
+                      </div>
+                    </div>
+                  )
+                })
+              })()}
             </div>
-          )
-        })}
-      </div>
-
-      {/* Recent Tasks */}
-      <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', padding: 16 }}>
-        <div className="flex items-center justify-between mb-4">
-          <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 14, color: '#1a1a2e' }}>Recent Tasks</span>
-          <span onClick={() => navigate('/tasks')} style={{ fontSize: 11, color: '#818cf8', cursor: 'pointer' }}>View board →</span>
-        </div>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>Loading...</div>
-        ) : recentTasks.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>No tasks yet. Create one from the Task Board.</div>
-        ) : recentTasks.map(t => {
-          const ns = normalizeStatus(t.status)
-          const assignedName = getUserName(t.assigned_user_id)
-          return (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #f0f0f8', cursor: 'pointer' }} onClick={() => navigate(`/tasks/${t.id}`)}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: statusDot[ns], flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#1a1a2e', fontWeight: 500, flex: 1 }}>{t.title}</span>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
-                {assignedName ? ini(assignedName) : '?'}
+          ) : upcoming.length === 0 ? (
+            <div className="text-center py-10 text-[#a8c3de] text-sm flex-1">No upcoming deadlines.</div>
+          ) : (
+            /* Default Timeline View */
+            <div className="relative pl-8 flex-1 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
+              {/* Vertical connecting line */}
+              <div className="absolute left-[15px] top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#ea2261] via-[#c4922f] to-[#0f6e56] opacity-20 rounded-full"></div>
+              
+              <div className="flex flex-col gap-4 relative">
+                {upcoming.map(d => {
+                  const s = urgencyStyle[d.urgency]
+                  return (
+                    <div key={d.title} className="flex items-center group cursor-pointer relative" onClick={() => navigate('/tasks')}>
+                      {/* Timeline dot */}
+                      <div className="absolute -left-[20px] w-3 h-3 rounded-full bg-white border-[3px] z-10 transition-transform group-hover:scale-125" style={{ borderColor: s.dot, boxShadow: `0 0 0 4px var(--bg)` }}></div>
+                      
+                      {/* Task Card */}
+                      <div className="flex-1 flex items-center justify-between p-4 rounded-xl border border-white bg-white/60 hover:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] hover:border-[#d9d6fe] transition-all overflow-hidden relative">
+                        <span className="text-[14px] font-semibold text-[#0d253d] group-hover:text-[#533afd] transition-colors truncate">{d.title}</span>
+                        <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg shrink-0" style={{ color: s.text, backgroundColor: `${s.dot}15` }}>{d.date}</span>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              <span style={{ fontSize: 11, color: '#b0b0c0' }}>{fmtShort(t.due_date)}</span>
             </div>
-          )
-        })}
+          )}
+        </div>
+
+        <div className="flex flex-col gap-6">
+          {/* Task Calendar */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
+          <div className="flex items-center justify-between mb-4">
+            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>Task Calendar</span>
+            <div className="flex items-center gap-1 bg-[var(--bg)] p-1 rounded-lg border border-[#e3e8ee]">
+              <button onClick={() => setCurrentDate(addDays(currentDate, -30))} className="w-6 h-6 rounded-md flex items-center justify-center hover:bg-white hover:shadow-sm text-[#64748d] hover:text-[#533afd] transition-all">
+                <ChevronLeft size={14} strokeWidth={2.5} />
+              </button>
+              <span className="text-[12px] font-bold text-[#0d253d] min-w-[80px] text-center tracking-wide">
+                {format(currentDate, 'MMM yyyy')}
+              </span>
+              <button onClick={() => setCurrentDate(addDays(currentDate, 30))} className="w-6 h-6 rounded-md flex items-center justify-center hover:bg-white hover:shadow-sm text-[#64748d] hover:text-[#533afd] transition-all">
+                <ChevronRight size={14} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex-1">
+            <div className="grid grid-cols-7 mb-2">
+              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                <div key={day} className="text-center text-[10px] font-bold text-[#a8c3de] uppercase tracking-wider">{day}</div>
+              ))}
+            </div>
+            <div className="flex flex-col gap-1">
+              {(() => {
+                const monthStart = startOfMonth(currentDate)
+                const monthEnd = endOfMonth(monthStart)
+                const startDate = startOfWeek(monthStart)
+                const endDate = endOfWeek(monthEnd)
+                const rows = []
+                let days = []
+                let day = startDate
+                
+                while (day <= endDate) {
+                  for (let i = 0; i < 7; i++) {
+                    const cloneDay = day
+                    const isCurrentMonth = isSameMonth(cloneDay, monthStart)
+                    const isToday = isSameDay(cloneDay, new Date())
+                    const isSelected = selectedDate && isSameDay(cloneDay, selectedDate)
+                    
+                    const dayTasks = tasks.filter(t => t.due_date && isSameDay(new Date(t.due_date), cloneDay) && normalizeStatus(t.status) !== 'completed')
+                    const hasTask = dayTasks.length > 0
+                    
+                    let dotColor = '#0f6e56' // Default ok (Green)
+                    let dotShadow = 'rgba(15,110,86,0.4)'
+                    if (hasTask) {
+                      const diffDays = Math.ceil((cloneDay - now) / 86400000)
+                      if (diffDays < 0) {
+                        dotColor = '#ea2261' // Red (urgent)
+                        dotShadow = 'rgba(234,34,97,0.4)'
+                      } else if (diffDays <= 1) {
+                        dotColor = '#533afd' // Blue (soon)
+                        dotShadow = 'rgba(83,58,253,0.4)'
+                      }
+                    }
+
+                    days.push(
+                      <div
+                        key={cloneDay.toISOString()}
+                        onClick={() => setSelectedDate(cloneDay)}
+                        className={`flex flex-col items-center justify-center relative cursor-pointer rounded-xl transition-all duration-300 hover:bg-[#f0efff] ${!isCurrentMonth ? "text-[#cbd5df]" : isSelected ? "text-white font-bold" : isToday ? "text-[#533afd] font-bold" : "text-[#0d253d] font-medium"}`}
+                        style={{ height: 36 }}
+                      >
+                        {isSelected && (
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#665efd] to-[#533afd] -z-10 shadow-[0_2px_8px_rgba(83,58,253,0.3)]"></div>
+                        )}
+                        {!isSelected && isToday && (
+                          <div className="absolute inset-1 rounded-xl bg-[#f0efff] -z-10 border border-[#d9d6fe]"></div>
+                        )}
+                        <span className="text-[12px] z-10">{format(cloneDay, 'd')}</span>
+                        <div className="h-1 flex items-center justify-center mt-0.5">
+                          {hasTask && (
+                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: isSelected ? '#ffffff' : dotColor, boxShadow: isSelected ? '0 0 4px rgba(255,255,255,0.8)' : `0 0 4px ${dotShadow}` }}></span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                    day = addDays(day, 1)
+                  }
+                  rows.push(
+                    <div className="grid grid-cols-7 gap-1" key={day.toISOString()}>
+                      {days}
+                    </div>
+                  )
+                  days = []
+                }
+                return rows
+              })()}
+            </div>
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
+            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)', marginBottom: 16 }}>Progress Overview</span>
+            
+            <div className="flex items-end justify-between mb-2">
+              <span className="text-[24px] font-bold text-[#0d253d] leading-none">{completedPct}%</span>
+              <span className="text-[12px] font-medium text-[#64748d] mb-1">Completed</span>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="w-full h-2 bg-[#f0efff] rounded-full overflow-hidden mb-5">
+              <div className="h-full bg-gradient-to-r from-[#533afd] to-[#8d82fe] rounded-full transition-all duration-1000" style={{ width: `${completedPct}%` }}></div>
+            </div>
+
+            {/* Stats Breakdown */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white bg-[#ea2261] shadow-[0_0_0_1px_#ea2261]"></div>
+                  <span className="text-[12px] font-medium text-[#64748d]">To Do</span>
+                </div>
+                <span className="text-[12px] font-bold text-[#0d253d]">{todoCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white bg-[#c4922f] shadow-[0_0_0_1px_#c4922f]"></div>
+                  <span className="text-[12px] font-medium text-[#64748d]">In Progress</span>
+                </div>
+                <span className="text-[12px] font-bold text-[#0d253d]">{inProgressCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white bg-[#0f6e56] shadow-[0_0_0_1px_#0f6e56]"></div>
+                  <span className="text-[12px] font-medium text-[#64748d]">Completed</span>
+                </div>
+                <span className="text-[12px] font-bold text-[#0d253d]">{completedCount}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

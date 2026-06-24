@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { resetPassword } from '../api/users'
+import { Lock } from 'lucide-react'
 
 export default function FirstLoginReset() {
   const { user } = useAuth()
@@ -42,32 +43,38 @@ export default function FirstLoginReset() {
   }
 
   const inp = (field) => ({
-    width: '100%', padding: '10px 12px', borderRadius: 8,
-    border: `1.5px solid ${errors[field] ? '#fca5a5' : '#3a3a5a'}`,
-    background: '#1a1a2e', fontSize: 13, color: '#fff',
-    fontFamily: "'Instrument Sans', sans-serif", outline: 'none',
+    width: '100%', padding: '10px 12px', borderRadius: 6,
+    border: `1px solid ${errors[field] ? '#ea2261' : '#a8c3de'}`,
+    background: '#fff', fontSize: 13, color: '#0d253d',
+    fontFamily: "'Inter', sans-serif", outline: 'none',
   })
 
   return (
-    <div style={{ fontFamily: "'Instrument Sans', sans-serif" }}
-      className="min-h-screen bg-[#1a1a2e] flex items-center justify-center p-4">
+    <div style={{
+      fontFamily: "'Inter', sans-serif", minHeight: '100vh',
+      background: 'linear-gradient(115deg, #1c1e54 0%, #2e3070 35%, #533afd 60%, #ea2261 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
+    }}>
 
-      <div className="w-full max-w-sm">
+      <div style={{ width: '100%', maxWidth: 380 }}>
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 32, color: '#fff', letterSpacing: '-1px' }}>
-            Task<span style={{ color: '#818cf8' }}>Flow</span>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ fontWeight: 300, fontSize: 30, letterSpacing: '-0.5px' }}>
+            <span style={{ color: '#fff' }}>Task</span>
+            <span style={{ color: '#f5e9d4' }}>ify</span>
           </div>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: '#2a2a44', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, margin: '16px auto 8px' }}>🔒</div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Reset Your Password</p>
-          <p style={{ fontSize: 12, color: '#9090b0', marginTop: 4 }}>You must change your password before continuing</p>
+          <div style={{ width: 46, height: 46, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '16px auto 10px' }}>
+            <Lock size={20} color="#fff" />
+          </div>
+          <p style={{ fontSize: 17, fontWeight: 400, color: '#fff' }}>Reset Your Password</p>
+          <p style={{ fontSize: 12, color: '#cdd2f9', marginTop: 4 }}>You must change your password before continuing</p>
         </div>
 
         {/* Card */}
-        <div style={{ background: '#22223a', borderRadius: 16, padding: 24, border: '1.5px solid #2a2a44' }}>
+        <div style={{ background: '#fff', borderRadius: 14, padding: 24, border: '1px solid #e3e8ee' }}>
           {globalError && (
-            <div style={{ marginBottom: 16, padding: '10px 12px', background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 8 }}>
-              <p style={{ fontSize: 12, color: '#f87171' }}>⚠ {globalError}</p>
+            <div style={{ marginBottom: 16, padding: '10px 12px', background: '#fdecea', border: '1px solid #f7d4d0', borderRadius: 8 }}>
+              <p style={{ fontSize: 12, color: '#ea2261', margin: 0 }}>{globalError}</p>
             </div>
           )}
 
@@ -78,7 +85,7 @@ export default function FirstLoginReset() {
               { label: 'Confirm New Password', key: 'confirm_password', placeholder: 'Re-enter new password' },
             ].map(f => (
               <div key={f.key}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#9090b0', marginBottom: 6 }}>{f.label}</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 6 }}>{f.label}</label>
                 <input
                   type="password"
                   value={form[f.key]}
@@ -86,14 +93,14 @@ export default function FirstLoginReset() {
                   placeholder={f.placeholder}
                   style={inp(f.key)}
                 />
-                {errors[f.key] && <p style={{ fontSize: 10, color: '#f87171', marginTop: 4 }}>{errors[f.key]}</p>}
+                {errors[f.key] && <p style={{ fontSize: 10, color: '#ea2261', marginTop: 4 }}>{errors[f.key]}</p>}
               </div>
             ))}
 
             {/* Password requirements */}
-            <div style={{ background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: 8, padding: '10px 12px' }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: '#818cf8', marginBottom: 5 }}>Password requirements:</p>
-              <ul style={{ fontSize: 10, color: '#9090b0', paddingLeft: 14, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ background: '#f5f4fe', border: '1px solid #dcd9fb', borderRadius: 8, padding: '10px 12px' }}>
+              <p style={{ fontSize: 10, fontWeight: 500, color: '#534ab7', marginBottom: 5 }}>Password requirements:</p>
+              <ul style={{ fontSize: 10, color: '#64748d', paddingLeft: 14, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {['Minimum 8 characters', 'At least one uppercase letter', 'At least one lowercase letter', 'At least one number', 'At least one special character (!@#$%^&*)'].map(r => (
                   <li key={r}>{r}</li>
                 ))}
@@ -101,8 +108,8 @@ export default function FirstLoginReset() {
             </div>
 
             <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {loading && <span style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />}
+              style={{ width: '100%', padding: '10px', borderRadius: 9999, border: 'none', background: '#533afd', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: "'Inter', sans-serif", opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              {loading && <span style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block' }} />}
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
