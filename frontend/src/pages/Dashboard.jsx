@@ -297,9 +297,22 @@ export default function Dashboard() {
                     const isToday = isSameDay(cloneDay, new Date())
                     const isSelected = selectedDate && isSameDay(cloneDay, selectedDate)
                     
-                    const dayTasks = tasks.filter(t => t.due_date && isSameDay(new Date(t.due_date), cloneDay))
+                    const dayTasks = tasks.filter(t => t.due_date && isSameDay(new Date(t.due_date), cloneDay) && normalizeStatus(t.status) !== 'completed')
                     const hasTask = dayTasks.length > 0
                     
+                    let dotColor = '#0f6e56' // Default ok (Green)
+                    let dotShadow = 'rgba(15,110,86,0.4)'
+                    if (hasTask) {
+                      const diffDays = Math.ceil((cloneDay - now) / 86400000)
+                      if (diffDays < 0) {
+                        dotColor = '#ea2261' // Red (urgent)
+                        dotShadow = 'rgba(234,34,97,0.4)'
+                      } else if (diffDays <= 1) {
+                        dotColor = '#533afd' // Blue (soon)
+                        dotShadow = 'rgba(83,58,253,0.4)'
+                      }
+                    }
+
                     days.push(
                       <div
                         key={cloneDay.toISOString()}
@@ -316,7 +329,7 @@ export default function Dashboard() {
                         <span className="text-[12px] z-10">{format(cloneDay, 'd')}</span>
                         <div className="h-1 flex items-center justify-center mt-0.5">
                           {hasTask && (
-                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: isSelected ? '#ffffff' : '#ea2261', boxShadow: isSelected ? '0 0 4px rgba(255,255,255,0.8)' : '0 0 4px rgba(234,34,97,0.4)' }}></span>
+                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: isSelected ? '#ffffff' : dotColor, boxShadow: isSelected ? '0 0 4px rgba(255,255,255,0.8)' : `0 0 4px ${dotShadow}` }}></span>
                           )}
                         </div>
                       </div>
