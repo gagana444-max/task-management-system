@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
+import { ClipboardList, Zap, CheckCircle2, X, MessageSquare } from 'lucide-react'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
-const avc = (n) => ['#818cf8', '#34d399', '#60a5fa', '#f472b6', '#fb923c'][n?.charCodeAt(0) % 5] || '#818cf8'
+const avc = () => '#533afd'
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'
 const isLate = (d, s) => d && s !== 'completed' && new Date(d) < new Date()
 const slabel = (s) => s === 'todo' ? 'To Do' : s === 'in_progress' ? 'In Progress' : 'Completed'
-const spill = (s) => s === 'todo' ? { bg: '#fef9e7', color: '#d97706' } : s === 'in_progress' ? { bg: '#eff6ff', color: '#2563eb' } : { bg: '#ecfdf5', color: '#059669' }
-const strip = (s) => s === 'todo' ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' : s === 'in_progress' ? 'linear-gradient(90deg,#60a5fa,#3b82f6)' : 'linear-gradient(90deg,#34d399,#10b981)'
-const pdot = (p) => p === 'high' ? '#dc2626' : p === 'medium' ? '#d97706' : '#059669'
-const statusBorder = (s) => s === 'todo' ? '#f59e0b' : s === 'in_progress' ? '#3b82f6' : '#10b981'
+const spill = (s) => s === 'todo' ? { bg: '#fdf6e8', color: '#9b6829' } : s === 'in_progress' ? { bg: '#eeedfe', color: '#534ab7' } : { bg: '#e1f5ee', color: '#0f6e56' }
+const strip = (s) => s === 'todo' ? '#f0b97a' : s === 'in_progress' ? '#665efd' : '#5dcaa5'
+const pdot = (p) => p === 'high' ? '#ea2261' : p === 'medium' ? '#9b6829' : '#0f6e56'
+const statusBorder = (s) => s === 'todo' ? '#f0b97a' : s === 'in_progress' ? '#665efd' : '#5dcaa5'
 const normalizeStatus = (s) => {
   if (!s) return 'todo'
   const map = { 'to do': 'todo', 'in progress': 'in_progress', 'done': 'completed', 'todo': 'todo', 'in_progress': 'in_progress', 'completed': 'completed' }
@@ -115,8 +116,6 @@ export default function TasksList() {
     }
   }
 
-  // Role-based visibility: Collaborators only see tasks assigned to them.
-  // Admin and Project Manager see all tasks (per SRS: PM has "full task control").
   const visibleTasks = isCollaborator
     ? tasks.filter(t => t.assigned_user_id === user?.id)
     : tasks
@@ -128,16 +127,17 @@ export default function TasksList() {
 
   const cols = ['todo', 'in_progress', 'completed']
   const colStyle = {
-    todo: { bg: '#fef9e7', border: '#fde68a', nameColor: '#d97706', cntBg: '#fde68a', emptyBorder: '#fde68a' },
-    in_progress: { bg: '#eff6ff', border: '#bfdbfe', nameColor: '#2563eb', cntBg: '#bfdbfe', emptyBorder: '#bfdbfe' },
-    completed: { bg: '#ecfdf5', border: '#a7f3d0', nameColor: '#059669', cntBg: '#a7f3d0', emptyBorder: '#a7f3d0' },
+    todo: { bg: '#fdf6e8', border: '#f0dcb0', nameColor: '#9b6829', cntBg: '#f5e9d4', emptyBorder: '#f0dcb0' },
+    in_progress: { bg: '#f5f4fe', border: '#dcd9fb', nameColor: '#534ab7', cntBg: '#eeedfe', emptyBorder: '#dcd9fb' },
+    completed: { bg: '#eaf8f1', border: '#bfe4d6', nameColor: '#0f6e56', cntBg: '#e1f5ee', emptyBorder: '#bfe4d6' },
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
+  const colIcon = { todo: ClipboardList, in_progress: Zap, completed: CheckCircle2 }
 
   const activeTask = visibleTasks.find(t => t.id === activeId)
 
   return (
-    <div style={{ fontFamily: "'Instrument Sans', sans-serif", display: 'flex', flexDirection: 'column', height: '100vh', padding: 18, gap: 12, background: '#f5f4f0', overflow: 'hidden' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: 'column', height: '100vh', padding: 18, gap: 12, background: '#f6f9fc', overflow: 'hidden' }}>
 
       <style>{`
         @keyframes taskPop {
@@ -145,18 +145,13 @@ export default function TasksList() {
           60% { opacity: 1; transform: scale(1.02) translateY(0); }
           100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes checkBounce {
-          0% { transform: scale(0.6); }
-          50% { transform: scale(1.25); }
-          100% { transform: scale(1); }
-        }
       `}</style>
 
       {/* Topbar */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div>
-          <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 20, color: '#1a1a2e', letterSpacing: '-0.5px' }}>Task Board</h1>
-          <p style={{ fontSize: 10, color: '#9090a0', marginTop: 2 }}>
+          <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 22, color: '#0d253d', letterSpacing: '-0.3px' }}>Task Board</h1>
+          <p style={{ fontSize: 11, color: '#64748d', marginTop: 2 }}>
             {isCollaborator ? 'Showing tasks assigned to you' : 'Click any task card to view full details'}
           </p>
         </div>
@@ -165,12 +160,12 @@ export default function TasksList() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search tasks..."
-            style={{ background: '#fff', border: '1.5px solid #e8e8f0', borderRadius: 7, padding: '6px 10px', fontSize: 10, color: '#1a1a2e', outline: 'none', width: 130, fontFamily: "'Instrument Sans', sans-serif" }}
+            style={{ background: '#fff', border: '1px solid #e3e8e', borderColor: '#e3e8ee', borderRadius: 6, padding: '7px 11px', fontSize: 11, color: '#0d253d', outline: 'none', width: 140, fontFamily: "'Inter', sans-serif" }}
           />
           <select
             value={priority}
             onChange={e => setPriority(e.target.value)}
-            style={{ background: '#fff', border: '1.5px solid #e8e8f0', borderRadius: 7, padding: '6px 9px', fontSize: 10, color: '#6060a0', fontFamily: "'Instrument Sans', sans-serif" }}
+            style={{ background: '#fff', border: '1px solid #e3e8ee', borderRadius: 6, padding: '7px 10px', fontSize: 11, color: '#64748d', fontFamily: "'Inter', sans-serif" }}
           >
             <option value="">All Priority</option>
             <option value="high">High</option>
@@ -180,7 +175,7 @@ export default function TasksList() {
           {canCreate && (
             <button
               onClick={() => setShowCreate(true)}
-              style={{ background: '#1a1a2e', color: '#fff', border: 'none', padding: '6px 13px', borderRadius: 7, fontSize: 10, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", fontWeight: 500 }}
+              style={{ background: '#533afd', color: '#fff', border: 'none', padding: '7px 16px', borderRadius: 9999, fontSize: 11, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400 }}
             >
               + New Task
             </button>
@@ -191,15 +186,17 @@ export default function TasksList() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flexShrink: 0 }}>
         {[
-          { label: 'To Do', icon: '📋', bg: '#fef9e7', ibg: '#fef3c7', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'todo').length },
-          { label: 'In Progress', icon: '⚡', bg: '#eff6ff', ibg: '#dbeafe', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'in_progress').length },
-          { label: 'Completed', icon: '✅', bg: '#ecfdf5', ibg: '#d1fae5', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'completed').length },
+          { label: 'To Do', Icon: ClipboardList, chipBg: '#fdf6e8', chipColor: '#9b6829', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'todo').length },
+          { label: 'In Progress', Icon: Zap, chipBg: '#eeedfe', chipColor: '#534ab7', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'in_progress').length },
+          { label: 'Completed', Icon: CheckCircle2, chipBg: '#e1f5ee', chipColor: '#0f6e56', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'completed').length },
         ].map(s => (
-          <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: '11px 14px', border: '1.5px solid #e8e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: s.ibg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>{s.icon}</div>
+          <div key={s.label} style={{ background: '#fff', borderRadius: 10, padding: '11px 14px', border: '1px solid #e3e8ee', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: s.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <s.Icon size={15} color={s.chipColor} strokeWidth={2} />
+            </div>
             <div>
-              <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 18, color: '#1a1a2e', lineHeight: 1 }}>{s.count}</div>
-              <div style={{ fontSize: 9, color: '#9090a0', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{s.label}</div>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 18, color: '#0d253d', lineHeight: 1 }}>{s.count}</div>
+              <div style={{ fontSize: 10, color: '#64748d', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -213,16 +210,16 @@ export default function TasksList() {
             const cs = colStyle[status]
             const colTasks = filtered.filter(t => normalizeStatus(t.status) === status)
             return (
-              <div key={status} style={{ background: cs.bg, border: `1.5px solid ${cs.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div key={status} style={{ background: cs.bg, border: `1px solid ${cs.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexShrink: 0 }}>
-                  <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: '0.5px', color: cs.nameColor }}>{colLabel[status]}</span>
-                  <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, fontWeight: 700, background: cs.cntBg, color: cs.nameColor }}>{colTasks.length}</span>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: 11, letterSpacing: '0.3px', color: cs.nameColor }}>{colLabel[status]}</span>
+                  <span style={{ fontSize: 10, padding: '2px 9px', borderRadius: 9999, fontWeight: 400, background: cs.cntBg, color: cs.nameColor }}>{colTasks.length}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1 }}>
                   {loading ? (
-                    <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8' }}>Loading...</div>
+                    <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#a8c3de' }}>Loading...</div>
                   ) : colTasks.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#c0c0c8', border: `1.5px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
+                    <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: '#a8c3de', border: `1px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
                       {EMPTY_MESSAGES[status]}
                     </div>
                   ) : colTasks.map(t => {
@@ -234,24 +231,23 @@ export default function TasksList() {
                         key={t.id}
                         onClick={() => setActiveId(activeId === t.id ? null : t.id)}
                         style={{
-                          background: '#fff', borderRadius: 9, padding: '11px 13px 11px 11px', cursor: 'pointer',
-                          borderTop: '1.5px solid rgba(0,0,0,0.05)',
-                          borderRight: '1.5px solid rgba(0,0,0,0.05)',
-                          borderBottom: '1.5px solid rgba(0,0,0,0.05)',
-                          borderLeft: activeId === t.id ? `3px solid #818cf8` : `3px solid ${statusBorder(ns)}`,
-                          boxShadow: activeId === t.id ? '0 2px 12px rgba(129,140,248,0.2)' : 'none',
-                          transition: 'box-shadow 0.15s, border-color 0.15s',
+                          background: '#fff', borderRadius: 8, padding: '10px 12px 10px 10px', cursor: 'pointer',
+                          borderTop: '1px solid #e3e8ee',
+                          borderRight: '1px solid #e3e8ee',
+                          borderBottom: '1px solid #e3e8ee',
+                          borderLeft: activeId === t.id ? `3px solid #533afd` : `3px solid ${statusBorder(ns)}`,
+                          transition: 'border-color 0.15s',
                           animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
                         }}
                       >
-                        <div style={{ fontSize: 11, fontWeight: 500, color: ns === 'completed' ? '#9090a0' : '#1a1a2e', lineHeight: 1.45, textDecoration: ns === 'completed' ? 'line-through' : 'none' }}>
+                        <div style={{ fontSize: 12, fontWeight: 400, color: ns === 'completed' ? '#64748d' : '#0d253d', lineHeight: 1.45, textDecoration: ns === 'completed' ? 'line-through' : 'none' }}>
                           {t.title}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
-                          <div style={{ width: 18, height: 18, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 700, color: '#fff' }}>
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', background: assignedName ? avc() : '#cbd5df', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 500, color: '#fff' }}>
                             {assignedName ? ini(assignedName) : '?'}
                           </div>
-                          <span style={{ fontSize: 9, color: isLate(t.due_date, ns) ? '#dc2626' : '#b0b0c0' }}>{fmt(t.due_date)}</span>
+                          <span style={{ fontSize: 9, color: isLate(t.due_date, ns) ? '#ea2261' : '#a8c3de' }}>{fmt(t.due_date)}</span>
                         </div>
                       </div>
                     )
@@ -268,61 +264,61 @@ export default function TasksList() {
           const ns = normalizeStatus(activeTask.status)
           return (
             <div style={{ width: 285, flexShrink: 0, marginLeft: 10 }}>
-              <div style={{ width: 285, height: '100%', background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div style={{ width: 285, height: '100%', background: '#fff', borderRadius: 12, border: '1px solid #e3e8ee', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div style={{ height: 4, background: strip(ns), flexShrink: 0 }} />
                 <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button onClick={() => setActiveId(null)} style={{ background: '#f0f0f8', border: 'none', width: 22, height: 22, borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#9090a0' }}>✕</button>
+                    <button onClick={() => setActiveId(null)} style={{ background: '#f6f9fc', border: 'none', width: 22, height: 22, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <X size={12} color="#64748d" />
+                    </button>
                   </div>
 
                   <div style={{ background: spill(ns).bg, borderRadius: 10, padding: 12 }}>
-                    <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Task Details</div>
-                    <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 13, color: '#1a1a2e', lineHeight: 1.4, marginBottom: 6 }}>{activeTask.title}</div>
-                    <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', fontSize: 8, padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>TASK</span>
+                    <div style={{ fontSize: 8, color: '#a8c3de', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 4 }}>Task Details</div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, color: '#0d253d', lineHeight: 1.4 }}>{activeTask.title}</div>
                   </div>
 
-                  <div style={{ height: 1, background: '#f0f0f8' }} />
+                  <div style={{ height: 1, background: '#f6f9fc' }} />
 
                   <div>
-                    <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Details</div>
+                    <div style={{ fontSize: 8, color: '#a8c3de', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 6 }}>Details</div>
                     {[
-                      { key: 'Status', val: <span style={{ fontSize: 8, padding: '2px 7px', borderRadius: 7, fontWeight: 700, background: spill(ns).bg, color: spill(ns).color }}>{slabel(ns)}</span> },
-                      { key: 'Priority', val: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: pdot(activeTask.priority?.toLowerCase()), display: 'inline-block' }} /><span style={{ fontSize: 9, color: '#1a1a2e', fontWeight: 500, textTransform: 'capitalize' }}>{activeTask.priority}</span></span> },
-                      { key: 'Assigned', val: <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 16, height: 16, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 700, color: '#fff' }}>{assignedName ? ini(assignedName) : '?'}</span><span style={{ fontSize: 9, color: '#1a1a2e', fontWeight: 500 }}>{assignedName || '—'}</span></span> },
-                      { key: 'Due Date', val: <span style={{ fontSize: 9, color: isLate(activeTask.due_date, ns) ? '#dc2626' : '#1a1a2e', fontWeight: 500 }}>{fmt(activeTask.due_date)}</span> },
+                      { key: 'Status', val: <span style={{ fontSize: 8, padding: '2px 8px', borderRadius: 9999, fontWeight: 400, background: spill(ns).bg, color: spill(ns).color }}>{slabel(ns)}</span> },
+                      { key: 'Priority', val: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: pdot(activeTask.priority?.toLowerCase()), display: 'inline-block' }} /><span style={{ fontSize: 9, color: '#0d253d', fontWeight: 400, textTransform: 'capitalize' }}>{activeTask.priority}</span></span> },
+                      { key: 'Assigned', val: <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 16, height: 16, borderRadius: '50%', background: assignedName ? avc() : '#cbd5df', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 500, color: '#fff' }}>{assignedName ? ini(assignedName) : '?'}</span><span style={{ fontSize: 9, color: '#0d253d', fontWeight: 400 }}>{assignedName || '—'}</span></span> },
+                      { key: 'Due Date', val: <span style={{ fontSize: 9, color: isLate(activeTask.due_date, ns) ? '#ea2261' : '#0d253d', fontWeight: 400 }}>{fmt(activeTask.due_date)}</span> },
                     ].map(r => (
                       <div key={r.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                        <span style={{ fontSize: 9, color: '#9090a0' }}>{r.key}</span>
+                        <span style={{ fontSize: 9, color: '#64748d' }}>{r.key}</span>
                         {r.val}
                       </div>
                     ))}
                   </div>
 
-                  <div style={{ height: 1, background: '#f0f0f8' }} />
+                  <div style={{ height: 1, background: '#f6f9fc' }} />
 
                   {activeTask.description && (
                     <>
                       <div>
-                        <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Description</div>
-                        <div style={{ fontSize: 9, color: '#6060a0', lineHeight: 1.6, background: '#fafafa', borderRadius: 7, padding: '8px 10px', border: '1px solid #f0f0f8' }}>{activeTask.description}</div>
+                        <div style={{ fontSize: 8, color: '#a8c3de', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 5 }}>Description</div>
+                        <div style={{ fontSize: 9, color: '#64748d', lineHeight: 1.6, background: '#f6f9fc', borderRadius: 7, padding: '8px 10px' }}>{activeTask.description}</div>
                       </div>
-                      <div style={{ height: 1, background: '#f0f0f8' }} />
+                      <div style={{ height: 1, background: '#f6f9fc' }} />
                     </>
                   )}
 
                   <div>
-                    <div style={{ fontSize: 8, color: '#b0b0c0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Actions</div>
+                    <div style={{ fontSize: 8, color: '#a8c3de', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 5 }}>Actions</div>
 
-                    {/* View Full Details button */}
                     <button onClick={() => navigate(`/tasks/${activeTask.id}`)}
-                      style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', marginBottom: 5 }}>
-                      💬 Comments & Attachments →
+                      style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #e3e8ee', background: '#fff', color: '#533afd', marginBottom: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                      <MessageSquare size={11} /> Comments & Attachments
                     </button>
 
-                    {ns !== 'todo' && <button onClick={() => moveTask(activeTask.id, 'To Do')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fde68a', background: '#fef9e7', color: '#d97706', marginBottom: 5 }}>Move to To Do</button>}
-                    {ns !== 'in_progress' && <button onClick={() => moveTask(activeTask.id, 'In Progress')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #bfdbfe', background: '#eff6ff', color: '#2563eb', marginBottom: 5 }}>Move to In Progress</button>}
-                    {ns !== 'completed' && <button onClick={() => moveTask(activeTask.id, 'Done')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #a7f3d0', background: '#ecfdf5', color: '#059669', marginBottom: 5 }}>Mark as Completed</button>}
-                    {canCreate && <button onClick={() => deleteTask(activeTask.id)} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", border: '1.5px solid #fecaca', background: '#fff5f5', color: '#dc2626' }}>Delete Task</button>}
+                    {ns !== 'todo' && <button onClick={() => moveTask(activeTask.id, 'To Do')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #f0dcb0', background: '#fdf6e8', color: '#9b6829', marginBottom: 5 }}>Move to To Do</button>}
+                    {ns !== 'in_progress' && <button onClick={() => moveTask(activeTask.id, 'In Progress')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', marginBottom: 5 }}>Move to In Progress</button>}
+                    {ns !== 'completed' && <button onClick={() => moveTask(activeTask.id, 'Done')} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #bfe4d6', background: '#eaf8f1', color: '#0f6e56', marginBottom: 5 }}>Mark as Completed</button>}
+                    {canCreate && <button onClick={() => deleteTask(activeTask.id)} style={{ width: '100%', padding: 7, borderRadius: 7, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #f7d4d0', background: '#fdecea', color: '#ea2261' }}>Delete Task</button>}
                   </div>
                 </div>
               </div>
@@ -333,13 +329,15 @@ export default function TasksList() {
 
       {/* Create Task Modal */}
       {showCreate && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,37,61,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
           <div style={{ background: '#fff', borderRadius: 14, padding: 24, width: 440, maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 16, color: '#1a1a2e' }}>New Task</span>
-              <button onClick={() => setShowCreate(false)} style={{ background: '#f0f0f8', border: 'none', width: 24, height: 24, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: '#9090a0' }}>✕</button>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 16, color: '#0d253d' }}>New Task</span>
+              <button onClick={() => setShowCreate(false)} style={{ background: '#f6f9fc', border: 'none', width: 24, height: 24, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={13} color="#64748d" />
+              </button>
             </div>
-            {error && <div style={{ marginBottom: 16, padding: '8px 12px', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 8, fontSize: 12, color: '#dc2626' }}>{error}</div>}
+            {error && <div style={{ marginBottom: 16, padding: '8px 12px', background: '#fdecea', border: '1px solid #f7d4d0', borderRadius: 8, fontSize: 12, color: '#ea2261' }}>{error}</div>}
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
                 { label: 'Title *', key: 'title', type: 'text', placeholder: 'Task title' },
@@ -347,32 +345,32 @@ export default function TasksList() {
                 { label: 'Due Date', key: 'due_date', type: 'date', placeholder: '' },
               ].map(f => (
                 <div key={f.key}>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>{f.label}</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 5 }}>{f.label}</label>
                   {f.type === 'textarea' ? (
-                    <textarea value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} rows={3} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e8e8f0', fontSize: 12, fontFamily: "'Instrument Sans', sans-serif", outline: 'none', resize: 'none' }} />
+                    <textarea value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} rows={3} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #e3e8ee', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none', resize: 'none' }} />
                   ) : (
-                    <input type={f.type} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e8e8f0', fontSize: 12, fontFamily: "'Instrument Sans', sans-serif", outline: 'none' }} />
+                    <input type={f.type} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #e3e8ee', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }} />
                   )}
                 </div>
               ))}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>Priority</label>
-                  <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e8e8f0', fontSize: 12, fontFamily: "'Instrument Sans', sans-serif", outline: 'none' }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 5 }}>Priority</label>
+                  <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #e3e8ee', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
                     <option>High</option><option>Medium</option><option>Low</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: '#6060a0', marginBottom: 5 }}>Assign To</label>
-                  <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e8e8f0', fontSize: 12, fontFamily: "'Instrument Sans', sans-serif", outline: 'none' }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 5 }}>Assign To</label>
+                  <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #e3e8ee', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
                     <option value="">Unassigned</option>
                     {users.map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
                   </select>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
-                <button type="button" onClick={() => setShowCreate(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #e8e8f0', background: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif" }}>Cancel</button>
-                <button type="submit" disabled={creating} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1a1a2e', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Instrument Sans', sans-serif", fontWeight: 500, opacity: creating ? 0.6 : 1 }}>
+                <button type="button" onClick={() => setShowCreate(false)} style={{ padding: '8px 16px', borderRadius: 9999, border: '1px solid #e3e8ee', background: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", color: '#0d253d' }}>Cancel</button>
+                <button type="submit" disabled={creating} style={{ padding: '8px 16px', borderRadius: 9999, border: 'none', background: '#533afd', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, opacity: creating ? 0.6 : 1 }}>
                   {creating ? 'Creating...' : 'Create Task'}
                 </button>
               </div>
