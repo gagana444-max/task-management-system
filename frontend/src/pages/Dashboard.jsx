@@ -2,22 +2,25 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
+import { ClipboardList, Zap, CheckCircle2, Users, Bell } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
 
 const ini = (name) => name?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
-const avc = (n) => ['#818cf8', '#34d399', '#60a5fa', '#f472b6', '#fb923c'][n?.charCodeAt(0) % 5] || '#818cf8'
+const avc = () => '#533afd'
 const normalizeStatus = (s) => {
   if (!s) return 'todo'
   const map = { 'to do': 'todo', 'in progress': 'in_progress', 'done': 'completed', 'todo': 'todo', 'in_progress': 'in_progress', 'completed': 'completed' }
   return map[s.toLowerCase()] || 'todo'
 }
 const fmtShort = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : ''
-const statusDot = { todo: '#f59e0b', in_progress: '#3b82f6', completed: '#10b981' }
+const statusDot = { todo: '#9b6829', in_progress: '#533afd', completed: '#0f6e56' }
 const getGreeting = () => {
   const hour = new Date().getHours()
   if (hour < 12) return 'Good morning'
   if (hour < 17) return 'Good afternoon'
   return 'Good evening'
 }
+const isSameDay = (d1, d2) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -57,19 +60,20 @@ export default function Dashboard() {
   const completedPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
   const activeUsers = users.filter(u => u.is_active).length
 
+  const today = new Date()
+  const dueTodayCount = tasks.filter(t => t.due_date && normalizeStatus(t.status) !== 'completed' && isSameDay(new Date(t.due_date), today)).length
+
   const stats = [
-    { icon: '📋', label: 'Total Tasks', value: totalTasks, trend: 'pending', trendLabel: `${todoCount} pending`, bg: '#fef9e7', ibg: '#fef3c7' },
-    { icon: '⚡', label: 'In Progress', value: inProgressCount, trend: 'up', trendLabel: 'Active', bg: '#eff6ff', ibg: '#dbeafe' },
-    { icon: '✅', label: 'Completed', value: completedCount, trend: 'up', trendLabel: `${completedPct}%`, bg: '#ecfdf5', ibg: '#d1fae5' },
-    { icon: '👥', label: 'Team Members', value: activeUsers, trend: 'up', trendLabel: 'Active', bg: '#fdf4ff', ibg: '#f3e8ff' },
+    { Icon: ClipboardList, label: 'Total Tasks', value: totalTasks, trendLabel: `${todoCount} pending`, trendBg: '#fdf6e8', trendColor: '#c4922f', chipBg: '#fdf6e8', chipColor: '#c4922f' },
+    { Icon: Zap, label: 'In Progress', value: inProgressCount, trendLabel: 'Active', trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#e6f1fb', chipColor: '#185fa5' },
+    { Icon: CheckCircle2, label: 'Completed', value: completedCount, trendLabel: `${completedPct}%`, trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#e1f5ee', chipColor: '#0f6e56' },
+    { Icon: Users, label: 'Team Members', value: activeUsers, trendLabel: 'Active', trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#eeedfe', chipColor: '#534ab7' },
   ]
 
-  // Recent tasks: most recently created, top 5
   const recentTasks = [...tasks]
     .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
     .slice(0, 5)
 
-  // Upcoming deadlines: tasks with due dates, not completed, soonest first
   const now = new Date()
   const upcoming = tasks
     .filter(t => t.due_date && normalizeStatus(t.status) !== 'completed')
@@ -84,94 +88,96 @@ export default function Dashboard() {
     })
 
   const urgencyStyle = {
-    urgent: { bg: '#fef2f2', border: '#fecaca', color: '#dc2626' },
-    soon: { bg: '#fef9e7', border: '#fde68a', color: '#d97706' },
-    ok: { bg: '#ecfdf5', border: '#a7f3d0', color: '#059669' },
+    urgent: { dot: '#ea2261', text: '#ea2261' },
+    soon: { dot: '#c4922f', text: '#c4922f' },
+    ok: { dot: '#64748d', text: '#64748d' },
   }
 
   return (
-    <div style={{ fontFamily: "'Instrument Sans', sans-serif" }} className="p-6 min-h-screen bg-[#f5f4f0]">
-      {/* Topbar */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '26px', color: '#1a1a2e', letterSpacing: '-0.8px' }}>
-            Dashboard
-          </h1>
-          <p className="text-sm text-[#9090a0] mt-0.5">{getGreeting()}, {user?.name}</p>
-        </div>
+    <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[#f6f9fc]">
+
+      <PageHeader
+        title="Dashboard"
+        subtitle={`${getGreeting()}, ${user?.name}`}
+        statText={loading ? 'Loading your tasks...' : `You have ${dueTodayCount} task${dueTodayCount !== 1 ? 's' : ''} due today`}
+      />
+
+      {/* Notification bell, top right (kept separate from header) */}
+      <div className="flex justify-end mb-3" style={{ marginTop: -56 }}>
         <button
           onClick={() => navigate('/notifications')}
-          className="w-9 h-9 rounded-lg bg-white border-[1.5px] border-[#e8e8f0] flex items-center justify-center relative text-base hover:border-[#818cf8] transition"
+          className="w-9 h-9 rounded-lg bg-white border border-[#e3e8ee] flex items-center justify-center relative hover:border-[#533afd] transition"
+          style={{ position: 'relative', zIndex: 2 }}
         >
-          🔔
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full border-2 border-[#f5f4f0]" />
+          <Bell size={16} color="#64748d" strokeWidth={2} />
         </button>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-4 gap-3 mb-5">
         {stats.map(s => (
-          <div key={s.label} style={{ background: '#fff', borderRadius: '12px', border: '1.5px solid #e8e8f0', padding: '16px' }}>
+          <div key={s.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e3e8ee', padding: 16 }}>
             <div className="flex items-center justify-between mb-2.5">
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: s.ibg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
-                {s.icon}
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: s.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <s.Icon size={17} color={s.chipColor} strokeWidth={2} />
               </div>
-              <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, fontWeight: 600, background: s.trend === 'up' ? '#ecfdf5' : '#fef9e7', color: s.trend === 'up' ? '#059669' : '#d97706' }}>
+              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 9999, fontWeight: 400, background: s.trendBg, color: s.trendColor }}>
                 {s.trendLabel}
               </span>
             </div>
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 28, color: '#1a1a2e', lineHeight: 1 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 28, color: '#0d253d', lineHeight: 1 }}>
               {loading ? '—' : s.value}
             </div>
-            <div style={{ fontSize: 11, color: '#9090a0', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+            <div style={{ fontSize: 11, color: '#64748d', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
               {s.label}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Upcoming Deadlines — full width since no projects */}
-      <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', padding: 16, marginBottom: 14 }}>
+      {/* Upcoming Deadlines */}
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e3e8ee', padding: 16, marginBottom: 14 }}>
         <div className="flex items-center justify-between mb-4">
-          <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 14, color: '#1a1a2e' }}>Upcoming Deadlines</span>
-          <span onClick={() => navigate('/tasks')} style={{ fontSize: 11, color: '#818cf8', cursor: 'pointer' }}>See all →</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: '#0d253d' }}>Upcoming Deadlines</span>
+          <span onClick={() => navigate('/tasks')} style={{ fontSize: 11, color: '#533afd', cursor: 'pointer' }}>See all →</span>
         </div>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 20, color: '#a8c3de', fontSize: 12 }}>Loading...</div>
         ) : upcoming.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>No upcoming deadlines.</div>
-        ) : upcoming.map(d => {
+          <div style={{ textAlign: 'center', padding: 20, color: '#a8c3de', fontSize: 12 }}>No upcoming deadlines.</div>
+        ) : upcoming.map((d, i) => {
           const s = urgencyStyle[d.urgency]
           return (
-            <div key={d.title} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 8, padding: '8px 10px', marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: s.color }}>{d.title}</span>
-              <span style={{ fontSize: 11, color: '#9090a0' }}>{d.date}</span>
+            <div key={d.title} style={{ padding: '10px 4px', borderBottom: i < upcoming.length - 1 ? '1px solid #f6f9fc' : 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, flexShrink: 0 }} />
+              <span style={{ fontSize: 13, fontWeight: 400, color: s.text, flex: 1 }}>{d.title}</span>
+              <span style={{ fontSize: 11, color: s.text }}>{d.date}</span>
             </div>
           )
         })}
       </div>
 
       {/* Recent Tasks */}
-      <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e8e8f0', padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e3e8ee', padding: 16 }}>
         <div className="flex items-center justify-between mb-4">
-          <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 14, color: '#1a1a2e' }}>Recent Tasks</span>
-          <span onClick={() => navigate('/tasks')} style={{ fontSize: 11, color: '#818cf8', cursor: 'pointer' }}>View board →</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: '#0d253d' }}>Recent Tasks</span>
+          <span onClick={() => navigate('/tasks')} style={{ fontSize: 11, color: '#533afd', cursor: 'pointer' }}>View board →</span>
         </div>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 20, color: '#a8c3de', fontSize: 12 }}>Loading...</div>
         ) : recentTasks.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 20, color: '#b0b0c0', fontSize: 12 }}>No tasks yet. Create one from the Task Board.</div>
+          <div style={{ textAlign: 'center', padding: 20, color: '#a8c3de', fontSize: 12 }}>No tasks yet. Create one from the Task Board.</div>
         ) : recentTasks.map(t => {
           const ns = normalizeStatus(t.status)
           const assignedName = getUserName(t.assigned_user_id)
           return (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #f0f0f8', cursor: 'pointer' }} onClick={() => navigate(`/tasks/${t.id}`)}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: statusDot[ns], flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#1a1a2e', fontWeight: 500, flex: 1 }}>{t.title}</span>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#d0d0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #f6f9fc', cursor: 'pointer' }} onClick={() => navigate(`/tasks/${t.id}`)}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: statusDot[ns], flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: '#0d253d', fontWeight: 400, flex: 1 }}>{t.title}</span>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: assignedName ? avc(assignedName) : '#cbd5df', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 500, color: '#fff', flexShrink: 0 }}>
                 {assignedName ? ini(assignedName) : '?'}
               </div>
-              <span style={{ fontSize: 11, color: '#b0b0c0' }}>{fmtShort(t.due_date)}</span>
+              <span style={{ fontSize: 11, color: '#a8c3de' }}>{fmtShort(t.due_date)}</span>
             </div>
           )
         })}
