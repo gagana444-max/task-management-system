@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LayoutGrid, KanbanSquare, Bell, Users, LogOut } from 'lucide-react'
+import { useTheme } from '../context/ThemeContext'
+import { LayoutGrid, KanbanSquare, Bell, Users, LogOut, Moon, Sun } from 'lucide-react'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', Icon: LayoutGrid },
@@ -14,6 +15,7 @@ const adminItems = [
 
 export default function MainLayout({ children }) {
   const { user, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -79,13 +81,24 @@ export default function MainLayout({ children }) {
 
         {/* User footer */}
         <div className="mt-auto px-4 pt-3 border-t border-[#2e3070]">
-          <div className="text-xs text-white font-normal truncate">{user?.name}</div>
-          <div className="inline-block mt-1 text-[9px] text-[#a9a3fd] bg-[#2e3070] px-2 py-0.5 rounded font-medium tracking-wide uppercase">
-            {user?.role}
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="text-xs text-white font-normal truncate">{user?.name}</div>
+              <div className="inline-block mt-1 text-[9px] text-[#a9a3fd] bg-[#2e3070] px-2 py-0.5 rounded font-medium tracking-wide uppercase">
+                {user?.role}
+              </div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-md text-[#b9b9f9] hover:text-white hover:bg-[#2e3070] transition-colors"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+            </button>
           </div>
           <button
             onClick={handleLogout}
-            className="mt-2 flex items-center gap-1.5 text-[10px] text-[#b9b9f9] hover:text-[#ea2261] transition-colors"
+            className="mt-1 flex items-center gap-1.5 text-[10px] text-[#b9b9f9] hover:text-[#ea2261] transition-colors"
           >
             <LogOut size={11} strokeWidth={2} />
             Sign out
@@ -94,7 +107,7 @@ export default function MainLayout({ children }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto" style={{ background: 'var(--bg)' }}>
         {children}
       </main>
     </div>
