@@ -73,15 +73,15 @@ async def send_onboarding_email(email: str, name: str, temp_password: str):
         msg['Subject'] = "Welcome to Task Management System - Your Login Credentials"
         msg.attach(MIMEText(email_body, 'plain'))
 
+        print(f"[DEV MODE] Email to {email}:")
+        print(email_body)
+
         if MAIL_USERNAME and MAIL_PASSWORD:
             context = ssl.create_default_context()
             with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
                 server.login(MAIL_USERNAME, MAIL_PASSWORD)
                 server.sendmail(MAIL_FROM, email, msg.as_string())
             print(f"Email sent successfully to {email}")
-        else:
-            print(f"[DEV MODE] Email to {email}:")
-            print(email_body)
 
     except Exception as e:
         print(f"Email sending failed: {e}")

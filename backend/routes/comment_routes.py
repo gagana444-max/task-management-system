@@ -149,4 +149,3 @@ def download_attachment(
         filename=attachment.file_name,
         media_type="application/octet-stream"
     )
-
