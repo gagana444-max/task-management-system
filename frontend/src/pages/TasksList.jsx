@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, ArrowDownUp } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
+import RichTextEditor from '../components/RichTextEditor'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
@@ -444,7 +445,9 @@ export default function TasksList() {
                     <>
                       <div>
                         <div style={{ fontSize: 8, color: 'var(--border-input)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 5 }}>Description</div>
-                        <div style={{ fontSize: 9, color: 'var(--text-muted)', lineHeight: 1.6, background: 'var(--bg)', borderRadius: 7, padding: '8px 10px' }}>{activeTask.description}</div>
+                        <div style={{ background: 'var(--bg)', borderRadius: 7 }}>
+                          <RichTextEditor content={activeTask.description} editable={false} onChange={() => {}} />
+                        </div>
                       </div>
                       <div style={{ height: 1, background: 'var(--bg)' }} />
                     </>
@@ -490,7 +493,7 @@ export default function TasksList() {
                 <div key={f.key}>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>{f.label}</label>
                   {f.type === 'textarea' ? (
-                    <textarea value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} rows={3} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none', resize: 'none' }} />
+                    <RichTextEditor content={form[f.key]} onChange={html => setForm({ ...form, [f.key]: html })} />
                   ) : (
                     <input type={f.type} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }} />
                   )}

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 import { ArrowLeft, MessageSquare, Paperclip, Upload, Edit3, X, Trash2 } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
+import RichTextEditor from '../components/RichTextEditor'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -298,7 +299,9 @@ export default function TaskDetail() {
               </div>
 
               {task.description && (
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 16, background: 'var(--bg)', borderRadius: 8, padding: '10px 12px' }}>{task.description}</p>
+                <div style={{ marginBottom: 16, background: 'var(--bg)', borderRadius: 8 }}>
+                  <RichTextEditor content={task.description} editable={false} onChange={() => {}} />
+                </div>
               )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -457,7 +460,7 @@ export default function TaskDetail() {
                 <div key={f.key}>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: 'var(--text)', marginBottom: 5 }}>{f.label}</label>
                   {f.type === 'textarea' ? (
-                    <textarea value={editForm[f.key]} onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })} placeholder={f.placeholder} rows={4} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13, fontFamily: "'Inter', sans-serif", outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                    <RichTextEditor content={editForm[f.key]} onChange={html => setEditForm({ ...editForm, [f.key]: html })} />
                   ) : (
                     <input type={f.type} value={editForm[f.key]} onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13, fontFamily: "'Inter', sans-serif", outline: 'none', boxSizing: 'border-box' }} />
                   )}
