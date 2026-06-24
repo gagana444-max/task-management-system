@@ -257,8 +257,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Task Calendar */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
+        <div className="flex flex-col gap-6">
+          {/* Task Calendar */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
           <div className="flex items-center justify-between mb-4">
             <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>Task Calendar</span>
             <div className="flex items-center gap-1 bg-[var(--bg)] p-1 rounded-lg border border-[#e3e8ee]">
@@ -345,6 +346,47 @@ export default function Dashboard() {
                 }
                 return rows
               })()}
+            </div>
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
+            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)', marginBottom: 16 }}>Progress Overview</span>
+            
+            <div className="flex items-end justify-between mb-2">
+              <span className="text-[24px] font-bold text-[#0d253d] leading-none">{completedPct}%</span>
+              <span className="text-[12px] font-medium text-[#64748d] mb-1">Completed</span>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="w-full h-2 bg-[#f0efff] rounded-full overflow-hidden mb-5">
+              <div className="h-full bg-gradient-to-r from-[#533afd] to-[#8d82fe] rounded-full transition-all duration-1000" style={{ width: `${completedPct}%` }}></div>
+            </div>
+
+            {/* Stats Breakdown */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white bg-[#ea2261] shadow-[0_0_0_1px_#ea2261]"></div>
+                  <span className="text-[12px] font-medium text-[#64748d]">To Do</span>
+                </div>
+                <span className="text-[12px] font-bold text-[#0d253d]">{todoCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white bg-[#c4922f] shadow-[0_0_0_1px_#c4922f]"></div>
+                  <span className="text-[12px] font-medium text-[#64748d]">In Progress</span>
+                </div>
+                <span className="text-[12px] font-bold text-[#0d253d]">{inProgressCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white bg-[#0f6e56] shadow-[0_0_0_1px_#0f6e56]"></div>
+                  <span className="text-[12px] font-medium text-[#64748d]">Completed</span>
+                </div>
+                <span className="text-[12px] font-bold text-[#0d253d]">{completedCount}</span>
+              </div>
             </div>
           </div>
         </div>
