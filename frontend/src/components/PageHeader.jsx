@@ -13,9 +13,9 @@ export default function PageHeader({ title, subtitle, statText, statColor = '#ea
         )}
       </div>
       {statText && (
-        <div style={{ background: '#fff', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: statColor, display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontSize: 12, color: '#0d253d' }}>{statText}</span>
+          <span style={{ fontSize: 12, color: 'var(--text)' }}>{statText}</span>
         </div>
       )}
     </div>

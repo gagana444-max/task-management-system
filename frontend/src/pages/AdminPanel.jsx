@@ -8,7 +8,7 @@ const ROLES = ['Admin', 'ProjectManager', 'Collaborator']
 const roleStyle = {
   Admin: { card: { background: '#f5f4fe', border: '1px solid #dcd9fb' }, av: '#533afd', badge: { background: '#eeedfe', color: '#534ab7' } },
   ProjectManager: { card: { background: '#eaf8f1', border: '1px solid #bfe4d6' }, av: '#0f6e56', badge: { background: '#e1f5ee', color: '#0f6e56' } },
-  Collaborator: { card: { background: '#f6f9fc', border: '1px solid #e3e8ee' }, av: '#185fa5', badge: { background: '#e6f1fb', color: '#185fa5' } },
+  Collaborator: { card: { background: 'var(--bg)', border: '1px solid var(--border)' }, av: '#185fa5', badge: { background: '#e6f1fb', color: '#185fa5' } },
 }
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
@@ -108,7 +108,7 @@ export default function AdminPanel() {
   const inactiveUsers = users.filter(u => !u.is_active).length
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", padding: 22, minHeight: '100vh', background: '#f6f9fc' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", padding: 22, minHeight: '100vh', background: 'var(--bg)' }}>
 
       {/* Topbar */}
       <PageHeader
@@ -125,13 +125,13 @@ export default function AdminPanel() {
           { Icon: CheckCircle2, label: 'Active', value: activeUsers, chipBg: '#e1f5ee', chipColor: '#0f6e56' },
           { Icon: Lock, label: 'Inactive', value: inactiveUsers, chipBg: '#fdf6e8', chipColor: '#9b6829' },
         ].map(s => (
-          <div key={s.label} style={{ background: '#fff', borderRadius: 10, padding: '12px 14px', border: '1px solid #e3e8ee', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div key={s.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, background: s.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <s.Icon size={15} color={s.chipColor} strokeWidth={2} />
             </div>
             <div>
-              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 20, color: '#0d253d', lineHeight: 1 }}>{s.value}</div>
-              <div style={{ fontSize: 10, color: '#64748d', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{s.label}</div>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 20, color: 'var(--text)', lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -153,28 +153,28 @@ export default function AdminPanel() {
 
       {/* Create Form */}
       {showCreate && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e3e8ee', padding: 18, marginBottom: 16 }}>
-          <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: '#0d253d', marginBottom: 14 }}>Create New User</h2>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', padding: 18, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: 'var(--text)', marginBottom: 14 }}>Create New User</h2>
           <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} noValidate>
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
               { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
             ].map(f => (
               <div key={f.key}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 5 }}>{f.label}</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>{f.label}</label>
                 <input type={f.type} value={form[f.key]} onChange={e => { setForm({ ...form, [f.key]: e.target.value }); setFormErrors({ ...formErrors, [f.key]: '' }) }} placeholder={f.placeholder} style={inp(f.key)} />
                 {formErrors[f.key] && <p style={{ fontSize: 10, color: '#ea2261', marginTop: 3 }}>{formErrors[f.key]}</p>}
               </div>
             ))}
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 5 }}>Role</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Role</label>
               <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={inp('role')}>
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => setShowCreate(false)} style={{ padding: '7px 16px', borderRadius: 9999, border: '1px solid #e3e8ee', background: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", color: '#0d253d' }}>Cancel</button>
-              <button type="submit" disabled={creating} style={{ padding: '7px 16px', borderRadius: 9999, border: 'none', background: '#533afd', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, opacity: creating ? 0.6 : 1 }}>
+              <button type="button" onClick={() => setShowCreate(false)} style={{ padding: '7px 16px', borderRadius: 9999, border: '1px solid var(--border)', background: 'var(--bg-card)', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", color: 'var(--text)' }}>Cancel</button>
+              <button type="submit" disabled={creating} style={{ padding: '7px 16px', borderRadius: 9999, border: 'none', background: 'var(--primary)', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, opacity: creating ? 0.6 : 1 }}>
                 {creating ? 'Creating...' : 'Create & Send Email'}
               </button>
             </div>
@@ -185,14 +185,14 @@ export default function AdminPanel() {
       {/* Filter bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..."
-          style={{ flex: 1, background: '#fff', border: '1px solid #e3e8ee', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: '#0d253d', outline: 'none', fontFamily: "'Inter', sans-serif" }} />
+          style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: "'Inter', sans-serif" }} />
         <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
-          style={{ background: '#fff', border: '1px solid #e3e8ee', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: '#0d253d', outline: 'none', fontFamily: "'Inter', sans-serif" }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: "'Inter', sans-serif" }}>
           <option value="">All Roles</option>
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
         <button onClick={() => { setShowCreate(!showCreate); setFormErrors({}); setGlobalError(''); setGlobalSuccess('') }}
-          style={{ background: '#533afd', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           {showCreate ? <X size={13} /> : <Plus size={13} />}
           {showCreate ? 'Cancel' : 'Add User'}
         </button>
@@ -200,9 +200,9 @@ export default function AdminPanel() {
 
       {/* User Cards Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#a8c3de', fontSize: 13 }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>Loading...</div>
       ) : users.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#a8c3de', fontSize: 13 }}>No users found.</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>No users found.</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
           {users.map(user => {
@@ -212,8 +212,8 @@ export default function AdminPanel() {
                 <div style={{ width: 44, height: 44, borderRadius: '50%', background: rs.av, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500, color: '#fff', marginBottom: 8 }}>
                   {ini(user.name)}
                 </div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, color: '#0d253d', marginBottom: 2 }}>{user.name}</div>
-                <div style={{ fontSize: 10, color: '#64748d', marginBottom: 8 }}>{user.email}</div>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, color: 'var(--text)', marginBottom: 2 }}>{user.name}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>{user.email}</div>
                 <div style={{ ...rs.badge, fontSize: 9, padding: '2px 10px', borderRadius: 9999, fontWeight: 500, letterSpacing: '0.3px', marginBottom: 6, textTransform: 'uppercase' }}>
                   {user.role === 'ProjectManager' ? 'PROJECT MANAGER' : user.role.toUpperCase()}
                 </div>
@@ -222,7 +222,7 @@ export default function AdminPanel() {
                 </div>
 
                 <select value={user.role} onChange={e => handleRoleChange(user, e.target.value)}
-                  style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid #e3e8ee', background: '#fff', fontSize: 10, fontFamily: "'Inter', sans-serif", marginBottom: 6, outline: 'none', color: '#0d253d' }}>
+                  style={{ width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg-card)', fontSize: 10, fontFamily: "'Inter', sans-serif", marginBottom: 6, outline: 'none', color: 'var(--text)' }}>
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
 

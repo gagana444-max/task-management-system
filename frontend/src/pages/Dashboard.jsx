@@ -88,7 +88,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[#f6f9fc]">
+    <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[var(--bg)]">
 
       <PageHeader
         title="Dashboard"
@@ -144,10 +144,10 @@ export default function Dashboard() {
 
               <div className="flex items-end justify-between">
                 <div>
-                  <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 32, color: '#0d253d', lineHeight: 1 }}>
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 32, color: 'var(--text)', lineHeight: 1 }}>
                     {loading ? '—' : s.value}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748d', marginTop: 6, fontWeight: 500 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>
                     {s.label}
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export default function Dashboard() {
         {/* Left Column: Timeline OR Selected Day Details */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
           <div className="flex items-center justify-between mb-6">
-            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: '#0d253d' }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>
               {selectedDate ? `Tasks for ${format(selectedDate, 'MMM d, yyyy')}` : 'Upcoming Deadlines'}
             </span>
             <div className="flex items-center gap-3">
@@ -210,14 +210,14 @@ export default function Dashboard() {
                     <div key={t.id} className="p-4 rounded-xl border border-white bg-white/60 hover:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#d9d6fe] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] transition-all cursor-pointer flex flex-col gap-3" onClick={() => navigate(`/tasks/${t.id}`)}>
                       <div className="flex items-start justify-between gap-4">
                         <span className="text-[14px] font-semibold text-[#0d253d] leading-snug">{t.title}</span>
-                        <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shrink-0" style={{ backgroundColor: '#f0efff', color: '#533afd' }}>{t.status || 'To do'}</span>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shrink-0" style={{ backgroundColor: '#f0efff', color: 'var(--primary)' }}>{t.status || 'To do'}</span>
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <div className="flex items-center gap-2">
                           {assignedName ? (
                             <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: '#533afd' }}>{ini(assignedName)}</div>
                           ) : (
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-[#64748d] bg-[#f6f9fc] border border-[#e3e8ee]">?</div>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-[#64748d] bg-[var(--bg)] border border-[#e3e8ee]">?</div>
                           )}
                           <span className="text-xs font-medium text-[#64748d]">{assignedName || 'Unassigned'}</span>
                         </div>
@@ -261,29 +261,29 @@ export default function Dashboard() {
         </div>
 
         {/* Task Calendar */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-6 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: '#0d253d' }}>Task Calendar</span>
-            <div className="flex items-center gap-1 bg-[#f6f9fc] p-1 rounded-lg border border-[#e3e8ee]">
-              <button onClick={() => setCurrentDate(addDays(currentDate, -30))} className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white hover:shadow-sm text-[#64748d] hover:text-[#533afd] transition-all">
-                <ChevronLeft size={16} strokeWidth={2.5} />
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>Task Calendar</span>
+            <div className="flex items-center gap-1 bg-[var(--bg)] p-1 rounded-lg border border-[#e3e8ee]">
+              <button onClick={() => setCurrentDate(addDays(currentDate, -30))} className="w-6 h-6 rounded-md flex items-center justify-center hover:bg-white hover:shadow-sm text-[#64748d] hover:text-[#533afd] transition-all">
+                <ChevronLeft size={14} strokeWidth={2.5} />
               </button>
-              <span className="text-[13px] font-bold text-[#0d253d] min-w-[90px] text-center tracking-wide">
+              <span className="text-[12px] font-bold text-[#0d253d] min-w-[80px] text-center tracking-wide">
                 {format(currentDate, 'MMM yyyy')}
               </span>
-              <button onClick={() => setCurrentDate(addDays(currentDate, 30))} className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white hover:shadow-sm text-[#64748d] hover:text-[#533afd] transition-all">
-                <ChevronRight size={16} strokeWidth={2.5} />
+              <button onClick={() => setCurrentDate(addDays(currentDate, 30))} className="w-6 h-6 rounded-md flex items-center justify-center hover:bg-white hover:shadow-sm text-[#64748d] hover:text-[#533afd] transition-all">
+                <ChevronRight size={14} strokeWidth={2.5} />
               </button>
             </div>
           </div>
           
           <div className="flex-1">
-            <div className="grid grid-cols-7 mb-3">
+            <div className="grid grid-cols-7 mb-2">
               {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                <div key={day} className="text-center text-[11px] font-bold text-[#a8c3de] uppercase tracking-wider">{day}</div>
+                <div key={day} className="text-center text-[10px] font-bold text-[#a8c3de] uppercase tracking-wider">{day}</div>
               ))}
             </div>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1">
               {(() => {
                 const monthStart = startOfMonth(currentDate)
                 const monthEnd = endOfMonth(monthStart)
@@ -308,18 +308,18 @@ export default function Dashboard() {
                         key={cloneDay.toISOString()}
                         onClick={() => setSelectedDate(cloneDay)}
                         className={`flex flex-col items-center justify-center relative cursor-pointer rounded-xl transition-all duration-300 hover:bg-[#f0efff] ${!isCurrentMonth ? "text-[#cbd5df]" : isSelected ? "text-white font-bold" : isToday ? "text-[#533afd] font-bold" : "text-[#0d253d] font-medium"}`}
-                        style={{ height: 46 }}
+                        style={{ height: 36 }}
                       >
                         {isSelected && (
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#665efd] to-[#533afd] -z-10 shadow-[0_4px_12px_rgba(83,58,253,0.3)]"></div>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#665efd] to-[#533afd] -z-10 shadow-[0_2px_8px_rgba(83,58,253,0.3)]"></div>
                         )}
                         {!isSelected && isToday && (
                           <div className="absolute inset-1 rounded-xl bg-[#f0efff] -z-10 border border-[#d9d6fe]"></div>
                         )}
-                        <span className="text-[14px] z-10">{format(cloneDay, 'd')}</span>
-                        <div className="h-1.5 flex items-center justify-center mt-1">
+                        <span className="text-[12px] z-10">{format(cloneDay, 'd')}</span>
+                        <div className="h-1 flex items-center justify-center mt-0.5">
                           {hasTask && (
-                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: isSelected ? '#ffffff' : '#ea2261', boxShadow: isSelected ? '0 0 6px rgba(255,255,255,0.8)' : '0 0 6px rgba(234,34,97,0.4)' }}></span>
+                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: isSelected ? '#ffffff' : '#ea2261', boxShadow: isSelected ? '0 0 4px rgba(255,255,255,0.8)' : '0 0 4px rgba(234,34,97,0.4)' }}></span>
                           )}
                         </div>
                       </div>
@@ -327,7 +327,7 @@ export default function Dashboard() {
                     day = addDays(day, 1)
                   }
                   rows.push(
-                    <div className="grid grid-cols-7 gap-1.5" key={day.toISOString()}>
+                    <div className="grid grid-cols-7 gap-1" key={day.toISOString()}>
                       {days}
                     </div>
                   )
