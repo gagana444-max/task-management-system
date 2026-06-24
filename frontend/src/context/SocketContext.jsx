@@ -7,46 +7,46 @@ const SocketContext = createContext(null)
 export function SocketProvider({ children }) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState([])
-  const socketRef = useRef(null)
+  const [socket, setSocket] = useState(null)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!user || !token) {
-      if (socketRef.current) {
-        socketRef.current.disconnect()
-        socketRef.current = null
+      if (socket) {
+        socket.disconnect()
+        setSocket(null)
       }
       return
     }
 
-    const socket = io('http://localhost:8000', {
+    const newSocket = io('http://localhost:8000', {
       path: '/socket.io',
       auth: { token: `Bearer ${token}` },
       transports: ['websocket', 'polling'],
     })
 
-    socket.on('connect', () => {
-      console.log('Socket connected:', socket.id)
+    newSocket.on('connect', () => {
+      console.log('Socket connected:', newSocket.id)
     })
 
-    socket.on('connect_error', (err) => {
+    newSocket.on('connect_error', (err) => {
       console.log('Socket connection error:', err.message)
     })
 
-    socket.on('task_assigned', (data) => {
-  console.log('Received task_assigned:', data)
-  setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
-})
-
-    socket.on('status_changed', (data) => {
+    newSocket.on('task_assigned', (data) => {
+      console.log('Received task_assigned:', data)
       setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
     })
 
-    socketRef.current = socket
+    newSocket.on('status_changed', (data) => {
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+    })
+
+    setSocket(newSocket)
 
     return () => {
-      socket.disconnect()
-      socketRef.current = null
+      newSocket.disconnect()
+      setSocket(null)
     }
   }, [user])
 
@@ -63,7 +63,7 @@ export function SocketProvider({ children }) {
   }
 
   return (
-    <SocketContext.Provider value={{ notifications, markRead, markAllRead, deleteNotification }}>
+    <SocketContext.Provider value={{ socket, notifications, markRead, markAllRead, deleteNotification }}>
       {children}
     </SocketContext.Provider>
   )
