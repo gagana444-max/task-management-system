@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { ClipboardList, Zap, CheckCircle2, X, MessageSquare } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -44,12 +45,9 @@ export default function TasksList() {
   const canCreate = user?.role === 'Admin' || user?.role === 'ProjectManager'
   const isCollaborator = user?.role === 'Collaborator'
 
-  useEffect(() => {
-    fetchTasks()
-    fetchUsers()
-  }, [])
 
-  const fetchTasks = async () => {
+
+  async function fetchTasks() {
     try {
       setLoading(true)
       const res = await api.get('/tasks')
@@ -61,12 +59,18 @@ export default function TasksList() {
     }
   }
 
-  const fetchUsers = async () => {
+  async function fetchUsers() {
     try {
       const res = await api.get('/users')
       setUsers(res.data)
-    } catch { }
+    } catch (e) { console.error(e) }
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchTasks()
+    fetchUsers()
+  }, [])
 
   const getUser = (assigned_user_id) => {
     if (!assigned_user_id) return null
@@ -83,7 +87,7 @@ export default function TasksList() {
       await api.patch(`/tasks/${id}/status`, { status })
       setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
       setActiveId(id)
-    } catch { }
+    } catch (e) { console.error(e) }
   }
 
   const deleteTask = async (id) => {
@@ -92,7 +96,7 @@ export default function TasksList() {
       await api.delete(`/tasks/${id}`)
       setTasks(tasks.filter(t => t.id !== id))
       setActiveId(null)
-    } catch { }
+    } catch (e) { console.error(e) }
   }
 
   const handleCreate = async (e) => {
@@ -132,7 +136,6 @@ export default function TasksList() {
     completed: { bg: '#eaf8f1', border: '#bfe4d6', nameColor: '#0f6e56', cntBg: '#e1f5ee', emptyBorder: '#bfe4d6' },
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
-  const colIcon = { todo: ClipboardList, in_progress: Zap, completed: CheckCircle2 }
 
   const activeTask = visibleTasks.find(t => t.id === activeId)
 
@@ -148,13 +151,13 @@ export default function TasksList() {
       `}</style>
 
       {/* Topbar */}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <div>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 22, color: '#0d253d', letterSpacing: '-0.3px' }}>Task Board</h1>
-          <p style={{ fontSize: 11, color: '#64748d', marginTop: 2 }}>
-            {isCollaborator ? 'Showing tasks assigned to you' : 'Click any task card to view full details'}
-          </p>
-        </div>
+      <PageHeader
+        title="Task Board"
+        subtitle={isCollaborator ? 'Showing tasks assigned to you' : 'Manage your team\'s tasks and progress'}
+        statText={loading ? 'Loading tasks...' : `Total: ${filtered.length} task${filtered.length !== 1 ? 's' : ''} found`}
+        statColor="#533afd"
+      />
+      <div className="flex items-center justify-end flex-shrink-0 mb-1 mt-1">
         <div className="flex items-center gap-2">
           <input
             value={search}

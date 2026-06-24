@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getUsers, createUser, deactivateUser, updateUserRole, sendOnboardingEmail } from '../api/users'
 import { Users, CheckCircle2, Lock, Plus, X, Mail, UserX, UserCheck } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
 
 const ROLES = ['Admin', 'ProjectManager', 'Collaborator']
 
@@ -110,17 +111,12 @@ export default function AdminPanel() {
     <div style={{ fontFamily: "'Inter', sans-serif", padding: 22, minHeight: '100vh', background: '#f6f9fc' }}>
 
       {/* Topbar */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
-        <div>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 22, color: '#0d253d', letterSpacing: '-0.3px' }}>Team Members</h1>
-          <p style={{ fontSize: 11, color: '#64748d', marginTop: 2 }}>Manage users and their roles</p>
-        </div>
-        <button onClick={() => { setShowCreate(!showCreate); setFormErrors({}); setGlobalError(''); setGlobalSuccess('') }}
-          style={{ background: '#533afd', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6 }}>
-          {showCreate ? <X size={13} /> : <Plus size={13} />}
-          {showCreate ? 'Cancel' : 'Add User'}
-        </button>
-      </div>
+      <PageHeader
+        title="Team Members"
+        subtitle="Manage users and their roles"
+        statText={loading ? 'Loading users...' : `Total: ${totalUsers} user${totalUsers !== 1 ? 's' : ''} (${activeUsers} active)`}
+        statColor="#0f6e56"
+      />
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 16 }}>
@@ -195,6 +191,11 @@ export default function AdminPanel() {
           <option value="">All Roles</option>
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
+        <button onClick={() => { setShowCreate(!showCreate); setFormErrors({}); setGlobalError(''); setGlobalSuccess('') }}
+          style={{ background: '#533afd', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {showCreate ? <X size={13} /> : <Plus size={13} />}
+          {showCreate ? 'Cancel' : 'Add User'}
+        </button>
       </div>
 
       {/* User Cards Grid */}
