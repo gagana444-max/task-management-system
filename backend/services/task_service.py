@@ -324,3 +324,81 @@ def delete_task(task_id: int):
     finally:
         cursor.close()
         connection.close()
+
+from models.task_model import TaskUpdate
+
+def update_task(task_id: int, task_data: TaskUpdate):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Check whether assigned user exists if provided
+        if task_data.assigned_user_id is not None:
+            cursor.execute("SELECT user_id FROM users WHERE user_id = %s", (task_data.assigned_user_id,))
+            user = cursor.fetchone()
+            if not user:
+                raise HTTPException(status_code=400, detail="Assigned user does not exist")
+
+        fields = []
+        values = []
+
+        if task_data.title is not None:
+            fields.append("title=%s")
+            values.append(task_data.title)
+        
+        if task_data.description is not None:
+            fields.append("task_description=%s")
+            values.append(task_data.description)
+            
+        if task_data.assigned_user_id is not None:
+            fields.append("assigned_user_id=%s")
+            values.append(task_data.assigned_user_id)
+            
+        if task_data.due_date is not None:
+            fields.append("due_date=%s")
+            values.append(task_data.due_date)
+            
+        if task_data.priority is not None:
+            fields.append("priority=%s")
+            values.append(task_data.priority)
+            
+        if task_data.status is not None:
+            db_status = STATUS_MAP_API_TO_DB.get(task_data.status, task_data.status)
+            fields.append("task_status=%s")
+            values.append(db_status)
+
+        if not fields:
+            # Nothing to update
+            return get_task_by_id(task_id)
+
+        values.append(task_id)
+
+        query = f"UPDATE tasks SET {', '.join(fields)} WHERE task_id=%s"
+        
+        cursor.execute(query, tuple(values))
+        connection.commit()
+
+        if cursor.rowcount == 0:
+            # Might be 0 if task_id doesn't exist OR values were exactly the same
+            # Let's verify task exists
+            cursor.execute("SELECT task_id FROM tasks WHERE task_id=%s", (task_id,))
+            if not cursor.fetchone():
+                raise HTTPException(status_code=404, detail="Task not found")
+
+        cursor.execute(
+            """
+            SELECT task_id, title, task_description,
+                   assigned_user_id, due_date,
+                   priority, task_status
+            FROM tasks
+            WHERE task_id=%s
+            """,
+            (task_id,),
+        )
+
+        task = cursor.fetchone()
+        return _row_to_task(task)
+
+    finally:
+        cursor.close()
+        connection.close()
