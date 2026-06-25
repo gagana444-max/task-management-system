@@ -70,8 +70,8 @@ export default function ForgotPassword() {
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-            margin: '0 auto 16px'
-          }}>
+              margin: '0 auto 16px'
+            }}>
             <Mail size={24} color="#4F46E5" />
           </div>
           <h2 style={{ fontSize: '24px', color: 'var(--text)', marginBottom: '8px', fontWeight: 600 }}>Forgot Password</h2>
@@ -181,6 +181,7 @@ export default function ForgotPassword() {
             </div>
           </form>
         )}
+        </div>
       </div>
     </div>
   )
