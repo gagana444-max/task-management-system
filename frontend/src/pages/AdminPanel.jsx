@@ -237,10 +237,12 @@ export default function AdminPanel() {
                     {user.is_active ? <UserX size={11} /> : <UserCheck size={11} />}
                     {user.is_active ? 'Deactivate' : 'Activate'}
                   </button>
-                  <button onClick={() => handleSendCredentials(user)}
-                    style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                    <Mail size={11} /> Email
-                  </button>
+                  {user.is_first_login && (
+                    <button onClick={() => handleSendCredentials(user)}
+                      style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <Mail size={11} /> Email
+                    </button>
+                  )}
                 </div>
               </div>
             )

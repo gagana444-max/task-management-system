@@ -6,6 +6,7 @@ import { useSocket } from '../context/SocketContext'
 import { ArrowLeft, MessageSquare, Paperclip, Upload, Edit3, X, Trash2 } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import RichTextEditor from '../components/RichTextEditor'
+import { toast } from 'react-toastify'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -138,8 +139,10 @@ export default function TaskDetail() {
       const commentWithUser = { ...res.data, user: { name: user?.name } }
       setComments([commentWithUser, ...comments])
       setNewComment('')
+      toast.success('Comment posted successfully!')
     } catch {
       setError('Failed to post comment.')
+      toast.error('Failed to post comment.')
     } finally {
       setPosting(false)
     }
@@ -156,8 +159,10 @@ export default function TaskDetail() {
         headers: { ...getHeaders(), 'Content-Type': 'multipart/form-data' }
       })
       setAttachments([...attachments, res.data])
+      toast.success('Attachment uploaded successfully!')
     } catch {
       setError('Upload failed.')
+      toast.error('Upload failed.')
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -169,8 +174,10 @@ export default function TaskDetail() {
     try {
       await api.delete(`/tasks/attachments/${attachmentId}`, { headers: getHeaders() })
       setAttachments(attachments.filter(a => (a.attachment_id || a.id) !== attachmentId))
+      toast.success('Attachment deleted successfully!')
     } catch {
       setError('Failed to delete attachment.')
+      toast.error('Failed to delete attachment.')
     }
   }
 
@@ -178,8 +185,10 @@ export default function TaskDetail() {
     try {
       await api.patch(`/tasks/${id}/status`, { status })
       setTask({ ...task, status })
+      toast.success(`Task status updated to: ${status}`)
     } catch {
       setError('Failed to update status.')
+      toast.error('Failed to update status.')
     }
   }
 
@@ -198,9 +207,11 @@ export default function TaskDetail() {
     if (!window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) return
     try {
       await api.delete(`/tasks/${id}`)
+      toast.success('Task deleted successfully!')
       navigate('/tasks')
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to delete task.')
+      toast.error(err.response?.data?.detail || 'Failed to delete task.')
     }
   }
 
@@ -209,8 +220,10 @@ export default function TaskDetail() {
     try {
       await api.delete(`/tasks/comments/${commentId}`)
       setComments(comments.filter(c => (c.comment_id || c.id) !== commentId))
+      toast.success('Comment deleted successfully!')
     } catch {
       setError('Failed to delete comment.')
+      toast.error('Failed to delete comment.')
     }
   }
 
@@ -236,8 +249,10 @@ export default function TaskDetail() {
       setTask(res.data)
       setShowEdit(false)
       setError('')
+      toast.success('Task updated successfully!')
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to update task.')
+      toast.error(err.response?.data?.detail || 'Failed to update task.')
     } finally {
       setEditing(false)
     }

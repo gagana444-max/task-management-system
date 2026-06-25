@@ -8,7 +8,7 @@ class TaskCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
     assigned_user_id: int = Field(..., gt=0)
-    project_id: Optional[int] = None
+    project_id: int = Field(..., gt=0)
     due_date: date
     priority: Literal["Low", "Medium", "High"]
 

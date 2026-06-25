@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from models.db_models import DBUser
 from services.email_service import generate_temp_password, validate_password_policy, send_onboarding_email
@@ -10,7 +10,7 @@ def hash_password(password: str):
 def verify_password(plain: str, hashed: str):
     return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
 
-async def onboard_user(user_id: int, db: Session):
+async def onboard_user(user_id: int, background_tasks: BackgroundTasks, db: Session):
     user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail={
@@ -28,8 +28,9 @@ async def onboard_user(user_id: int, db: Session):
     user.is_first_login = True
     db.commit()
 
-    # Send onboarding email
-    await send_onboarding_email(
+    # Send onboarding email in background
+    background_tasks.add_task(
+        send_onboarding_email,
         email=user.email,
         name=user.user_name,
         temp_password=temp_password

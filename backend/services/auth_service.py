@@ -34,6 +34,27 @@ def decode_access_token(token: str) -> Optional[dict]:
     except Exception:
         return None
 
+def create_password_reset_token(email: str, user_id: int, pwd_hash: str) -> str:
+    expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode = {
+        "sub": str(user_id),
+        "email": email,
+        "pwd_hash_snippet": pwd_hash[-10:],
+        "exp": expire,
+        "purpose": "password_reset"
+    }
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def decode_password_reset_token(token: str) -> Optional[dict]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("purpose") != "password_reset":
+            return None
+        return payload
+    except Exception:
+        return None
+
 def authenticate_user(db: Session, email: str, password: str):
     user = db.query(DBUser).filter(DBUser.email == email).first()
     if not user:

@@ -4,6 +4,7 @@ import api from '../api/axios'
 import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import SearchableDropdown from '../components/SearchableDropdown'
+import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
   { bg: 'linear-gradient(135deg, #f5f7ff 0%, #ebf0fe 100%)', border: '#cbdcfc', iconBg: '#e0e9fe', prog: 'linear-gradient(90deg, #818cf8, #a78bfa)' },
@@ -70,8 +71,10 @@ export default function Projects() {
       setShowCreate(false)
       setForm({ name: '', description: '', manager_id: '' })
       setError('')
+      toast.success(`Project "${res.data.name}" created successfully!`)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create project.')
+      toast.error(err.response?.data?.message || 'Failed to create project.')
     } finally {
       setSaving(false)
     }
@@ -92,8 +95,10 @@ export default function Projects() {
       setShowEdit(null)
       setForm({ name: '', description: '', manager_id: '' })
       setError('')
+      toast.success(`Project "${res.data.name}" updated successfully!`)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update project.')
+      toast.error(err.response?.data?.message || 'Failed to update project.')
     } finally {
       setSaving(false)
     }
@@ -102,10 +107,12 @@ export default function Projects() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this project?')) return
     try {
+      const projectObj = projects.find(p => p.id === id)
       await api.delete(`/projects/${id}`)
       setProjects(projects.filter(p => p.id !== id))
+      toast.success(`Deleted project "${projectObj?.name || 'project'}"`)
     } catch (err) {
-      alert('Failed to delete project.')
+      toast.error('Failed to delete project.')
     }
   }
 
