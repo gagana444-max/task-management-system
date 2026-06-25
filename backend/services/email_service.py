@@ -37,7 +37,7 @@ def validate_password_policy(password: str):
 async def send_onboarding_email(email: str, name: str, temp_password: str):
     MAIL_USERNAME = os.getenv("EMAIL_USER") or os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("EMAIL_PASS") or os.getenv("MAIL_PASSWORD")
-    MAIL_FROM = os.getenv("MAIL_FROM", "noreply@tms.com")
+    MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
     MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
 
