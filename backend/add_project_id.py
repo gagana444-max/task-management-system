@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-env_path = Path(__file__).resolve().parent.parent / ".env"
+env_path = Path(__file__).resolve().parent / ".env"
 from dotenv import load_dotenv
 load_dotenv(env_path)
 
@@ -34,7 +34,10 @@ def add_project_id_column():
         else:
             cursor.execute("""
                 ALTER TABLE tasks
-                ADD COLUMN project_id INT NULL,
+                ADD COLUMN project_id INT NULL
+            """)
+            cursor.execute("""
+                ALTER TABLE tasks
                 ADD CONSTRAINT fk_task_project
                 FOREIGN KEY (project_id) REFERENCES projects(id)
                 ON DELETE SET NULL

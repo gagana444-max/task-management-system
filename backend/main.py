@@ -51,6 +51,11 @@ if ENFORCE_HTTPS:
 # --- Structured Error Handlers ---
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if isinstance(exc.detail, dict):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=exc.detail
+        )
     return JSONResponse(
         status_code=exc.status_code,
         content={

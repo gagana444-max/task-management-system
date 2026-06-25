@@ -65,6 +65,14 @@ def reset_password(user_id: int, temp_password: str, new_password: str, confirm_
             "description": "The temporary password you entered is incorrect"
         })
 
+    # Prevent reusing the temporary password
+    if new_password == temp_password:
+        raise HTTPException(status_code=400, detail={
+            "error_code": "SAME_AS_TEMP",
+            "message": "Cannot reuse temporary password",
+            "description": "For security reasons, your new password must be completely different from your temporary password"
+        })
+
     # Check passwords match
     if new_password != confirm_password:
         raise HTTPException(status_code=400, detail={
