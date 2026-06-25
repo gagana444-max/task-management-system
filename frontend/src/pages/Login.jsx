@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, CheckSquare, Activity, Users } from 'lucide-react'
 
 export default function Login() {
   const { login } = useAuth()
@@ -47,12 +47,17 @@ export default function Login() {
         <div style={{ position: 'absolute', bottom: -100, left: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,34,97,0.2), transparent 70%)' }} />
 
         {/* Logo */}
-        <div style={{ marginBottom: 48, position: 'relative', zIndex: 1 }}>
-          <div style={{ fontWeight: 300, fontSize: 34, letterSpacing: '-0.6px' }}>
-            <span style={{ color: '#ffffff' }}>Task</span>
-            <span style={{ color: '#f5e9d4' }}>ify</span>
+        <div style={{ marginBottom: 48, position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 14, borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <CheckSquare size={40} color="#533afd" strokeWidth={2.5} />
           </div>
-          <p style={{ color: '#cdd2f9', fontSize: 13, marginTop: 8 }}>Task Management System</p>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 56, letterSpacing: '-1.5px', textShadow: '0 4px 12px rgba(0,0,0,0.1)', lineHeight: 1 }}>
+              <span style={{ color: '#ffffff' }}>Task</span>
+              <span style={{ color: '#fbd786' }}>ify</span>
+            </div>
+            <p style={{ color: '#cdd2f9', fontSize: 15, margin: '8px 0 0 0', fontWeight: 500 }}>Task Management System</p>
+          </div>
         </div>
 
         {/* Floating task cards */}
@@ -106,10 +111,76 @@ export default function Login() {
             </div>
           ))}
 
-          {/* Tagline */}
-          <div style={{ position: 'absolute', bottom: -20, left: 0 }}>
-            <p style={{ color: '#fff', fontSize: 18, fontWeight: 500, margin: '0 0 4px 0', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>Your team. Your tasks.</p>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: 0 }}>Manage everything in one place.</p>
+          {/* Creative Space Fillers */}
+          {/* Widget 1: Team Activity */}
+          <div style={{
+            position: 'absolute', top: 30, right: 20,
+            width: 220,
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 20,
+            padding: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
+            color: '#fff',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+            transition: 'all 0.3s ease',
+            cursor: 'default'
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Activity size={16} color="#00f2fe" />
+                <span style={{ fontSize: 13, fontWeight: 600 }}>Weekly Activity</span>
+              </div>
+              <span style={{ fontSize: 12, color: '#00f2fe', fontWeight: 600 }}>+24%</span>
+            </div>
+            <div style={{ height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ width: '75%', height: '100%', background: 'linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)', borderRadius: 4 }} />
+            </div>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>124 tasks completed this week</p>
+          </div>
+
+          {/* Widget 2: Active Members */}
+          <div style={{
+            position: 'absolute', top: 220, right: -40,
+            width: 180,
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 20,
+            padding: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
+            color: '#fff',
+            transition: 'all 0.3s ease',
+            cursor: 'default'
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Users size={16} color="#fbd786" />
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Team Online</span>
+            </div>
+            <div style={{ display: 'flex', marginLeft: 8 }}>
+              {['I', 'A', 'T', 'G', 'K'].map((initial, i) => (
+                <div key={i} style={{ 
+                  width: 32, height: 32, borderRadius: '50%', 
+                  background: `hsl(${i * 60 + 200}, 70%, 50%)`, 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                  fontSize: 12, fontWeight: 600, color: '#fff',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  marginLeft: -8,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}>
+                  {initial}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
