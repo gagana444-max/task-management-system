@@ -68,14 +68,14 @@ export default function TaskDetail() {
 
   async function fetchComments() {
     try {
-      const res = await api.get(`/comments/tasks/${id}`, { headers: getHeaders() })
+      const res = await api.get(`/tasks/${id}/comments`, { headers: getHeaders() })
       setComments(res.data)
     } catch (e) { console.error(e); setComments([]) }
   }
 
   async function fetchAttachments() {
     try {
-      const res = await api.get(`/comments/tasks/${id}/attachments`, { headers: getHeaders() })
+      const res = await api.get(`/tasks/${id}/attachments`, { headers: getHeaders() })
       setAttachments(res.data)
     } catch (e) { console.error(e); setAttachments([]) }
   }
@@ -131,7 +131,7 @@ export default function TaskDetail() {
     try {
       setPosting(true)
       const res = await api.post(
-        `/comments/tasks/${id}`,
+        `/tasks/${id}/comments`,
         { content: newComment.trim(), task_id: parseInt(id) },
         { headers: getHeaders() }
       )
@@ -152,7 +152,7 @@ export default function TaskDetail() {
     formData.append('file', file)
     try {
       setUploading(true)
-      const res = await api.post(`/comments/tasks/${id}/attachments`, formData, {
+      const res = await api.post(`/tasks/${id}/attachments`, formData, {
         headers: { ...getHeaders(), 'Content-Type': 'multipart/form-data' }
       })
       setAttachments([...attachments, res.data])
@@ -167,7 +167,7 @@ export default function TaskDetail() {
   const deleteFile = async (attachmentId) => {
     if (!window.confirm('Delete this attachment?')) return
     try {
-      await api.delete(`/comments/attachments/${attachmentId}`, { headers: getHeaders() })
+      await api.delete(`/tasks/attachments/${attachmentId}`, { headers: getHeaders() })
       setAttachments(attachments.filter(a => (a.attachment_id || a.id) !== attachmentId))
     } catch {
       setError('Failed to delete attachment.')
@@ -427,7 +427,7 @@ export default function TaskDetail() {
                       {(a.file_size || a.size) && <div style={{ fontSize: 10, color: 'var(--border-input)' }}>{formatSize(a.file_size || a.size)}</div>}
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-                      <a href={`http://localhost:8000/api/comments/tasks/${id}/attachments/${a.attachment_id || a.id}/download`} target="_blank" rel="noreferrer"
+                      <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/tasks/${id}/attachments/${a.attachment_id || a.id}/download`} target="_blank" rel="noreferrer"
                         style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 400, textDecoration: 'none' }}>Download</a>
                       <button onClick={() => deleteFile(a.attachment_id || a.id)}
                         style={{ fontSize: 10, color: '#ea2261', fontWeight: 400, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Delete</button>
