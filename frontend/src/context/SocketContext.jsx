@@ -55,6 +55,42 @@ export function SocketProvider({ children }) {
       toast.info(`📁 ${data.message}`)
     })
 
+    newSocket.on('task_unassigned', (data) => {
+      console.log('Received task_unassigned:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.warn(`⚠️ ${data.message}`)
+    })
+
+    newSocket.on('task_updated', (data) => {
+      console.log('Received task_updated:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.info(`📝 ${data.message}`)
+    })
+
+    newSocket.on('task_deleted', (data) => {
+      console.log('Received task_deleted:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.warn(`🗑️ ${data.message}`)
+    })
+
+    newSocket.on('project_removed', (data) => {
+      console.log('Received project_removed:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.warn(`⚠️ ${data.message}`)
+    })
+
+    newSocket.on('project_updated', (data) => {
+      console.log('Received project_updated:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.info(`📝 ${data.message}`)
+    })
+
+    newSocket.on('project_deleted', (data) => {
+      console.log('Received project_deleted:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.warn(`🗑️ ${data.message}`)
+    })
+
     setSocket(newSocket)
 
     return () => {
