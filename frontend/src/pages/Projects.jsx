@@ -123,11 +123,13 @@ export default function Projects() {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[var(--bg)]">
       <div className="flex justify-between items-start mb-6">
-        <PageHeader
-          title="Projects"
-          subtitle="Manage and organize your projects and project managers"
-          statText={loading ? 'Loading projects...' : `Total: ${projects.length} active project${projects.length !== 1 ? 's' : ''}`}
-        />
+        <div className="flex-1 mr-4">
+          <PageHeader
+            title="Projects"
+            subtitle="Manage and organize your projects and project managers"
+            statText={loading ? 'Loading projects...' : `Total: ${projects.length} active project${projects.length !== 1 ? 's' : ''}`}
+          />
+        </div>
         {canManage && (
           <button
             onClick={openCreate}
@@ -216,7 +218,7 @@ export default function Projects() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-[#0d253d] text-base">New Project</h3>
-              <button onClick={() => setShowCreate(false)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">✕</button>
+              <button onClick={() => setShowCreate(false)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">Γ£ò</button>
             </div>
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
@@ -276,7 +278,7 @@ export default function Projects() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-[#0d253d] text-base">Edit Project</h3>
-              <button onClick={() => setShowEdit(null)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">✕</button>
+              <button onClick={() => setShowEdit(null)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">Γ£ò</button>
             </div>
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">

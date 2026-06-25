@@ -29,7 +29,7 @@ const EMPTY_MESSAGES = {
   completed: 'No completed tasks yet',
 }
 
-export default function TasksList() {
+export default function TasksList({ projectId = null, hideHeader = false }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
@@ -55,7 +55,7 @@ export default function TasksList() {
   async function fetchTasks() {
     try {
       setLoading(true)
-      const res = await api.get('/tasks')
+      const res = await api.get(projectId ? `/tasks?project_id=${projectId}` : '/tasks')
       setTasks(res.data)
     } catch {
       setTasks([])
@@ -131,6 +131,7 @@ export default function TasksList() {
       setCreating(true)
       const payload = { ...form }
       if (!payload.assigned_user_id) delete payload.assigned_user_id
+      if (projectId) payload.project_id = projectId
       const res = await api.post('/tasks', payload)
       setTasks([...tasks, res.data])
       setNewlyCreatedId(res.data.id)
@@ -196,12 +197,14 @@ export default function TasksList() {
       `}</style>
 
       {/* Topbar */}
-      <PageHeader
-        title="Task Board"
-        subtitle={isCollaborator ? 'Showing tasks assigned to you' : 'Manage your team\'s tasks and progress'}
-        statText={loading ? 'Loading tasks...' : `Total: ${filtered.length} task${filtered.length !== 1 ? 's' : ''} found`}
-        statColor="#533afd"
-      />
+      {!hideHeader && (
+        <PageHeader
+          title="Task Board"
+          subtitle={isCollaborator ? 'Showing tasks assigned to you' : 'Manage your team\'s tasks and progress'}
+          statText={loading ? 'Loading tasks...' : `Total: ${filtered.length} task${filtered.length !== 1 ? 's' : ''} found`}
+          statColor="#533afd"
+        />
+      )}
       <div className="flex items-center justify-between flex-shrink-0 mb-1 mt-1">
         {/* View Toggle */}
         <div className="flex items-center bg-[#fff] border border-[#e3e8ee] rounded-lg p-1 shadow-sm">

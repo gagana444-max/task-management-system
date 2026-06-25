@@ -68,6 +68,7 @@ def _row_to_task(row):
         "due_date": row[4].isoformat() if row[4] else None,
         "priority": row[5],
         "status": api_status,
+        "project_id": row[7] if len(row) > 7 else None,
     }
 
 
@@ -97,16 +98,18 @@ def create_task(task_data: TaskCreate):
                 title,
                 task_description,
                 assigned_user_id,
+                project_id,
                 due_date,
                 priority,
                 task_status
             )
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 task_data.title,
                 task_data.description,
                 task_data.assigned_user_id,
+                task_data.project_id,
                 task_data.due_date,
                 task_data.priority,
                 "To Do",
@@ -123,7 +126,8 @@ def create_task(task_data: TaskCreate):
                    assigned_user_id,
                    due_date,
                    priority,
-                   task_status
+                   task_status,
+                   project_id
             FROM tasks
             WHERE task_id = %s
             """,
@@ -140,7 +144,8 @@ def create_task(task_data: TaskCreate):
 def get_all_tasks(
     priority=None,
     status=None,
-    assigned_user_id=None
+    assigned_user_id=None,
+    project_id=None
 ):
     connection = get_connection()
     cursor = connection.cursor()
@@ -153,7 +158,8 @@ def get_all_tasks(
                    assigned_user_id,
                    due_date,
                    priority,
-                   task_status
+                   task_status,
+                   project_id
             FROM tasks
             WHERE 1=1
         """
@@ -171,6 +177,10 @@ def get_all_tasks(
         if assigned_user_id:
             query += " AND assigned_user_id = %s"
             params.append(assigned_user_id)
+
+        if project_id:
+            query += " AND project_id = %s"
+            params.append(project_id)
 
         query += " ORDER BY task_id DESC"
 
@@ -194,7 +204,8 @@ def get_task_by_id(task_id: int):
             """
             SELECT task_id, title, task_description,
                    assigned_user_id, due_date,
-                   priority, task_status
+                   priority, task_status,
+                   project_id
             FROM tasks
             WHERE task_id = %s
             """,
@@ -248,7 +259,8 @@ def update_task(task_id: int, task_data):
             """
             SELECT task_id, title, task_description,
                    assigned_user_id, due_date,
-                   priority, task_status
+                   priority, task_status,
+                   project_id
             FROM tasks
             WHERE task_id=%s
             """,
@@ -289,7 +301,8 @@ def update_task_status(task_id: int, status: str):
             """
             SELECT task_id, title, task_description,
                    assigned_user_id, due_date,
-                   priority, task_status
+                   priority, task_status,
+                   project_id
             FROM tasks
             WHERE task_id=%s
             """,
@@ -389,7 +402,8 @@ def update_task(task_id: int, task_data: TaskUpdate):
             """
             SELECT task_id, title, task_description,
                    assigned_user_id, due_date,
-                   priority, task_status
+                   priority, task_status,
+                   project_id
             FROM tasks
             WHERE task_id=%s
             """,
