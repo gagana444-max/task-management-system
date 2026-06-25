@@ -40,7 +40,7 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
     MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
     MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://taskmanagement.eastasia.cloudapp.azure.com:5173")
 
     email_body = f"""
     <html>
@@ -64,7 +64,7 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-            <a href="{FRONTEND_URL}/login" style="background-color: #4F46E5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Login to Taskify Now</a>
+            <a href="{FRONTEND_URL}/first-login-reset?temp={temp_password}" style="background-color: #4F46E5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Set Your Password Now</a>
         </div>
         
         <div style="font-size: 13px; color: #6B7280; border-top: 1px solid #E5E7EB; padding-top: 20px;">
@@ -94,7 +94,7 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
     
     IMPORTANT: You must change your password on your first login.
     
-    Login to Taskify Now: {FRONTEND_URL}/login
+    Set Your Password Now: {FRONTEND_URL}/first-login-reset?temp={temp_password}
     
     Password Requirements:
     - Minimum 8 characters
@@ -142,7 +142,7 @@ def send_password_reset_email(email: str, name: str, reset_token: str):
     MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
     MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://taskmanagement.eastasia.cloudapp.azure.com:5173")
 
     reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
 

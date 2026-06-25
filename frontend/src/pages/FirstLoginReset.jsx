@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { resetPassword } from '../api/users'
 import { Lock, Eye, EyeOff } from 'lucide-react'
@@ -7,7 +7,9 @@ import { Lock, Eye, EyeOff } from 'lucide-react'
 export default function FirstLoginReset() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ temp_password: '', new_password: '', confirm_password: '' })
+  const [searchParams] = useSearchParams()
+  const tempFromUrl = searchParams.get('temp') || ''
+  const [form, setForm] = useState({ temp_password: tempFromUrl, new_password: '', confirm_password: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [globalError, setGlobalError] = useState('')
