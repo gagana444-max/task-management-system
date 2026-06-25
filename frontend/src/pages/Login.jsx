@@ -111,11 +111,6 @@ export default function Login() {
             </div>
           ))}
 
-          {/* Tagline */}
-          <div style={{ position: 'absolute', bottom: -20, left: 0 }}>
-            <p style={{ color: '#fff', fontSize: 18, fontWeight: 500, margin: '0 0 4px 0', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>Your team. Your tasks.</p>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: 0 }}>Manage everything in one place.</p>
-          </div>
         </div>
       </div>
 

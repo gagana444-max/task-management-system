@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, Mail } from 'lucide-react'
+import { ArrowLeft, Mail, CheckSquare } from 'lucide-react'
 import axios from 'axios'
 
 export default function ForgotPassword() {
@@ -30,34 +30,46 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--bg)',
-      fontFamily: "'Inter', sans-serif",
-      padding: 20
-    }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+      
+      {/* Left panel — gradient mesh hero */}
       <div style={{
-        background: 'var(--bg-card)',
-        padding: '40px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-        width: '100%',
-        maxWidth: '400px',
-        border: '1px solid var(--border)'
+        flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 64px',
+        background: 'linear-gradient(115deg, #1c1e54 0%, #2e3070 35%, #533afd 60%, #ea2261 100%)',
+        position: 'relative', overflow: 'hidden'
       }}>
-        
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ 
-            width: 48, 
-            height: 48, 
-            background: 'rgba(79, 70, 229, 0.1)', 
-            borderRadius: '50%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
+        {/* Soft gradient blobs for mesh feel */}
+        <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,233,212,0.25), transparent 70%)' }} />
+        <div style={{ position: 'absolute', bottom: -100, left: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,34,97,0.2), transparent 70%)' }} />
+
+        {/* Logo */}
+        <div style={{ marginBottom: 48, position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 14, borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <CheckSquare size={40} color="#533afd" strokeWidth={2.5} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 56, letterSpacing: '-1.5px', textShadow: '0 4px 12px rgba(0,0,0,0.1)', lineHeight: 1 }}>
+              <span style={{ color: '#ffffff' }}>Task</span>
+              <span style={{ color: '#fbd786' }}>ify</span>
+            </div>
+            <p style={{ color: '#cdd2f9', fontSize: 15, margin: '8px 0 0 0', fontWeight: 500 }}>Task Management System</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right panel — forgot password form */}
+      <div style={{ width: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px' }}>
+        <div style={{ width: '100%', maxWidth: 340 }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <div style={{ 
+              width: 48, 
+              height: 48, 
+              background: 'rgba(79, 70, 229, 0.1)', 
+              borderRadius: '50%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
             margin: '0 auto 16px'
           }}>
             <Mail size={24} color="#4F46E5" />
