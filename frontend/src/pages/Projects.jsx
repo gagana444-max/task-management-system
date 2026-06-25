@@ -7,11 +7,11 @@ import SearchableDropdown from '../components/SearchableDropdown'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
-  { bg: 'linear-gradient(135deg, #fcfdff 0%, #f5f8ff 100%)', border: '#e5edff', iconBg: '#eef2ff' },
-  { bg: 'linear-gradient(135deg, #fcfffd 0%, #f0fdf4 100%)', border: '#dcfce7', iconBg: '#ecfdf5' },
-  { bg: 'linear-gradient(135deg, #fffdfc 0%, #fff7ed 100%)', border: '#ffedd5', iconBg: '#fff7ed' },
-  { bg: 'linear-gradient(135deg, #fdfcff 0%, #f5f3ff 100%)', border: '#ede9fe', iconBg: '#f5f3ff' },
-  { bg: 'linear-gradient(135deg, #fffcfd 0%, #fdf2f8 100%)', border: '#fce7f3', iconBg: '#fdf2f8' },
+  { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', iconBg: '#e0e7ff' }, // Bright Indigo
+  { bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', border: '#86efac', iconBg: '#dcfce7' }, // Bright Green
+  { bg: 'linear-gradient(135deg, #fef08a 0%, #fde047 100%)', border: '#facc15', iconBg: '#fef08a' }, // Bright Yellow
+  { bg: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)', border: '#d8b4fe', iconBg: '#f3e8ff' }, // Bright Purple
+  { bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', border: '#f9a8d4', iconBg: '#fce7f3' }, // Bright Pink
 ]
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
