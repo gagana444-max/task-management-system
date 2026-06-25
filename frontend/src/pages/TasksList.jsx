@@ -6,6 +6,7 @@ import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, A
 import PageHeader from '../components/PageHeader'
 import RichTextEditor from '../components/RichTextEditor'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { toast } from 'react-toastify'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -71,6 +72,7 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
     if (source.droppableId === destination.droppableId) return
 
     const newStatus = destination.droppableId
+    const taskObj = tasks.find(t => t.id === parseInt(draggableId))
     setTasks(prev => prev.map(t => t.id === parseInt(draggableId) ? { ...t, status: newStatus } : t))
 
     try {
@@ -79,9 +81,12 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
         'in_progress': 'In Progress',
         'completed': 'Completed'
       }
-      await api.patch(`/tasks/${draggableId}/status`, { status: statusMap[newStatus] || newStatus })
+      const displayStatus = statusMap[newStatus] || newStatus
+      await api.patch(`/tasks/${draggableId}/status`, { status: displayStatus })
+      toast.success(`Updated "${taskObj?.title || 'task'}" status to ${displayStatus}`)
     } catch (err) {
       fetchTasks()
+      toast.error('Failed to update task status')
     }
   }
 
@@ -123,19 +128,29 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
 
   const moveTask = async (id, status) => {
     try {
+      const taskObj = tasks.find(t => t.id === id)
       await api.patch(`/tasks/${id}/status`, { status })
       setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
       setActiveId(id)
-    } catch (e) { console.error(e) }
+      toast.success(`Moved "${taskObj?.title || 'task'}" to ${status}`)
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to update task status')
+    }
   }
 
   const deleteTask = async (id) => {
     if (!window.confirm('Delete this task?')) return
     try {
+      const taskObj = tasks.find(t => t.id === id)
       await api.delete(`/tasks/${id}`)
       setTasks(tasks.filter(t => t.id !== id))
       setActiveId(null)
-    } catch (e) { console.error(e) }
+      toast.success(`Deleted task "${taskObj?.title || 'task'}"`)
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to delete task')
+    }
   }
 
   const handleCreate = async (e) => {
@@ -160,8 +175,10 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
       setShowCreate(false)
       setForm({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', project_id: '', due_date: '' })
       setError('')
+      toast.success(`Task "${res.data.title}" created successfully!`)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create task.')
+      toast.error(err.response?.data?.message || 'Failed to create task.')
     } finally {
       setCreating(false)
     }
