@@ -56,81 +56,60 @@ export default function Login() {
         </div>
 
         {/* Floating task cards */}
-        <div style={{ position: 'relative', height: 400, marginTop: 10, zIndex: 1 }}>
-          {/* Card 1 - top left */}
-          <div
-            style={{
-              position: 'absolute', top: 0, left: 0,
-              width: 260, background: '#fff', borderRadius: 12,
-              padding: '14px 16px', border: '1px solid #e3e8ee',
-              boxShadow: '0 8px 32px rgba(13,37,61,0.18)',
-              transition: 'all 0.3s ease', cursor: 'pointer'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#ea2261' }} />
-              <span style={{ color: '#9b6829', fontSize: 10, fontWeight: 500, letterSpacing: '0.3px' }}>HIGH PRIORITY</span>
-            </div>
-            <p style={{ color: '#0d253d', fontSize: 13, fontWeight: 400, margin: '0 0 6px 0' }}>Build Admin Panel UI</p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#533afd', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff' }}>I</div>
-                <span style={{ color: '#64748d', fontSize: 11 }}>Imasha · Due Today</span>
+        <div style={{ position: 'relative', height: 480, marginTop: 10, zIndex: 1 }}>
+          {[
+            { top: 0, left: 0, user: 'Gagana', initial: 'G', title: 'Database Schema Design', status: 'HIGH PRIORITY', statusColor: '#ff7eb3', due: 'Due Today' },
+            { top: 85, left: 40, user: 'Imasha', initial: 'I', title: 'Build Admin Panel UI', status: 'HIGH PRIORITY', statusColor: '#ff7eb3', due: 'Due Today' },
+            { top: 170, left: 80, user: 'Kirushnavy', initial: 'K', title: 'User Authentication', status: 'IN PROGRESS', statusColor: '#fbd786', due: 'Due Jun 20' },
+            { top: 255, left: 120, user: 'Aasif', initial: 'A', title: 'Implement Kanban Board', status: 'IN PROGRESS', statusColor: '#fbd786', due: 'Due Jun 19' },
+            { top: 340, left: 160, user: 'Thathsara', initial: 'T', title: 'WebSocket Notifications', status: 'COMPLETED', statusColor: '#00f2fe', due: 'Done' }
+          ].map((card, idx) => (
+            <div
+              key={idx}
+              style={{
+                position: 'absolute', top: card.top, left: card.left,
+                width: 280,
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                borderRadius: 16,
+                padding: '16px 20px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', 
+                cursor: 'pointer',
+                color: '#fff',
+                zIndex: 5 - idx // higher items are stacked above lower ones
+              }}
+              onMouseEnter={e => { 
+                e.currentTarget.style.transform = 'scale(1.05) translateY(-8px) translateX(8px)'; 
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                e.currentTarget.style.zIndex = 10;
+              }}
+              onMouseLeave={e => { 
+                e.currentTarget.style.transform = 'scale(1) translateY(0) translateX(0)'; 
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.zIndex = 5 - idx;
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: card.statusColor, boxShadow: `0 0 8px ${card.statusColor}` }} />
+                <span style={{ color: card.statusColor, fontSize: 10, fontWeight: 700, letterSpacing: '0.8px' }}>{card.status}</span>
               </div>
-              <span style={{ fontSize: 9, color: '#534ab7', background: '#eeedfe', padding: '2px 8px', borderRadius: 9999, fontWeight: 500 }}>Frontend</span>
+              <p style={{ color: '#ffffff', fontSize: 15, fontWeight: 500, margin: '0 0 12px 0', textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>{card.title}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#fff', fontWeight: 600, border: '1px solid rgba(255,255,255,0.3)' }}>{card.initial}</div>
+                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: 400 }}>{card.user} · {card.due}</span>
+              </div>
             </div>
-          </div>
-
-          {/* Card 2 - middle */}
-          <div
-            style={{
-              position: 'absolute', top: 95, left: 60,
-              width: 260, background: '#fdf6e8', borderRadius: 12,
-              padding: '14px 16px', border: '1px solid #f0dcb0',
-              transition: 'all 0.3s ease', cursor: 'pointer', opacity: 0.95
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#9b6829' }} />
-              <span style={{ color: '#9b6829', fontSize: 10, fontWeight: 500, letterSpacing: '0.3px' }}>IN PROGRESS</span>
-            </div>
-            <p style={{ color: '#0d253d', fontSize: 13, fontWeight: 400, margin: '0 0 6px 0' }}>Implement Kanban Board</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#533afd', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff' }}>A</div>
-              <span style={{ color: '#9b6829', fontSize: 11 }}>Aasif · Due Jun 19</span>
-            </div>
-          </div>
-
-          {/* Card 3 - bottom right */}
-          <div
-            style={{
-              position: 'absolute', top: 190, left: 120,
-              width: 260, background: '#eaf8f1', borderRadius: 12,
-              padding: '14px 16px', border: '1px solid #bfe4d6',
-              transition: 'all 0.3s ease', cursor: 'pointer', opacity: 0.9
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#0f6e56' }} />
-              <span style={{ color: '#0f6e56', fontSize: 10, fontWeight: 500, letterSpacing: '0.3px' }}>COMPLETED</span>
-            </div>
-            <p style={{ color: '#0d253d', fontSize: 13, fontWeight: 400, margin: '0 0 6px 0' }}>WebSocket Notifications</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#cbd5df', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff' }}>T</div>
-              <span style={{ color: '#0f6e56', fontSize: 11 }}>Thathsara · Done</span>
-            </div>
-          </div>
+          ))}
 
           {/* Tagline */}
-          <div style={{ position: 'absolute', bottom: 0, left: 0 }}>
-            <p style={{ color: '#fff', fontSize: 16, fontWeight: 400, margin: '0 0 4px 0' }}>Your team. Your tasks.</p>
-            <p style={{ color: '#cdd2f9', fontSize: 13, margin: 0 }}>Manage everything in one place.</p>
+          <div style={{ position: 'absolute', bottom: -20, left: 0 }}>
+            <p style={{ color: '#fff', fontSize: 18, fontWeight: 500, margin: '0 0 4px 0', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>Your team. Your tasks.</p>
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: 0 }}>Manage everything in one place.</p>
           </div>
         </div>
       </div>
