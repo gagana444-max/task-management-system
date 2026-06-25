@@ -111,7 +111,7 @@ export default function RichTextEditor({ content, onChange, editable = true }) {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose-base focus:outline-none min-h-[120px] max-h-[400px] overflow-y-auto p-4 text-[#0d253d] w-full',
+        class: 'prose prose-sm focus:outline-none min-h-[120px] max-h-[400px] overflow-y-auto p-3 text-[#0d253d] w-full max-w-none prose-p:text-[13px] prose-headings:text-[#0d253d] prose-p:leading-relaxed text-[13px]',
       },
     },
   })
@@ -119,7 +119,7 @@ export default function RichTextEditor({ content, onChange, editable = true }) {
   return (
     <div className={`border rounded-xl bg-white shadow-sm transition-all ${editable ? 'border-[#d9d6fe] hover:border-[#533afd]' : 'border-transparent bg-transparent shadow-none'}`}>
       {editable && <MenuBar editor={editor} />}
-      <EditorContent editor={editor} className={!editable ? 'prose prose-sm sm:prose-base' : ''} />
+      <EditorContent editor={editor} className={!editable ? 'prose prose-sm max-w-none prose-p:text-[13px] prose-p:leading-relaxed text-[#0d253d] text-[13px]' : ''} />
     </div>
   )
 }

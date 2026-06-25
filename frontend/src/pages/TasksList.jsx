@@ -169,7 +169,8 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
       const payload = { 
         ...form,
         assigned_user_id: Number(form.assigned_user_id),
-        project_id: Number(targetProjectId)
+        project_id: Number(targetProjectId),
+        due_date: form.due_date || null
       }
       
       const res = await api.post('/tasks', payload)
