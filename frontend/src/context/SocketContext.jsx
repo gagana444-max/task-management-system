@@ -19,7 +19,10 @@ export function SocketProvider({ children }) {
       return
     }
 
-    const newSocket = io('http://localhost:8000', {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+    const socketUrl = apiUrl.replace(/\/api\/?$/, '')
+
+    const newSocket = io(socketUrl, {
       path: '/socket.io',
       auth: { token: `Bearer ${token}` },
       transports: ['websocket', 'polling'],
