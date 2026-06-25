@@ -220,9 +220,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
 
   const cols = ['todo', 'in_progress', 'completed']
   const colStyle = {
-    todo: { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', cntBg: '#fef9c3', emptyBorder: '#fef08a' },
-    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', cntBg: '#dcfce7', emptyBorder: '#bbf7d0' },
-    completed: { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', cntBg: '#e0e7ff', emptyBorder: '#c7d2fe' },
+    todo: { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', cntBg: '#fef9c3', emptyBorder: '#fef08a', colBg: 'rgba(253, 246, 232, 0.6)' },
+    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', cntBg: '#dcfce7', emptyBorder: '#bbf7d0', colBg: 'rgba(245, 244, 254, 0.6)' },
+    completed: { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', cntBg: '#e0e7ff', emptyBorder: '#c7d2fe', colBg: 'rgba(234, 248, 241, 0.6)' },
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
 
@@ -333,7 +333,7 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                 return (
                   <Droppable key={status} droppableId={status}>
                     {(provided, snapshot) => (
-                      <div ref={provided.innerRef} {...provided.droppableProps} style={{ background: snapshot.isDraggingOver ? 'rgba(255,255,255,0.7)' : 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(16px)', border: `1px solid rgba(255, 255, 255, 0.8)`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s ease' }}>
+                      <div ref={provided.innerRef} {...provided.droppableProps} style={{ background: snapshot.isDraggingOver ? 'rgba(255,255,255,0.7)' : cs.colBg, backdropFilter: 'blur(16px)', border: `1px solid rgba(255, 255, 255, 0.8)`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s ease' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
                           <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
                           <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
@@ -361,10 +361,8 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                                       background: '#fff', borderRadius: 12, padding: '14px', cursor: 'grab',
                                       border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
                                       boxShadow: snapshot.isDragging ? '0 15px 30px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)',
-                                      transform: snapshot.isDragging ? 'rotate(2deg) scale(1.02)' : 'none',
                                       opacity: snapshot.isDragging ? 0.95 : 1,
                                       animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-                                      transition: snapshot.isDragging ? 'none' : 'all 0.2s ease',
                                       ...provided.draggableProps.style
                                     }}
                                     className="group hover:border-[#cbd5e1] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)]"
