@@ -32,7 +32,7 @@ class Project(Base):
 class ProjectCreate(BaseModel):
     name: str
     description: Optional[str] = None
-    manager_id: Optional[int] = None
+    manager_id: int
 
 
 class ProjectUpdate(BaseModel):

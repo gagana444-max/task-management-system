@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.project_model import Project, ProjectCreate, ProjectUpdate
+from models.db_models import DBUser
 from config.socketio import sio
 
 
@@ -16,6 +17,19 @@ def get_project(db: Session, project_id: int):
 
 
 async def create_project(db: Session, project: ProjectCreate, user_id: int):
+    # Check whether manager exists
+    manager = db.query(DBUser).filter(DBUser.user_id == project.manager_id).first()
+    if not manager:
+        raise HTTPException(
+            status_code=400,
+            detail="Assigned project manager does not exist"
+        )
+    if manager.user_role not in ("ProjectManager", "Admin"):
+        raise HTTPException(
+            status_code=400,
+            detail="Assigned user must be a Project Manager or Admin"
+        )
+
     new_project = Project(
         name=project.name,
         description=project.description,
@@ -51,6 +65,18 @@ async def update_project(db: Session, project_id: int, project_data: ProjectUpda
     if project_data.description is not None:
         project.description = project_data.description
     if project_data.manager_id is not None:
+        # Check whether manager exists
+        manager = db.query(DBUser).filter(DBUser.user_id == project_data.manager_id).first()
+        if not manager:
+            raise HTTPException(
+                status_code=400,
+                detail="Assigned project manager does not exist"
+            )
+        if manager.user_role not in ("ProjectManager", "Admin"):
+            raise HTTPException(
+                status_code=400,
+                detail="Assigned user must be a Project Manager or Admin"
+            )
         project.manager_id = project_data.manager_id
     db.commit()
     db.refresh(project)
