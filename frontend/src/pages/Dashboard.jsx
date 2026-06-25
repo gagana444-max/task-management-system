@@ -63,7 +63,7 @@ export default function Dashboard() {
     { Icon: ClipboardList, label: 'Total Tasks', value: totalTasks, bg: 'linear-gradient(135deg, #a855f7 0%, #c084fc 100%)', shadow: 'rgba(168, 85, 247, 0.3)', pct: 100 },
     { Icon: Zap, label: 'In Progress', value: inProgressCount, bg: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', shadow: 'rgba(59, 130, 246, 0.3)', pct: totalTasks ? Math.round((inProgressCount / totalTasks) * 100) : 0 },
     { Icon: CheckCircle2, label: 'Completed', value: completedCount, bg: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)', shadow: 'rgba(244, 63, 94, 0.3)', pct: completedPct },
-    { Icon: Users, label: 'Team Members', value: activeUsers, bg: 'linear-gradient(135deg, #22c55e 0%, #86efac 100%)', shadow: 'rgba(34, 197, 94, 0.3)', pct: users.length ? Math.round((activeUsers / users.length) * 100) : 0 },
+    { Icon: Users, label: 'Team Members', value: activeUsers, bg: 'linear-gradient(135deg, #06b6d4 0%, #2dd4bf 100%)', shadow: 'rgba(6, 182, 212, 0.3)', pct: users.length ? Math.round((activeUsers / users.length) * 100) : 0 },
   ]
 
 
