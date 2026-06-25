@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function Register() {
   const { register } = useAuth()
@@ -10,6 +11,8 @@ export default function Register() {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [globalError, setGlobalError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -94,13 +97,31 @@ export default function Register() {
 
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 6 }}>Password</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Min. 6 characters" style={inp('password')} />
+              <div style={{ position: 'relative' }}>
+                <input type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange} placeholder="Min. 6 characters" style={{...inp('password'), paddingRight: 36}} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748d', padding: 0, display: 'flex' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errors.password && <p style={{ fontSize: 10, color: '#ea2261', marginTop: 4 }}>{errors.password}</p>}
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 6 }}>Confirm password</label>
-              <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Re-enter password" style={inp('confirmPassword')} />
+              <div style={{ position: 'relative' }}>
+                <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Re-enter password" style={{...inp('confirmPassword'), paddingRight: 36}} />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748d', padding: 0, display: 'flex' }}
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errors.confirmPassword && <p style={{ fontSize: 10, color: '#ea2261', marginTop: 4 }}>{errors.confirmPassword}</p>}
             </div>
 

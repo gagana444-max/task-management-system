@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
 import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
+import SearchableDropdown from '../components/SearchableDropdown'
 
 const CARD_COLORS = [
   { bg: 'linear-gradient(135deg, #f5f7ff 0%, #ebf0fe 100%)', border: '#cbdcfc', iconBg: '#e0e9fe', prog: 'linear-gradient(90deg, #818cf8, #a78bfa)' },
@@ -29,6 +30,10 @@ export default function Projects() {
 
   // Filter users to display only Project Managers and Admins as options
   const managers = users.filter(u => u.role === 'ProjectManager' || u.role === 'Admin')
+  const managerOptions = [
+    { value: '', label: 'Select Project Manager' },
+    ...managers.map(m => ({ value: m.id, label: `${m.name} (${m.email})` }))
+  ]
 
   const fetchData = async () => {
     try {
@@ -248,16 +253,12 @@ export default function Projects() {
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager</label>
-                <select
+                <SearchableDropdown
+                  options={managerOptions}
                   value={form.manager_id}
-                  onChange={e => setForm({ ...form, manager_id: e.target.value })}
-                  className="w-full px-3.5 py-2 border border-[#e3e8ee] rounded-xl text-xs outline-none focus:border-[#1a1a2e] bg-white transition cursor-pointer"
-                >
-                  <option value="">Select Project Manager</option>
-                  {managers.map(m => (
-                    <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm({ ...form, manager_id: val })}
+                  placeholder="Select Project Manager"
+                />
               </div>
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border border-[#e3e8ee] rounded-xl text-xs font-semibold hover:bg-[#f6f9fc] transition cursor-pointer">
@@ -308,16 +309,12 @@ export default function Projects() {
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager</label>
-                <select
+                <SearchableDropdown
+                  options={managerOptions}
                   value={form.manager_id}
-                  onChange={e => setForm({ ...form, manager_id: e.target.value })}
-                  className="w-full px-3.5 py-2 border border-[#e3e8ee] rounded-xl text-xs outline-none focus:border-[#1a1a2e] bg-white transition cursor-pointer"
-                >
-                  <option value="">Select Project Manager</option>
-                  {managers.map(m => (
-                    <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm({ ...form, manager_id: val })}
+                  placeholder="Select Project Manager"
+                />
               </div>
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowEdit(null)} className="px-4 py-2 border border-[#e3e8ee] rounded-xl text-xs font-semibold hover:bg-[#f6f9fc] transition cursor-pointer">

@@ -398,6 +398,16 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                       key={t.id}
                       onClick={() => setActiveId(activeId === t.id ? null : t.id)}
                       style={{
+                        display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 1fr', padding: '12px 16px', alignItems: 'center',
+                        borderBottom: '1px solid #f0f2f5', cursor: 'pointer',
+                        background: activeId === t.id ? '#f8faff' : '#fff',
+                        transition: 'background 0.15s',
+                        borderLeft: activeId === t.id ? `3px solid #533afd` : `3px solid transparent`,
+                        animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+                      }}
+                      onMouseEnter={(e) => { if (activeId !== t.id) e.currentTarget.style.background = '#fcfcfd' }}
+                      onMouseLeave={(e) => { if (activeId !== t.id) e.currentTarget.style.background = 'var(--bg-card)' }}
+                    >
                       <div style={{ fontSize: 13, fontWeight: 500, color: ns === 'completed' ? '#a8c3de' : '#0d253d', textDecoration: ns === 'completed' ? 'line-through' : 'none', paddingRight: 10, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.title}</div>
                       <div><span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 9999, fontWeight: 500, background: spill(ns).bg, color: spill(ns).color }}>{slabel(ns)}</span></div>
                       <div>
