@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 import { useAuth } from './AuthContext'
+import { toast } from 'react-toastify'
 
 const SocketContext = createContext(null)
 
@@ -39,10 +40,13 @@ export function SocketProvider({ children }) {
     newSocket.on('task_assigned', (data) => {
       console.log('Received task_assigned:', data)
       setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.info(`🔔 ${data.message}`)
     })
 
     newSocket.on('status_changed', (data) => {
+      console.log('Received status_changed:', data)
       setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.info(`📋 ${data.message}`)
     })
 
     setSocket(newSocket)
