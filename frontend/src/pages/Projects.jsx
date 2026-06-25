@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
-import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle } from 'lucide-react'
+import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle, ArrowDownUp } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import SearchableDropdown from '../components/SearchableDropdown'
 import { toast } from 'react-toastify'
@@ -26,6 +26,8 @@ export default function Projects() {
   const [form, setForm] = useState({ name: '', description: '', manager_id: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState('newest')
 
   const canManage = user?.role === 'Admin' || user?.role === 'ProjectManager'
 
@@ -134,38 +136,69 @@ export default function Projects() {
     setError('')
   }
 
+  let filteredProjects = projects.filter(p => 
+    (p.name?.toLowerCase() || '').includes(search.toLowerCase()) || 
+    (p.description?.toLowerCase() || '').includes(search.toLowerCase())
+  )
+
+  filteredProjects.sort((a, b) => {
+    if (sortBy === 'newest') return new Date(b.created_at || b.id) - new Date(a.created_at || a.id)
+    if (sortBy === 'oldest') return new Date(a.created_at || a.id) - new Date(b.created_at || b.id)
+    if (sortBy === 'a-z') return (a.name || '').localeCompare(b.name || '')
+    if (sortBy === 'z-a') return (b.name || '').localeCompare(a.name || '')
+    return 0
+  })
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[var(--bg)]">
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex-1 mr-4">
-          <PageHeader
-            title="Projects"
-            subtitle="Manage and organize your projects and project managers"
-            statText={loading ? 'Loading projects...' : `Total: ${projects.length} active project${projects.length !== 1 ? 's' : ''}`}
+      <PageHeader
+        title="Projects"
+        subtitle="Manage and organize your projects and project managers"
+        statText={loading ? 'Loading projects...' : `Total: ${filteredProjects.length} active project${filteredProjects.length !== 1 ? 's' : ''}`}
+      />
+      <div className="flex items-center justify-end flex-shrink-0 mb-6 mt-1">
+        <div className="flex items-center gap-2">
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search projects..."
+            style={{ background: 'var(--bg-card)', border: '1px solid #e3e8e', borderColor: '#e3e8ee', borderRadius: 6, padding: '7px 11px', fontSize: 11, color: 'var(--text)', outline: 'none', width: 140, fontFamily: "'Inter', sans-serif" }}
           />
+          <div className="flex items-center gap-1.5 ml-1 border-l border-[#e3e8ee] pl-3">
+            <ArrowDownUp size={14} color="#64748d" />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 10px', fontSize: 11, color: 'var(--text-muted)', fontFamily: "'Inter', sans-serif" }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="a-z">Name A-Z</option>
+              <option value="z-a">Name Z-A</option>
+            </select>
+            {canManage && (
+              <button
+                onClick={openCreate}
+                style={{ padding: '7px 14px', borderRadius: 6, border: 'none', background: 'var(--primary)', color: '#fff', fontSize: 11, fontWeight: 500, cursor: 'pointer', fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                <Plus size={14} /> New Project
+              </button>
+            )}
+          </div>
         </div>
-        {canManage && (
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a2e] text-white rounded-xl text-xs font-semibold hover:bg-[#2e2e4a] transition-all shadow-[0_4px_15px_rgba(0,0,0,0.08)] cursor-pointer"
-          >
-            <Plus size={14} />
-            New Project
-          </button>
-        )}
       </div>
 
       {loading ? (
         <div className="text-center py-20 text-[#a8c3de] text-sm">Loading projects...</div>
-      ) : projects.length === 0 ? (
+      ) : filteredProjects.length === 0 ? (
         <div className="text-center py-20 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/80 shadow-[0_4px_15px_rgba(0,0,0,0.02)]">
           <FolderKanban size={48} className="mx-auto mb-4 text-[#a8c3de]" strokeWidth={1.5} />
-          <p className="text-sm font-semibold text-[#0d253d]">No projects yet.</p>
-          {canManage && <p className="text-xs text-[#64748d] mt-1">Click New Project to get started.</p>}
+          <p className="text-sm font-semibold text-[#0d253d]">No projects found.</p>
+          {canManage && search === '' && <p className="text-xs text-[#64748d] mt-1">Click New Project to get started.</p>}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {projects.map((project, index) => {
+          {filteredProjects.map((project, index) => {
             const color = CARD_COLORS[index % CARD_COLORS.length]
             return (
               <div
