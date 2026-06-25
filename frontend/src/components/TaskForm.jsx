@@ -36,7 +36,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
 
   const userOptions = [
     { value: '', label: '— Unassigned —' },
-    ...users.map(u => ({ value: u.id, label: `${u.name} (${u.role})` }))
+    ...users.filter(u => u.is_active !== false).map(u => ({ value: u.id, label: `${u.name} (${u.role})` }))
   ];
 
   const validate = () => {
