@@ -23,22 +23,22 @@ def get_project(
 
 
 @router.post("", response_model=ProjectOut, status_code=201)
-def create_project(
+async def create_project(
     project: ProjectCreate,
     current_user: dict = Depends(roles_allowed(["Admin", "ProjectManager"])),
     db: Session = Depends(get_db)
 ):
-    return project_controller.create_project(db, project, current_user["id"])
+    return await project_controller.create_project(db, project, current_user["id"])
 
 
 @router.put("/{project_id}", response_model=ProjectOut)
-def update_project(
+async def update_project(
     project_id: int,
     project_data: ProjectUpdate,
     current_user: dict = Depends(roles_allowed(["Admin", "ProjectManager"])),
     db: Session = Depends(get_db)
 ):
-    return project_controller.update_project(db, project_id, project_data)
+    return await project_controller.update_project(db, project_id, project_data)
 
 
 @router.delete("/{project_id}")

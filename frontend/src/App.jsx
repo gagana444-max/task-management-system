@@ -15,6 +15,8 @@ import Notifications from './pages/Notifications'
 import Projects from './pages/Projects'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 
 export default function App() {
@@ -22,6 +24,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <SocketProvider>
+          <ToastContainer position="top-right" autoClose={3000} theme="colored" />
           <BrowserRouter>
             <Routes>
               {/* Public routes */}

@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.project_model import Project, ProjectCreate, ProjectUpdate
+from config.socketio import sio
 
 
 def get_all_projects(db: Session):
@@ -14,7 +15,7 @@ def get_project(db: Session, project_id: int):
     return project
 
 
-def create_project(db: Session, project: ProjectCreate, user_id: int):
+async def create_project(db: Session, project: ProjectCreate, user_id: int):
     new_project = Project(
         name=project.name,
         description=project.description,
@@ -24,13 +25,27 @@ def create_project(db: Session, project: ProjectCreate, user_id: int):
     db.add(new_project)
     db.commit()
     db.refresh(new_project)
+
+    if new_project.manager_id:
+        try:
+            await sio.emit('project_assigned', {
+                'project_id': new_project.id,
+                'name': new_project.name,
+                'message': f"You have been assigned as the manager for project: {new_project.name}"
+            }, room=str(new_project.manager_id))
+        except Exception as e:
+            print(f"Socket emit failed: {e}")
+
     return new_project
 
 
-def update_project(db: Session, project_id: int, project_data: ProjectUpdate):
+async def update_project(db: Session, project_id: int, project_data: ProjectUpdate):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    old_manager_id = project.manager_id
+
     if project_data.name is not None:
         project.name = project_data.name
     if project_data.description is not None:
@@ -39,6 +54,17 @@ def update_project(db: Session, project_id: int, project_data: ProjectUpdate):
         project.manager_id = project_data.manager_id
     db.commit()
     db.refresh(project)
+
+    if project.manager_id and project.manager_id != old_manager_id:
+        try:
+            await sio.emit('project_assigned', {
+                'project_id': project.id,
+                'name': project.name,
+                'message': f"You have been assigned as the manager for project: {project.name}"
+            }, room=str(project.manager_id))
+        except Exception as e:
+            print(f"Socket emit failed: {e}")
+
     return project
 
 

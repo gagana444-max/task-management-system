@@ -91,6 +91,20 @@ def create_task(task_data: TaskCreate):
                 detail="Assigned user does not exist"
             )
 
+        # Check whether project exists
+        cursor.execute(
+            "SELECT id FROM projects WHERE id = %s",
+            (task_data.project_id,)
+        )
+
+        project = cursor.fetchone()
+
+        if not project:
+            raise HTTPException(
+                status_code=400,
+                detail="Project does not exist"
+            )
+
         # Create task
         cursor.execute(
             """

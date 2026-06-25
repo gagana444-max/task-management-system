@@ -6,6 +6,7 @@ import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, A
 import PageHeader from '../components/PageHeader'
 import RichTextEditor from '../components/RichTextEditor'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { toast } from 'react-toastify'
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -71,6 +72,7 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
     if (source.droppableId === destination.droppableId) return
 
     const newStatus = destination.droppableId
+    const taskObj = tasks.find(t => t.id === parseInt(draggableId))
     setTasks(prev => prev.map(t => t.id === parseInt(draggableId) ? { ...t, status: newStatus } : t))
 
     try {
@@ -79,9 +81,12 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
         'in_progress': 'In Progress',
         'completed': 'Completed'
       }
-      await api.patch(`/tasks/${draggableId}/status`, { status: statusMap[newStatus] || newStatus })
+      const displayStatus = statusMap[newStatus] || newStatus
+      await api.patch(`/tasks/${draggableId}/status`, { status: displayStatus })
+      toast.success(`Updated "${taskObj?.title || 'task'}" status to ${displayStatus}`)
     } catch (err) {
       fetchTasks()
+      toast.error('Failed to update task status')
     }
   }
 
@@ -123,34 +128,48 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
 
   const moveTask = async (id, status) => {
     try {
+      const taskObj = tasks.find(t => t.id === id)
       await api.patch(`/tasks/${id}/status`, { status })
       setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
       setActiveId(id)
-    } catch (e) { console.error(e) }
+      toast.success(`Moved "${taskObj?.title || 'task'}" to ${status}`)
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to update task status')
+    }
   }
 
   const deleteTask = async (id) => {
     if (!window.confirm('Delete this task?')) return
     try {
+      const taskObj = tasks.find(t => t.id === id)
       await api.delete(`/tasks/${id}`)
       setTasks(tasks.filter(t => t.id !== id))
       setActiveId(null)
-    } catch (e) { console.error(e) }
+      toast.success(`Deleted task "${taskObj?.title || 'task'}"`)
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to delete task')
+    }
   }
 
   const handleCreate = async (e) => {
     e.preventDefault()
     if (!form.title.trim()) return setError('Title is required.')
+    if (!form.assigned_user_id) return setError('Assignee is required.')
+
+    let targetProjectId = form.project_id
+    if (projectId) {
+      targetProjectId = projectId
+    }
+    if (!targetProjectId) return setError('Project is required.')
+
     try {
       setCreating(true)
-      const payload = { ...form }
-      if (!payload.assigned_user_id) delete payload.assigned_user_id
-      if (payload.project_id) {
-        payload.project_id = Number(payload.project_id)
-      } else if (projectId) {
-        payload.project_id = projectId
-      } else {
-        delete payload.project_id
+      const payload = { 
+        ...form,
+        assigned_user_id: Number(form.assigned_user_id),
+        project_id: Number(targetProjectId)
       }
       
       const res = await api.post('/tasks', payload)
@@ -160,8 +179,10 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
       setShowCreate(false)
       setForm({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', project_id: '', due_date: '' })
       setError('')
+      toast.success(`Task "${res.data.title}" created successfully!`)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create task.')
+      toast.error(err.response?.data?.message || 'Failed to create task.')
     } finally {
       setCreating(false)
     }
@@ -535,9 +556,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {!projectId && (
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Project</label>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Project *</label>
                     <select value={form.project_id} onChange={e => setForm({ ...form, project_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
-                      <option value="">No Project</option>
+                      <option value="">Select Project</option>
                       {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
                   </div>
@@ -549,9 +570,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Assign To</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Assign To *</label>
                   <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
-                    <option value="">Unassigned</option>
+                    <option value="">Select Assignee</option>
                     {users.map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
                   </select>
                 </div>
