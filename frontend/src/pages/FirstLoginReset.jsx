@@ -41,7 +41,9 @@ export default function FirstLoginReset() {
       await resetPassword(user.id, form)
       navigate('/dashboard')
     } catch (err) {
-      setGlobalError(err.response?.data?.message || err.response?.data?.detail || 'Password reset failed.')
+      const detail = err.response?.data?.detail;
+      const errorMessage = typeof detail === 'object' ? detail.message : detail;
+      setGlobalError(err.response?.data?.message || errorMessage || 'Password reset failed.')
     } finally {
       setLoading(false)
     }
