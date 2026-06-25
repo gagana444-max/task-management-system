@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import FieldError from './FieldError';
 import GlobalAlert from './GlobalAlert';
+import SearchableDropdown from './SearchableDropdown';
 import api from '../api/axios';
 
 const emptyForm = {
@@ -32,6 +33,11 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
     setForm(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
+
+  const userOptions = [
+    { value: '', label: '— Unassigned —' },
+    ...users.map(u => ({ value: u.id, label: `${u.name} (${u.role})` }))
+  ];
 
   const validate = () => {
     const newErrors = {};
@@ -176,19 +182,13 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Assign To
           </label>
-          <select
-            name="assignedUserId"
+          <SearchableDropdown
+            options={userOptions}
             value={form.assignedUserId}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">— Unassigned —</option>
-            {users.map(user => (
-              <option key={user.id} value={user.id}>
-                {user.name} ({user.role})
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setForm(prev => ({ ...prev, assignedUserId: val }))}
+            placeholder="Select a user"
+            className="w-full"
+          />
         </div>
 
         {/* Buttons */}

@@ -29,7 +29,7 @@ const EMPTY_MESSAGES = {
   completed: 'No completed tasks yet',
 }
 
-export default function TasksList() {
+export default function TasksList({ projectId = null, hideHeader = false }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
@@ -39,7 +39,8 @@ export default function TasksList() {
   const [activeId, setActiveId] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [users, setUsers] = useState([])
-  const [form, setForm] = useState({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', due_date: '' })
+  const [projects, setProjects] = useState([])
+  const [form, setForm] = useState({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', project_id: '', due_date: '' })
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
   const [newlyCreatedId, setNewlyCreatedId] = useState(null)
@@ -55,7 +56,7 @@ export default function TasksList() {
   async function fetchTasks() {
     try {
       setLoading(true)
-      const res = await api.get('/tasks')
+      const res = await api.get(projectId ? `/tasks?project_id=${projectId}` : '/tasks')
       setTasks(res.data)
     } catch {
       setTasks([])
@@ -91,10 +92,18 @@ export default function TasksList() {
     } catch (e) { console.error(e) }
   }
 
+  async function fetchProjects() {
+    try {
+      const res = await api.get('/projects')
+      setProjects(res.data)
+    } catch (e) { console.error(e) }
+  }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchTasks()
     fetchUsers()
+    fetchProjects()
   }, [])
 
   const getUser = (assigned_user_id) => {
@@ -105,6 +114,11 @@ export default function TasksList() {
   const getUserName = (assigned_user_id) => {
     const u = getUser(assigned_user_id)
     return u ? u.name : null
+  }
+
+  const getProjectName = (pid) => {
+    if (!pid) return null
+    return projects.find(p => p.id === pid)?.name || null
   }
 
   const moveTask = async (id, status) => {
@@ -131,12 +145,20 @@ export default function TasksList() {
       setCreating(true)
       const payload = { ...form }
       if (!payload.assigned_user_id) delete payload.assigned_user_id
+      if (payload.project_id) {
+        payload.project_id = Number(payload.project_id)
+      } else if (projectId) {
+        payload.project_id = projectId
+      } else {
+        delete payload.project_id
+      }
+      
       const res = await api.post('/tasks', payload)
       setTasks([...tasks, res.data])
       setNewlyCreatedId(res.data.id)
       setTimeout(() => setNewlyCreatedId(null), 900)
       setShowCreate(false)
-      setForm({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', due_date: '' })
+      setForm({ title: '', description: '', priority: 'Medium', status: 'todo', assigned_user_id: '', project_id: '', due_date: '' })
       setError('')
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create task.')
@@ -196,12 +218,14 @@ export default function TasksList() {
       `}</style>
 
       {/* Topbar */}
-      <PageHeader
-        title="Task Board"
-        subtitle={isCollaborator ? 'Showing tasks assigned to you' : 'Manage your team\'s tasks and progress'}
-        statText={loading ? 'Loading tasks...' : `Total: ${filtered.length} task${filtered.length !== 1 ? 's' : ''} found`}
-        statColor="#533afd"
-      />
+      {!hideHeader && (
+        <PageHeader
+          title="Task Board"
+          subtitle={isCollaborator ? 'Showing tasks assigned to you' : 'Manage your team\'s tasks and progress'}
+          statText={loading ? 'Loading tasks...' : `Total: ${filtered.length} task${filtered.length !== 1 ? 's' : ''} found`}
+          statColor="#533afd"
+        />
+      )}
       <div className="flex items-center justify-between flex-shrink-0 mb-1 mt-1">
         {/* View Toggle */}
         <div className="flex items-center bg-[#fff] border border-[#e3e8ee] rounded-lg p-1 shadow-sm">
@@ -326,6 +350,11 @@ export default function TasksList() {
                                     <div style={{ fontSize: 12, fontWeight: 400, color: ns === 'completed' ? 'var(--text-muted)' : 'var(--text)', lineHeight: 1.45, textDecoration: ns === 'completed' ? 'line-through' : 'none' }}>
                                       {t.title}
                                     </div>
+                                    {t.project_id && (
+                                      <div style={{ fontSize: 9, color: '#64748d', marginTop: 4, display: 'inline-block', background: '#f6f9fc', padding: '2px 6px', borderRadius: 4 }}>
+                                        {getProjectName(t.project_id) || `Project #${t.project_id}`}
+                                      </div>
+                                    )}
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
                                       <div style={{ width: 18, height: 18, borderRadius: '50%', background: assignedName ? avc() : 'var(--border-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 500, color: '#fff' }}>
                                         {assignedName ? ini(assignedName) : '?'}
@@ -349,8 +378,8 @@ export default function TasksList() {
         ) : (
           /* Table View */
           <div style={{ flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden', background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', padding: '12px 16px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-              {['Task Title', 'Status', 'Priority', 'Assignee', 'Due Date'].map(h => (
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 1fr', padding: '12px 16px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+              {['Task Title', 'Status', 'Priority', 'Project', 'Assignee', 'Due Date'].map(h => (
                 <div key={h} style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
               ))}
             </div>
@@ -369,7 +398,7 @@ export default function TasksList() {
                       key={t.id}
                       onClick={() => setActiveId(activeId === t.id ? null : t.id)}
                       style={{
-                        display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', padding: '12px 16px', alignItems: 'center',
+                        display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 1fr', padding: '12px 16px', alignItems: 'center',
                         borderBottom: '1px solid #f0f2f5', cursor: 'pointer',
                         background: activeId === t.id ? '#f8faff' : '#fff',
                         transition: 'background 0.15s',
@@ -386,6 +415,9 @@ export default function TasksList() {
                           <span style={{ width: 6, height: 6, borderRadius: '50%', background: pdot(t.priority?.toLowerCase()), display: 'inline-block' }} />
                           <span style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'capitalize' }}>{t.priority || 'Medium'}</span>
                         </span>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#64748d', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {getProjectName(t.project_id) || (t.project_id ? `Project #${t.project_id}` : '—')}
                       </div>
                       <div>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -429,6 +461,7 @@ export default function TasksList() {
                     {[
                       { key: 'Status', val: <span style={{ fontSize: 8, padding: '2px 8px', borderRadius: 9999, fontWeight: 400, background: spill(ns).bg, color: spill(ns).color }}>{slabel(ns)}</span> },
                       { key: 'Priority', val: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: pdot(activeTask.priority?.toLowerCase()), display: 'inline-block' }} /><span style={{ fontSize: 9, color: 'var(--text)', fontWeight: 400, textTransform: 'capitalize' }}>{activeTask.priority}</span></span> },
+                      { key: 'Project', val: <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 400 }}>{getProjectName(activeTask.project_id) || '—'}</span> },
                       { key: 'Assigned', val: <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 16, height: 16, borderRadius: '50%', background: assignedName ? avc() : '#cbd5df', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 500, color: '#fff' }}>{assignedName ? ini(assignedName) : '?'}</span><span style={{ fontSize: 9, color: 'var(--text)', fontWeight: 400 }}>{assignedName || '—'}</span></span> },
                       { key: 'Due Date', val: <span style={{ fontSize: 9, color: isLate(activeTask.due_date, ns) ? '#ea2261' : '#0d253d', fontWeight: 400 }}>{fmt(activeTask.due_date)}</span> },
                     ].map(r => (
@@ -500,6 +533,15 @@ export default function TasksList() {
                 </div>
               ))}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {!projectId && (
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Project</label>
+                    <select value={form.project_id} onChange={e => setForm({ ...form, project_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
+                      <option value="">No Project</option>
+                      {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Priority</label>
                   <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>

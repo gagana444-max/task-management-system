@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
 import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
+import SearchableDropdown from '../components/SearchableDropdown'
 
 const CARD_COLORS = [
   { bg: 'linear-gradient(135deg, #f5f7ff 0%, #ebf0fe 100%)', border: '#cbdcfc', iconBg: '#e0e9fe', prog: 'linear-gradient(90deg, #818cf8, #a78bfa)' },
@@ -29,6 +30,10 @@ export default function Projects() {
 
   // Filter users to display only Project Managers and Admins as options
   const managers = users.filter(u => u.role === 'ProjectManager' || u.role === 'Admin')
+  const managerOptions = [
+    { value: '', label: 'Select Project Manager' },
+    ...managers.map(m => ({ value: m.id, label: `${m.name} (${m.email})` }))
+  ]
 
   const fetchData = async () => {
     try {
@@ -123,11 +128,13 @@ export default function Projects() {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[var(--bg)]">
       <div className="flex justify-between items-start mb-6">
-        <PageHeader
-          title="Projects"
-          subtitle="Manage and organize your projects and project managers"
-          statText={loading ? 'Loading projects...' : `Total: ${projects.length} active project${projects.length !== 1 ? 's' : ''}`}
-        />
+        <div className="flex-1 mr-4">
+          <PageHeader
+            title="Projects"
+            subtitle="Manage and organize your projects and project managers"
+            statText={loading ? 'Loading projects...' : `Total: ${projects.length} active project${projects.length !== 1 ? 's' : ''}`}
+          />
+        </div>
         {canManage && (
           <button
             onClick={openCreate}
@@ -216,7 +223,7 @@ export default function Projects() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-[#0d253d] text-base">New Project</h3>
-              <button onClick={() => setShowCreate(false)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">✕</button>
+              <button onClick={() => setShowCreate(false)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">Γ£ò</button>
             </div>
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
@@ -246,16 +253,12 @@ export default function Projects() {
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager</label>
-                <select
+                <SearchableDropdown
+                  options={managerOptions}
                   value={form.manager_id}
-                  onChange={e => setForm({ ...form, manager_id: e.target.value })}
-                  className="w-full px-3.5 py-2 border border-[#e3e8ee] rounded-xl text-xs outline-none focus:border-[#1a1a2e] bg-white transition cursor-pointer"
-                >
-                  <option value="">Select Project Manager</option>
-                  {managers.map(m => (
-                    <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm({ ...form, manager_id: val })}
+                  placeholder="Select Project Manager"
+                />
               </div>
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border border-[#e3e8ee] rounded-xl text-xs font-semibold hover:bg-[#f6f9fc] transition cursor-pointer">
@@ -276,7 +279,7 @@ export default function Projects() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-[#0d253d] text-base">Edit Project</h3>
-              <button onClick={() => setShowEdit(null)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">✕</button>
+              <button onClick={() => setShowEdit(null)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">Γ£ò</button>
             </div>
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
@@ -306,16 +309,12 @@ export default function Projects() {
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager</label>
-                <select
+                <SearchableDropdown
+                  options={managerOptions}
                   value={form.manager_id}
-                  onChange={e => setForm({ ...form, manager_id: e.target.value })}
-                  className="w-full px-3.5 py-2 border border-[#e3e8ee] rounded-xl text-xs outline-none focus:border-[#1a1a2e] bg-white transition cursor-pointer"
-                >
-                  <option value="">Select Project Manager</option>
-                  {managers.map(m => (
-                    <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm({ ...form, manager_id: val })}
+                  placeholder="Select Project Manager"
+                />
               </div>
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowEdit(null)} className="px-4 py-2 border border-[#e3e8ee] rounded-xl text-xs font-semibold hover:bg-[#f6f9fc] transition cursor-pointer">

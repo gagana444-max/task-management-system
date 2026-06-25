@@ -37,7 +37,12 @@ export default function AdminPanel() {
     }
   }
 
-  useEffect(() => { fetchUsers() }, [search, roleFilter])
+  useEffect(() => { 
+    const timer = setTimeout(() => {
+      fetchUsers()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search, roleFilter])
 
   const validateForm = () => {
     const errors = {}

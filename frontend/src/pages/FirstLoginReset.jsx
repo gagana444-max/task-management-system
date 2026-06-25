@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { resetPassword } from '../api/users'
-import { Lock } from 'lucide-react'
+import { Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function FirstLoginReset() {
   const { user } = useAuth()
@@ -11,6 +11,11 @@ export default function FirstLoginReset() {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [globalError, setGlobalError] = useState('')
+  const [showPassword, setShowPassword] = useState({ temp_password: false, new_password: false, confirm_password: false })
+
+  const toggleVisibility = (field) => {
+    setShowPassword(prev => ({ ...prev, [field]: !prev[field] }))
+  }
 
   const validate = () => {
     const e = {}
@@ -86,13 +91,22 @@ export default function FirstLoginReset() {
             ].map(f => (
               <div key={f.key}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: '#64748d', marginBottom: 6 }}>{f.label}</label>
-                <input
-                  type="password"
-                  value={form[f.key]}
-                  onChange={e => { setForm({ ...form, [f.key]: e.target.value }); setErrors({ ...errors, [f.key]: '' }) }}
-                  placeholder={f.placeholder}
-                  style={inp(f.key)}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword[f.key] ? "text" : "password"}
+                    value={form[f.key]}
+                    onChange={e => { setForm({ ...form, [f.key]: e.target.value }); setErrors({ ...errors, [f.key]: '' }) }}
+                    placeholder={f.placeholder}
+                    style={{...inp(f.key), paddingRight: 36}}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleVisibility(f.key)}
+                    style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748d', padding: 0, display: 'flex' }}
+                  >
+                    {showPassword[f.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
                 {errors[f.key] && <p style={{ fontSize: 10, color: '#ea2261', marginTop: 4 }}>{errors[f.key]}</p>}
               </div>
             ))}
