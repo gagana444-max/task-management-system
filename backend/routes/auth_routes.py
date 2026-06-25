@@ -46,18 +46,19 @@ def forgot_password(form_data: dict, background_tasks: BackgroundTasks, db: Sess
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email required")
         
     user = db.query(DBUser).filter(DBUser.email == email).first()
-    if user:
-        # Generate token and send email in background
-        reset_token = create_password_reset_token(user.email, user.user_id, user.user_password)
-        background_tasks.add_task(
-            send_password_reset_email,
-            email=user.email,
-            name=user.user_name,
-            reset_token=reset_token
-        )
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    # Generate token and send email in background
+    reset_token = create_password_reset_token(user.email, user.user_id, user.user_password)
+    background_tasks.add_task(
+        send_password_reset_email,
+        email=user.email,
+        name=user.user_name,
+        reset_token=reset_token
+    )
     
-    # Always return success to prevent email enumeration
-    return {"message": "If an account with that email exists, a password reset link has been sent."}
+    return {"message": "A password reset link has been sent to your email."}
 
 
 @router.post('/reset-password')
