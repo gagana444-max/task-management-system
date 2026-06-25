@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { LayoutGrid, KanbanSquare, Bell, Users, LogOut, Moon, Sun, FolderKanban, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LayoutGrid, KanbanSquare, Bell, Users, LogOut, Moon, Sun, FolderKanban, ChevronLeft, ChevronRight, CheckSquare } from 'lucide-react'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', Icon: LayoutGrid },
@@ -40,17 +40,22 @@ export default function MainLayout({ children }) {
         </button>
 
         {/* Logo */}
-        <div className="px-5 pb-5 border-b border-[#2e3070] mb-3 overflow-hidden whitespace-nowrap">
-          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: '20px', letterSpacing: '-0.3px' }}>
-            {isSidebarOpen ? (
-              <>
+        <div className="px-5 pb-5 border-b border-[#2e3070] mb-3 overflow-hidden whitespace-nowrap flex items-center gap-2.5">
+          {isSidebarOpen ? (
+            <>
+              <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 6, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', flexShrink: 0 }}>
+                <CheckSquare size={16} color="#533afd" strokeWidth={2.5} />
+              </div>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: '22px', letterSpacing: '-0.5px', lineHeight: 1 }}>
                 <span style={{ color: '#ffffff' }}>Task</span>
-                <span style={{ color: '#a9a3fd' }}>ify</span>
-              </>
-            ) : (
-              <span style={{ color: '#ffffff' }}>T</span>
-            )}
-          </span>
+                <span style={{ color: '#fbd786' }}>ify</span>
+              </div>
+            </>
+          ) : (
+            <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 7, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', marginLeft: -5 }}>
+              <CheckSquare size={16} color="#533afd" strokeWidth={2.5} />
+            </div>
+          )}
         </div>
 
         {/* Nav */}
