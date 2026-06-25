@@ -1,10 +1,11 @@
-﻿aiofiles==25.1.0
+aiofiles==25.1.0
 aiosmtplib==5.1.2
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.14.0
 bcrypt==5.0.0
 bidict==0.23.1
+bleach==6.1.0
 blinker==1.9.0
 certifi==2026.6.17
 cffi==2.0.0
