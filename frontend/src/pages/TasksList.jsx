@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
@@ -355,20 +356,22 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                             const isNew = t.id === newlyCreatedId
                             return (
                               <Draggable key={t.id.toString()} draggableId={t.id.toString()} index={index}>
-                                {(provided, snapshot) => (
+                                {(provided, snapshot) => {
+                                  const cardStyle = {
+                                    background: '#fff', borderRadius: 12, padding: '14px', cursor: 'grab',
+                                    border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
+                                    boxShadow: snapshot.isDragging ? '0 15px 30px rgba(0,0,0,0.15)' : '0 2px 5px rgba(0,0,0,0.02)',
+                                    opacity: snapshot.isDragging ? 0.97 : 1,
+                                    animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+                                    ...provided.draggableProps.style
+                                  }
+                                  const card = (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                     onClick={() => setActiveId(activeId === t.id ? null : t.id)}
-                                    style={{
-                                      background: '#fff', borderRadius: 12, padding: '14px', cursor: 'grab',
-                                      border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
-                                      boxShadow: snapshot.isDragging ? '0 15px 30px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)',
-                                      opacity: snapshot.isDragging ? 0.95 : 1,
-                                      animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-                                      ...provided.draggableProps.style
-                                    }}
+                                    style={cardStyle}
                                     className="group hover:border-[#cbd5e1] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)]"
                                   >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
@@ -398,7 +401,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                                       </div>
                                     </div>
                                   </div>
-                                )}
+                                  )
+                                  return snapshot.isDragging ? createPortal(card, document.body) : card
+                                }}
                               </Draggable>
                             )
                           })}
