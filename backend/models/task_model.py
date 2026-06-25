@@ -1,6 +1,7 @@
 import html
+import bleach
 from datetime import date
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import Optional, Literal
 
 class TaskCreate(BaseModel):
@@ -13,8 +14,11 @@ class TaskCreate(BaseModel):
 
     @field_validator("title", "description", mode="before")
     @classmethod
-    def sanitize_strings(cls, value):
+    def sanitize_strings(cls, value, info: ValidationInfo):
         if isinstance(value, str):
+            if info.field_name == "description":
+                allowed_tags = ['p', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'br']
+                return bleach.clean(value.strip(), tags=allowed_tags, attributes={}, strip=True)
             return html.escape(value.strip())
         return value
 
@@ -48,8 +52,11 @@ class TaskUpdate(BaseModel):
 
     @field_validator("title", "description", mode="before")
     @classmethod
-    def sanitize_strings(cls, value):
+    def sanitize_strings(cls, value, info: ValidationInfo):
         if isinstance(value, str):
+            if info.field_name == "description":
+                allowed_tags = ['p', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'br']
+                return bleach.clean(value.strip(), tags=allowed_tags, attributes={}, strip=True)
             return html.escape(value.strip())
         return value
 

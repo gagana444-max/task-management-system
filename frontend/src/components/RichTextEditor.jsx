@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, Strikethrough, List, ListOrdered, Heading2, Quote, Undo, Redo } from 'lucide-react'
@@ -115,6 +116,14 @@ export default function RichTextEditor({ content, onChange, editable = true }) {
       },
     },
   })
+
+  useEffect(() => {
+    if (editor && content !== undefined) {
+      if (editor.getHTML() !== content) {
+        editor.commands.setContent(content)
+      }
+    }
+  }, [content, editor])
 
   return (
     <div className={`border rounded-xl bg-white shadow-sm transition-all ${editable ? 'border-[#d9d6fe] hover:border-[#533afd]' : 'border-transparent bg-transparent shadow-none'}`}>
