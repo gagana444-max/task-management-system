@@ -1,5 +1,5 @@
 from typing import List, Optional, Literal
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from models.task_model import TaskCreate, TaskOut, TaskUpdate
@@ -24,12 +24,13 @@ async def create_task(
 
 @router.get("", response_model=List[TaskOut])
 async def get_tasks(
-    priority: Optional[str] = None,
-    status: Optional[str] = None,
-    assigned_user_id: Optional[int] = None,
+    priority: Optional[str] = Query(None, description="Filter by priority"),
+    status: Optional[str] = Query(None, description="Filter by status (e.g., 'to-do', 'in-progress', 'done')"),
+    assigned_user_id: Optional[int] = Query(None, description="Filter by assigned user ID"),
+    project_id: Optional[int] = Query(None, description="Filter by project ID"),
     current_user: dict = Depends(get_current_user)
 ):
-    return task_controller.get_all_tasks(priority, status, assigned_user_id)
+    return task_controller.get_all_tasks(priority, status, assigned_user_id, project_id)
 
 
 @router.get("/{task_id}", response_model=TaskOut)

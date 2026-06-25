@@ -66,8 +66,8 @@ async def update_task_status_with_notify(task_id: int, status: str):
     return updated_task
 
 
-def get_all_tasks(priority=None, status=None, assigned_user_id=None):
-    return task_service.get_all_tasks(priority, status, assigned_user_id)
+def get_all_tasks(priority=None, status=None, assigned_user_id=None, project_id=None):
+    return task_service.get_all_tasks(priority, status, assigned_user_id, project_id)
 
 
 def get_task(task_id: int):
