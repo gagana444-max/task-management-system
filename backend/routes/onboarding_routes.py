@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from config.database import get_db
 from controllers import onboarding_controller
@@ -12,11 +12,13 @@ router = APIRouter(prefix="/api/onboarding", tags=["User Onboarding"])
 @router.post("/send-credentials/{user_id}", status_code=200)
 async def send_onboarding_email(
     user_id: int,
+    background_tasks: BackgroundTasks,
     admin: dict = Depends(role_required("Admin")),
     db: Session = Depends(get_db)
 ):
     return await onboarding_controller.onboard_user(
         user_id=user_id,
+        background_tasks=background_tasks,
         db=db
     )
 
