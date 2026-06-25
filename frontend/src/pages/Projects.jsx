@@ -109,7 +109,7 @@ export default function Projects() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return
+    if (!window.confirm('Are you sure you want to delete this project? WARNING: All tasks assigned to this project will also be permanently deleted!')) return
     try {
       const projectObj = projects.find(p => p.id === id)
       await api.delete(`/projects/${id}`)

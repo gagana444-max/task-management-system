@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from models.project_model import Project, ProjectCreate, ProjectUpdate
 from models.db_models import DBUser
 from config.socketio import sio
@@ -125,6 +126,9 @@ async def delete_project(db: Session, project_id: int):
     manager_id = project.manager_id
     project_name = project.name
     
+    # Cascade delete all tasks associated with this project
+    db.execute(text("DELETE FROM tasks WHERE project_id = :project_id"), {"project_id": project_id})
+    
     db.delete(project)
     db.commit()
     
@@ -138,4 +142,4 @@ async def delete_project(db: Session, project_id: int):
         except Exception as e:
             print(f"Socket emit failed: {e}")
             
-    return {"message": "Project deleted successfully"}
+    return {"message": "Project and all associated tasks deleted successfully"}
