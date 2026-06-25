@@ -4,6 +4,7 @@ import api from '../api/axios'
 import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle, ArrowDownUp } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import SearchableDropdown from '../components/SearchableDropdown'
+import ViewToggle from '../components/ViewToggle'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
@@ -28,6 +29,7 @@ export default function Projects() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState('newest')
+  const [viewMode, setViewMode] = useState('board')
 
   const canManage = user?.role === 'Admin' || user?.role === 'ProjectManager'
 
@@ -162,7 +164,7 @@ export default function Projects() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search projects..."
-            style={{ background: 'var(--bg-card)', border: '1px solid #e3e8e', borderColor: '#e3e8ee', borderRadius: 6, padding: '7px 11px', fontSize: 11, color: 'var(--text)', outline: 'none', width: 140, fontFamily: "'Inter', sans-serif" }}
+            style={{ background: 'var(--bg-card)', border: '1px solid #e3e8ee', borderRadius: 6, padding: '7px 11px', fontSize: 11, color: 'var(--text)', outline: 'none', width: 140, fontFamily: "'Inter', sans-serif" }}
           />
           <div className="flex items-center gap-1.5 ml-1 border-l border-[#e3e8ee] pl-3">
             <ArrowDownUp size={14} color="#64748d" />
@@ -176,6 +178,9 @@ export default function Projects() {
               <option value="a-z">Name A-Z</option>
               <option value="z-a">Name Z-A</option>
             </select>
+            <div className="mx-1">
+              <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+            </div>
             {canManage && (
               <button
                 onClick={openCreate}
@@ -196,7 +201,7 @@ export default function Projects() {
           <p className="text-sm font-semibold text-[#0d253d]">No projects found.</p>
           {canManage && search === '' && <p className="text-xs text-[#64748d] mt-1">Click New Project to get started.</p>}
         </div>
-      ) : (
+      ) : viewMode === 'board' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project, index) => {
             const color = CARD_COLORS[index % CARD_COLORS.length]
@@ -256,6 +261,66 @@ export default function Projects() {
               </div>
             )
           })}
+        </div>
+      ) : (
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 12 }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Project Name</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Description</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Project Manager</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Created Date</th>
+                {canManage && <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)', textAlign: 'right' }}>Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProjects.map((project, index) => {
+                const color = CARD_COLORS[index % CARD_COLORS.length]
+                return (
+                  <tr key={project.id} className="hover:bg-gray-50/50 transition-colors" style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '10px 14px', color: 'var(--text)', fontWeight: 500 }}>
+                      <div className="flex items-center gap-3">
+                        <div style={{ background: color.iconBg }} className="w-8 h-8 rounded-lg flex items-center justify-center text-indigo-600">
+                          <FolderKanban size={14} />
+                        </div>
+                        {project.name}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>
+                      <div className="line-clamp-1 max-w-xs">{project.description || '—'}</div>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: 'var(--text)' }}>
+                      <div className="flex items-center gap-1.5">
+                        <User size={13} className="text-[#64748d]" />
+                        {project.manager_name || 'Unassigned'}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>
+                      <div className="flex items-center gap-1">
+                        <Clock size={12} />
+                        {fmt(project.created_at)}
+                      </div>
+                    </td>
+                    {canManage && (
+                      <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                          <button onClick={() => openEdit(project)} title="Edit"
+                            style={{ padding: 5, borderRadius: 6, border: '1px solid #e3e8ee', background: '#fff', color: '#1a1a2e', cursor: 'pointer' }}>
+                            <Edit size={13} />
+                          </button>
+                          <button onClick={() => handleDelete(project.id)} title="Delete"
+                            style={{ padding: 5, borderRadius: 6, border: '1px solid #fecaca', background: '#fff5f5', color: '#dc2626', cursor: 'pointer' }}>
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
