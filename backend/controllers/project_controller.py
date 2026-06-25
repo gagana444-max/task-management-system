@@ -81,23 +81,61 @@ async def update_project(db: Session, project_id: int, project_data: ProjectUpda
     db.commit()
     db.refresh(project)
 
-    if project.manager_id and project.manager_id != old_manager_id:
-        try:
-            await sio.emit('project_assigned', {
-                'project_id': project.id,
-                'name': project.name,
-                'message': f"You have been assigned as the manager for project: {project.name}"
-            }, room=str(project.manager_id))
-        except Exception as e:
-            print(f"Socket emit failed: {e}")
+    new_manager_id = project.manager_id
+
+    if old_manager_id != new_manager_id:
+        if old_manager_id:
+            try:
+                await sio.emit('project_removed', {
+                    'project_id': project.id,
+                    'name': project.name,
+                    'message': f"You have been removed as the manager for project: {project.name}"
+                }, room=str(old_manager_id))
+            except Exception as e:
+                print(f"Socket emit failed: {e}")
+        if new_manager_id:
+            try:
+                await sio.emit('project_assigned', {
+                    'project_id': project.id,
+                    'name': project.name,
+                    'message': f"You have been assigned as the manager for project: {project.name}"
+                }, room=str(new_manager_id))
+            except Exception as e:
+                print(f"Socket emit failed: {e}")
+    else:
+        if new_manager_id:
+            if project_data.name or project_data.description:
+                try:
+                    await sio.emit('project_updated', {
+                        'project_id': project.id,
+                        'name': project.name,
+                        'message': f"Project details updated: {project.name}"
+                    }, room=str(new_manager_id))
+                except Exception as e:
+                    print(f"Socket emit failed: {e}")
 
     return project
 
 
-def delete_project(db: Session, project_id: int):
+async def delete_project(db: Session, project_id: int):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    manager_id = project.manager_id
+    project_name = project.name
+    
     db.delete(project)
     db.commit()
+    
+    if manager_id:
+        try:
+            await sio.emit('project_deleted', {
+                'project_id': project_id,
+                'name': project_name,
+                'message': f"Project was deleted: {project_name}"
+            }, room=str(manager_id))
+        except Exception as e:
+            print(f"Socket emit failed: {e}")
+            
     return {"message": "Project deleted successfully"}

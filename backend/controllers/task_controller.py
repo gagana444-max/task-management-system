@@ -35,17 +35,57 @@ def update_task_api(task_id: int, task_data: TaskUpdate):
 async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
     old_task = task_service.get_task_by_id(task_id)
     task = update_task(task_id, task_data)
-    if old_task and task_data.status and old_task.get('status') != task_data.status:
-        if task.get('assigned_user_id'):
+    
+    if not old_task:
+        return task
+
+    old_assignee = old_task.get('assigned_user_id')
+    new_assignee = task.get('assigned_user_id')
+
+    # 1. Handle assignee changes
+    if old_assignee != new_assignee:
+        if old_assignee:
             try:
-                await sio.emit('status_changed', {
+                await sio.emit('task_unassigned', {
                     'task_id': task_id,
                     'title': task['title'],
-                    'status': task_data.status,
-                    'message': f"Task status changed to: {task_data.status} — {task['title']}"
-                }, room=str(task['assigned_user_id']))
+                    'message': f"You have been unassigned from task: {task['title']}"
+                }, room=str(old_assignee))
             except Exception as e:
                 print(f"Socket emit failed: {e}")
+        if new_assignee:
+            try:
+                await sio.emit('task_assigned', {
+                    'task_id': task_id,
+                    'title': task['title'],
+                    'message': f"You have been assigned to task: {task['title']}"
+                }, room=str(new_assignee))
+            except Exception as e:
+                print(f"Socket emit failed: {e}")
+                
+    # 2. Handle other updates (status or general fields) when assignee is the same
+    else:
+        if new_assignee:
+            if task_data.status and old_task.get('status') != task_data.status:
+                try:
+                    await sio.emit('status_changed', {
+                        'task_id': task_id,
+                        'title': task['title'],
+                        'status': task_data.status,
+                        'message': f"Task status changed to: {task_data.status} — {task['title']}"
+                    }, room=str(new_assignee))
+                except Exception as e:
+                    print(f"Socket emit failed: {e}")
+            elif task_data.title or task_data.description or task_data.priority or task_data.due_date:
+                try:
+                    await sio.emit('task_updated', {
+                        'task_id': task_id,
+                        'title': task['title'],
+                        'message': f"Task details updated: {task['title']}"
+                    }, room=str(new_assignee))
+                except Exception as e:
+                    print(f"Socket emit failed: {e}")
+
     return task
 
 
@@ -77,5 +117,16 @@ def get_task(task_id: int):
     return task
 
 
-def delete_task_api(task_id: int):
-    return delete_task(task_id)
+async def delete_task_api(task_id: int):
+    old_task = task_service.get_task_by_id(task_id)
+    result = delete_task(task_id)
+    if old_task and old_task.get('assigned_user_id'):
+        try:
+            await sio.emit('task_deleted', {
+                'task_id': task_id,
+                'title': old_task['title'],
+                'message': f"Task was deleted: {old_task['title']}"
+            }, room=str(old_task['assigned_user_id']))
+        except Exception as e:
+            print(f"Socket emit failed: {e}")
+    return result

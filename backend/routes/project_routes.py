@@ -42,9 +42,9 @@ async def update_project(
 
 
 @router.delete("/{project_id}")
-def delete_project(
+async def delete_project(
     project_id: int,
     current_user: dict = Depends(roles_allowed(["Admin", "ProjectManager"])),
     db: Session = Depends(get_db)
 ):
-    return project_controller.delete_project(db, project_id)
+    return await project_controller.delete_project(db, project_id)

@@ -60,8 +60,8 @@ async def update_task_status_route(
 
 
 @router.delete("/{task_id}")
-def delete_task_route(
+async def delete_task_route(
     task_id: int,
     current_user: dict = Depends(roles_allowed(["Admin", "ProjectManager"]))
 ):
-    return delete_task_api(task_id)
+    return await delete_task_api(task_id)
