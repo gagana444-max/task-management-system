@@ -315,7 +315,10 @@ export default function TaskDetail() {
 
               {task.description && (
                 <div style={{ marginBottom: 16, background: 'var(--bg)', borderRadius: 8 }}>
-                  <RichTextEditor content={task.description} editable={false} onChange={() => {}} />
+                  <div 
+                    className="prose prose-sm max-w-none prose-p:text-[13px] prose-p:leading-relaxed text-[13px] text-[#0d253d] p-3"
+                    dangerouslySetInnerHTML={{ __html: task.description }}
+                  />
                 </div>
               )}
 

@@ -501,7 +501,10 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                       <div>
                         <div style={{ fontSize: 8, color: 'var(--border-input)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 5 }}>Description</div>
                         <div style={{ background: 'var(--bg)', borderRadius: 7 }}>
-                          <RichTextEditor content={activeTask.description} editable={false} onChange={() => {}} />
+                          <div 
+                            className="prose prose-sm max-w-none prose-p:text-[13px] prose-p:leading-relaxed text-[13px] text-[#0d253d] p-3"
+                            dangerouslySetInnerHTML={{ __html: activeTask.description }}
+                          />
                         </div>
                       </div>
                       <div style={{ height: 1, background: 'var(--bg)' }} />
