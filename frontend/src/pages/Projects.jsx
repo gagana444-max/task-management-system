@@ -7,11 +7,11 @@ import SearchableDropdown from '../components/SearchableDropdown'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
-  { bg: 'linear-gradient(135deg, #f5f7ff 0%, #ebf0fe 100%)', border: '#cbdcfc', iconBg: '#e0e9fe', prog: 'linear-gradient(90deg, #818cf8, #a78bfa)' },
-  { bg: 'linear-gradient(135deg, #f0fdf4 0%, #e6fcf0 100%)', border: '#bbf7d0', iconBg: '#d1fae5', prog: 'linear-gradient(90deg, #34d399, #10b981)' },
-  { bg: 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%)', border: '#bfdbfe', iconBg: '#dbeafe', prog: 'linear-gradient(90deg, #60a5fa, #3b82f6)' },
-  { bg: 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)', border: '#fef08a', iconBg: '#fef9c3', prog: 'linear-gradient(90deg, #fbbf24, #f59e0b)' },
-  { bg: 'linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%)', border: '#f5d0fe', iconBg: '#f3e8ff', prog: 'linear-gradient(90deg, #f472b6, #ec4899)' },
+  { bg: 'linear-gradient(135deg, #fcfdff 0%, #f5f8ff 100%)', border: '#e5edff', iconBg: '#eef2ff' },
+  { bg: 'linear-gradient(135deg, #fcfffd 0%, #f0fdf4 100%)', border: '#dcfce7', iconBg: '#ecfdf5' },
+  { bg: 'linear-gradient(135deg, #fffdfc 0%, #fff7ed 100%)', border: '#ffedd5', iconBg: '#fff7ed' },
+  { bg: 'linear-gradient(135deg, #fdfcff 0%, #f5f3ff 100%)', border: '#ede9fe', iconBg: '#f5f3ff' },
+  { bg: 'linear-gradient(135deg, #fffcfd 0%, #fdf2f8 100%)', border: '#fce7f3', iconBg: '#fdf2f8' },
 ]
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
