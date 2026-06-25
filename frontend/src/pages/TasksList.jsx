@@ -156,16 +156,20 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
   const handleCreate = async (e) => {
     e.preventDefault()
     if (!form.title.trim()) return setError('Title is required.')
+    if (!form.assigned_user_id) return setError('Assignee is required.')
+
+    let targetProjectId = form.project_id
+    if (projectId) {
+      targetProjectId = projectId
+    }
+    if (!targetProjectId) return setError('Project is required.')
+
     try {
       setCreating(true)
-      const payload = { ...form }
-      if (!payload.assigned_user_id) delete payload.assigned_user_id
-      if (payload.project_id) {
-        payload.project_id = Number(payload.project_id)
-      } else if (projectId) {
-        payload.project_id = projectId
-      } else {
-        delete payload.project_id
+      const payload = { 
+        ...form,
+        assigned_user_id: Number(form.assigned_user_id),
+        project_id: Number(targetProjectId)
       }
       
       const res = await api.post('/tasks', payload)
@@ -552,9 +556,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {!projectId && (
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Project</label>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Project *</label>
                     <select value={form.project_id} onChange={e => setForm({ ...form, project_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
-                      <option value="">No Project</option>
+                      <option value="">Select Project</option>
                       {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
                   </div>
@@ -566,9 +570,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Assign To</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Assign To *</label>
                   <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
-                    <option value="">Unassigned</option>
+                    <option value="">Select Assignee</option>
                     {users.map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
                   </select>
                 </div>
