@@ -338,6 +338,22 @@ def delete_task(task_id: int):
     cursor = connection.cursor()
 
     try:
+        # First, grab any physical files associated with the task and delete them
+        cursor.execute("SELECT file_path FROM attachments WHERE task_id = %s", (task_id,))
+        rows = cursor.fetchall()
+        for row in rows:
+            file_path = row[0]
+            if file_path and os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except Exception:
+                    pass
+                    
+        # Now safely delete the child records from the database
+        cursor.execute("DELETE FROM comments WHERE task_id = %s", (task_id,))
+        cursor.execute("DELETE FROM attachments WHERE task_id = %s", (task_id,))
+
+        # Finally, delete the parent task
         cursor.execute(
             "DELETE FROM tasks WHERE task_id = %s",
             (task_id,)
