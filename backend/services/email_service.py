@@ -78,9 +78,15 @@ async def send_onboarding_email(email: str, name: str, temp_password: str):
 
         if MAIL_USERNAME and MAIL_PASSWORD:
             context = ssl.create_default_context()
-            with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
-                server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                server.sendmail(MAIL_FROM, email, msg.as_string())
+            if MAIL_PORT == 465:
+                with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
+                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
+                    server.sendmail(MAIL_FROM, email, msg.as_string())
+            else:
+                with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
+                    server.starttls(context=context)
+                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
+                    server.sendmail(MAIL_FROM, email, msg.as_string())
             print(f"Email sent successfully to {email}")
 
     except Exception as e:
