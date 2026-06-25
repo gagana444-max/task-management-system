@@ -333,12 +333,16 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                 return (
                   <Droppable key={status} droppableId={status}>
                     {(provided, snapshot) => (
-                      <div ref={provided.innerRef} {...provided.droppableProps} style={{ background: snapshot.isDraggingOver ? cs.dragBg : cs.colBg, backdropFilter: 'blur(16px)', border: `1px solid rgba(255, 255, 255, 0.9)`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s ease' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
-                          <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1, minHeight: 100 }}>
+                      <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s ease', border: `1px solid rgba(255, 255, 255, 0.9)` }}>
+                        {/* Glass Background Sibling (prevents breaking position: fixed for dragged items) */}
+                        <div style={{ position: 'absolute', inset: 0, background: snapshot.isDraggingOver ? cs.dragBg : cs.colBg, backdropFilter: 'blur(16px)', zIndex: 0 }} />
+                        
+                        <div style={{ position: 'relative', zIndex: 1, padding: 14, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
+                            <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
+                          </div>
+                          <div ref={provided.innerRef} {...provided.droppableProps} style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1, minHeight: 100 }}>
                           {loading ? (
                             <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)' }}>Loading...</div>
                           ) : colTasks.length === 0 && !snapshot.isDraggingOver ? (
@@ -398,11 +402,12 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                               </Draggable>
                             )
                           })}
-                          <div style={{ display: 'none' }}>{provided.placeholder}</div>
+                          {provided.placeholder}
                         </div>
                       </div>
-                    )}
-                  </Droppable>
+                    </div>
+                  )}
+                </Droppable>
                 )
               })}
             </div>
