@@ -49,6 +49,12 @@ export function SocketProvider({ children }) {
       toast.info(`📋 ${data.message}`)
     })
 
+    newSocket.on('project_assigned', (data) => {
+      console.log('Received project_assigned:', data)
+      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      toast.info(`📁 ${data.message}`)
+    })
+
     setSocket(newSocket)
 
     return () => {
