@@ -59,12 +59,13 @@ export default function Projects() {
   const handleCreate = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return setError('Project name is required.')
+    if (!form.manager_id) return setError('Project Manager is required.')
     try {
       setSaving(true)
       const payload = {
-        name: form.name,
-        description: form.description || null,
-        manager_id: form.manager_id ? Number(form.manager_id) : null
+        name: form.name.trim(),
+        description: form.description ? form.description.trim() : null,
+        manager_id: Number(form.manager_id)
       }
       const res = await api.post('/projects', payload)
       setProjects([res.data, ...projects])
@@ -83,12 +84,13 @@ export default function Projects() {
   const handleEdit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return setError('Project name is required.')
+    if (!form.manager_id) return setError('Project Manager is required.')
     try {
       setSaving(true)
       const payload = {
-        name: form.name,
-        description: form.description || null,
-        manager_id: form.manager_id ? Number(form.manager_id) : null
+        name: form.name.trim(),
+        description: form.description ? form.description.trim() : null,
+        manager_id: Number(form.manager_id)
       }
       const res = await api.put(`/projects/${showEdit.id}`, payload)
       setProjects(projects.map(p => p.id === showEdit.id ? res.data : p))
@@ -259,7 +261,7 @@ export default function Projects() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager</label>
+                <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager *</label>
                 <SearchableDropdown
                   options={managerOptions}
                   value={form.manager_id}
@@ -315,7 +317,7 @@ export default function Projects() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager</label>
+                <label className="block text-[11px] font-semibold text-[#64748d] mb-1.5">Assigned Project Manager *</label>
                 <SearchableDropdown
                   options={managerOptions}
                   value={form.manager_id}
