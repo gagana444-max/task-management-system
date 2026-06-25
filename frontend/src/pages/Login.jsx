@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Eye, EyeOff } from 'lucide-react'
 
@@ -163,7 +163,7 @@ export default function Login() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 400, color: '#64748d' }}>Password</label>
-                <a href="/forgot-password" style={{ fontSize: 11, color: '#533afd', textDecoration: 'none', fontWeight: 500 }}>Forgot password?</a>
+                <Link to={`/forgot-password${form.email ? `?email=${encodeURIComponent(form.email)}` : ''}`} style={{ fontSize: 11, color: '#533afd', textDecoration: 'none', fontWeight: 500 }}>Forgot password?</Link>
               </div>
               <div style={{ position: 'relative' }}>
                 <input

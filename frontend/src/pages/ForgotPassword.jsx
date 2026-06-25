@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Mail } from 'lucide-react'
 import axios from 'axios'
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState('')
+  const [searchParams] = useSearchParams()
+  const initialEmail = searchParams.get('email') || ''
+  
+  const [email, setEmail] = useState(initialEmail)
   const [status, setStatus] = useState('idle') // idle, loading, success, error
   const [errorMsg, setErrorMsg] = useState('')
 
