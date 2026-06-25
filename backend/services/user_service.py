@@ -12,7 +12,8 @@ def to_dict(db_user: DBUser):
         "name": db_user.user_name,
         "email": db_user.email,
         "role": db_user.user_role,
-        "is_active": bool(db_user.is_active)
+        "is_active": bool(db_user.is_active),
+        "is_first_login": bool(db_user.is_first_login)
     }
 
 def create_user(db: Session, user_data: UserCreate):

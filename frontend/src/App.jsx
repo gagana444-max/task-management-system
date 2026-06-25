@@ -13,6 +13,8 @@ import AdminPanel from './pages/AdminPanel'
 import FirstLoginReset from './pages/FirstLoginReset'
 import Notifications from './pages/Notifications'
 import Projects from './pages/Projects'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 
 export default function App() {
@@ -26,6 +28,8 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/first-login-reset" element={<FirstLoginReset />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Protected routes — all roles */}
               <Route path="/dashboard" element={

@@ -1,12 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from services import user_service
 from services.auth_service import (
     create_access_token,
     authenticate_user,
+    create_password_reset_token,
+    decode_password_reset_token,
+    get_password_hash
 )
+from services.email_service import send_password_reset_email, validate_password_policy
 from config.database import get_db
 from models.user_model import UserCreate
+from models.db_models import DBUser
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -32,3 +37,63 @@ def login(form_data: dict, db: Session = Depends(get_db)):
 
     token = create_access_token({"sub": str(user['id']), "role": user['role']})
     return {"access_token": token, "token_type": "bearer"}
+
+
+@router.post('/forgot-password')
+def forgot_password(form_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    email = form_data.get('email')
+    if not email:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email required")
+        
+    user = db.query(DBUser).filter(DBUser.email == email).first()
+    if user:
+        # Generate token and send email in background
+        reset_token = create_password_reset_token(user.email, user.user_id, user.user_password)
+        background_tasks.add_task(
+            send_password_reset_email,
+            email=user.email,
+            name=user.user_name,
+            reset_token=reset_token
+        )
+    
+    # Always return success to prevent email enumeration
+    return {"message": "If an account with that email exists, a password reset link has been sent."}
+
+
+@router.post('/reset-password')
+def reset_password(form_data: dict, db: Session = Depends(get_db)):
+    token = form_data.get('token')
+    new_password = form_data.get('new_password')
+    confirm_password = form_data.get('confirm_password')
+    
+    if not token or not new_password or not confirm_password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="All fields are required")
+        
+    if new_password != confirm_password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match")
+        
+    payload = decode_password_reset_token(token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset link")
+        
+    user = db.query(DBUser).filter(DBUser.user_id == int(payload.get("sub"))).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        
+    # Verify the token is still valid for this specific password hash
+    if payload.get("pwd_hash_snippet") != user.user_password[-10:]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This reset link has already been used")
+        
+    # Validate policy
+    errors = validate_password_policy(new_password)
+    if errors:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=" | ".join(errors))
+        
+    # Update password
+    user.user_password = get_password_hash(new_password)
+    # Also set is_first_login to False just in case they used forgot password before their first login
+    user.is_first_login = False 
+    user.temp_password = None
+    db.commit()
+    
+    return {"message": "Password has been successfully reset"}
