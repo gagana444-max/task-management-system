@@ -82,11 +82,39 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
     </html>
     """
 
+    text_body = f"""
+    Welcome to Taskify!
+    
+    Hello {name},
+    We are thrilled to have you on board! Your account has been successfully created by your administrator.
+    
+    Your Login Credentials:
+    Email: {email}
+    Temporary Password: {temp_password}
+    
+    IMPORTANT: You must change your password on your first login.
+    
+    Login to Taskify Now: {FRONTEND_URL}/login
+    
+    Password Requirements:
+    - Minimum 8 characters
+    - At least one uppercase and one lowercase letter
+    - At least one number
+    - At least one special character (!@#$%^&*)
+    
+    Best regards,
+    The Taskify Team
+    """
+
     try:
         msg = MIMEMultipart('alternative')
         msg['From'] = MAIL_FROM
         msg['To'] = email
         msg['Subject'] = "Welcome to Taskify - Your Login Credentials"
+        msg.add_header('Reply-To', MAIL_FROM)
+        
+        # Attach plain text first, then HTML (standard for multipart/alternative)
+        msg.attach(MIMEText(text_body, 'plain'))
         msg.attach(MIMEText(email_body, 'html'))
 
         print(f"[DEV MODE] Email to {email}:")
