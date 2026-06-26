@@ -221,9 +221,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
 
   const cols = ['todo', 'in_progress', 'completed']
   const colStyle = {
-    todo: { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', cntBg: '#fef9c3', emptyBorder: '#fef08a', colBg: 'rgba(250, 204, 21, 0.1)', dragBg: 'rgba(250, 204, 21, 0.25)' },
-    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', cntBg: '#dcfce7', emptyBorder: '#bbf7d0', colBg: 'rgba(74, 222, 128, 0.1)', dragBg: 'rgba(74, 222, 128, 0.25)' },
-    completed: { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', cntBg: '#e0e7ff', emptyBorder: '#c7d2fe', colBg: 'rgba(129, 140, 248, 0.1)', dragBg: 'rgba(129, 140, 248, 0.25)' },
+    todo: { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', emptyBorder: '#fde047', colBg: '#fdf8e1', dragBg: '#fef3c0' },
+    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', emptyBorder: '#bbf7d0', colBg: '#f0fdf4', dragBg: '#dcfce7' },
+    completed: { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', emptyBorder: '#c7d2fe', colBg: '#eef2ff', dragBg: '#e0e7ff' },
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
 
@@ -327,52 +327,65 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
         {viewMode === 'board' ? (
           /* Kanban Board */
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)' }}>
               {cols.map(status => {
                 const cs = colStyle[status]
                 const colTasks = filtered.filter(t => normalizeStatus(t.status) === status)
                 return (
                   <Droppable key={status} droppableId={status}>
                     {(provided, snapshot) => (
-                      <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s ease', border: `1px solid rgba(255, 255, 255, 0.9)` }}>
-                        {/* Glass Background Sibling (prevents breaking position: fixed for dragged items) */}
-                        <div style={{ position: 'absolute', inset: 0, background: snapshot.isDraggingOver ? cs.dragBg : cs.colBg, backdropFilter: 'blur(16px)', zIndex: 0 }} />
-                        
-                        <div style={{ position: 'relative', zIndex: 1, padding: 14, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
-                            <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
-                            <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        style={{
+                          background: snapshot.isDraggingOver ? cs.dragBg : cs.colBg,
+                          borderRadius: 16,
+                          border: `1.5px solid ${snapshot.isDraggingOver ? cs.border : 'rgba(255,255,255,0.9)'}`,
+                          padding: 14,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 7,
+                          overflowY: 'auto',
+                          boxShadow: snapshot.isDraggingOver ? `0 0 0 2px ${cs.border}40` : '0 4px 15px rgba(0,0,0,0.04)',
+                          transition: 'background 0.2s ease, box-shadow 0.2s ease',
+                        }}
+                      >
+                        {/* Column header */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7, flexShrink: 0 }}>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
+                          <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
+                        </div>
+
+                        {/* Cards */}
+                        {loading ? (
+                          <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)' }}>Loading...</div>
+                        ) : colTasks.length === 0 && !snapshot.isDraggingOver ? (
+                          <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)', border: `1px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
+                            {EMPTY_MESSAGES[status]}
                           </div>
-                          <div ref={provided.innerRef} {...provided.droppableProps} style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1, minHeight: 100 }}>
-                          {loading ? (
-                            <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)' }}>Loading...</div>
-                          ) : colTasks.length === 0 && !snapshot.isDraggingOver ? (
-                            <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)', border: `1px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
-                              {EMPTY_MESSAGES[status]}
-                            </div>
-                          ) : colTasks.map((t, index) => {
-                            const assignedName = getUserName(t.assigned_user_id)
-                            const ns = normalizeStatus(t.status)
-                            const isNew = t.id === newlyCreatedId
-                            return (
-                              <Draggable key={t.id.toString()} draggableId={t.id.toString()} index={index}>
-                                {(provided, snapshot) => {
-                                  const cardStyle = {
-                                    background: '#fff', borderRadius: 12, padding: '14px', cursor: 'grab',
-                                    border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
-                                    boxShadow: snapshot.isDragging ? '0 15px 30px rgba(0,0,0,0.15)' : '0 2px 5px rgba(0,0,0,0.02)',
-                                    opacity: snapshot.isDragging ? 0.97 : 1,
-                                    animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-                                    ...provided.draggableProps.style
-                                  }
-                                  const card = (
+                        ) : colTasks.map((t, index) => {
+                          const assignedName = getUserName(t.assigned_user_id)
+                          const ns = normalizeStatus(t.status)
+                          const isNew = t.id === newlyCreatedId
+                          return (
+                            <Draggable key={t.id.toString()} draggableId={t.id.toString()} index={index}>
+                              {(provided, snapshot) => {
+                                const card = (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                     onClick={() => setActiveId(activeId === t.id ? null : t.id)}
-                                    style={cardStyle}
-                                    className="group hover:border-[#cbd5e1] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)]"
+                                    style={{
+                                      background: '#fff',
+                                      borderRadius: 12,
+                                      padding: '14px',
+                                      cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                                      border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
+                                      boxShadow: snapshot.isDragging ? '0 20px 40px rgba(0,0,0,0.18)' : '0 2px 5px rgba(0,0,0,0.03)',
+                                      animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+                                      ...provided.draggableProps.style,
+                                    }}
                                   >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                                       <div style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
@@ -387,11 +400,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                                         </div>
                                       )}
                                     </div>
-
                                     <div style={{ fontSize: 13, fontWeight: 500, color: ns === 'completed' ? 'var(--text-muted)' : 'var(--text)', lineHeight: 1.4, textDecoration: ns === 'completed' ? 'line-through' : 'none', marginBottom: 14 }}>
                                       {t.title}
                                     </div>
-                                    
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                       <span style={{ fontSize: 10, fontWeight: 600, color: isLate(t.due_date, ns) ? 'var(--danger)' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
                                         <Clock size={12} strokeWidth={2.5} /> {fmt(t.due_date)}
@@ -401,18 +412,16 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                                       </div>
                                     </div>
                                   </div>
-                                  )
-                                  return snapshot.isDragging ? createPortal(card, document.body) : card
-                                }}
-                              </Draggable>
-                            )
-                          })}
-                          {provided.placeholder}
-                        </div>
+                                )
+                                return snapshot.isDragging ? createPortal(card, document.body) : card
+                              }}
+                            </Draggable>
+                          )
+                        })}
+                        {provided.placeholder}
                       </div>
-                    </div>
-                  )}
-                </Droppable>
+                    )}
+                  </Droppable>
                 )
               })}
             </div>
