@@ -13,6 +13,7 @@ import AdminPanel from './pages/AdminPanel'
 import FirstLoginReset from './pages/FirstLoginReset'
 import Notifications from './pages/Notifications'
 import Projects from './pages/Projects'
+import ProjectDetail from './pages/ProjectDetail'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import { ToastContainer } from 'react-toastify'
@@ -58,6 +59,11 @@ export default function App() {
               <Route path="/projects" element={
                 <ProtectedRoute>
                   <MainLayout><Projects /></MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/projects/:id" element={
+                <ProtectedRoute>
+                  <MainLayout><ProjectDetail /></MainLayout>
                 </ProtectedRoute>
               } />
 
