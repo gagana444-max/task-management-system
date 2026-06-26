@@ -230,10 +230,6 @@ export default function Projects() {
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 16px 40px ${color.accent}30` }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px ${color.accent}18` }}
               >
-                {/* Decorative background circles */}
-                <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: color.dot1, opacity: 0.15, pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', top: 20, right: 20, width: 60, height: 60, borderRadius: '50%', background: color.dot2, opacity: 0.2, pointerEvents: 'none' }} />
-
                 {/* Top accent bar */}
                 <div style={{ height: 4, background: `linear-gradient(90deg, ${color.accent}, ${color.dot1})`, flexShrink: 0 }} />
 
