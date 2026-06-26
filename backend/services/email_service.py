@@ -7,6 +7,7 @@ import traceback
 from urllib.parse import quote
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import email.utils
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -36,9 +37,11 @@ def _send_email(cfg: dict, to_email: str, subject: str, text_body: str, html_bod
         raise RuntimeError("Email credentials (EMAIL_USER / EMAIL_PASS) are not configured in .env")
 
     msg = MIMEMultipart('alternative')
-    msg['From']    = cfg["mail_from"]
+    msg['From']    = f"Taskify App <{cfg['mail_from']}>"
     msg['To']      = to_email
     msg['Subject'] = subject
+    msg['Date']    = email.utils.formatdate(localtime=True)
+    msg['Message-ID'] = email.utils.make_msgid()
     msg.add_header('Reply-To', cfg["mail_from"])
     msg.attach(MIMEText(text_body, 'plain'))
     msg.attach(MIMEText(html_body, 'html'))
