@@ -92,7 +92,7 @@ const AttachmentUpload = ({ taskId }) => {
                 <span className="text-gray-400 text-xs">({formatSize(att.size)})</span>
               </div>
               <a
-                href={`http://localhost:8000/api/tasks/${taskId}/attachments/${att.id}/download`}
+                href={`${import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:8000/api`}/tasks/${taskId}/attachments/${att.id}/download`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-600 hover:underline text-xs"

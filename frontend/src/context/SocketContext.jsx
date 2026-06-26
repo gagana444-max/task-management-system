@@ -20,7 +20,7 @@ export function SocketProvider({ children }) {
       return
     }
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+    const apiUrl = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:8000/api`
     const socketUrl = apiUrl.replace(/\/api\/?$/, '')
 
     const fetchNotifications = async () => {
@@ -117,7 +117,7 @@ export function SocketProvider({ children }) {
   const markRead = async (id) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const apiUrl = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:8000/api`
       const token = localStorage.getItem('token')
       await fetch(`${apiUrl}/notifications/read?notification_id=${id}`, {
         method: 'PUT',
@@ -129,7 +129,7 @@ export function SocketProvider({ children }) {
   const markAllRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const apiUrl = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:8000/api`
       const token = localStorage.getItem('token')
       await fetch(`${apiUrl}/notifications/read`, {
         method: 'PUT',
