@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { Lock, CheckCircle2, AlertCircle, CheckSquare, ArrowLeft } from 'lucide-react'
+import { Lock, CheckCircle2, AlertCircle, CheckSquare, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import api from '../api/axios'
 
 export default function ResetPassword() {
@@ -11,6 +11,8 @@ export default function ResetPassword() {
   const [form, setForm] = useState({ new_password: '', confirm_password: '' })
   const [status, setStatus] = useState('idle') // idle, loading, success, error
   const [errorMsg, setErrorMsg] = useState('')
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
     if (!token) {
@@ -144,40 +146,58 @@ export default function ResetPassword() {
               </div>
             )}
 
-            <div>
+            <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--text)', fontWeight: 500 }}>
                 New Password
               </label>
-              <input
-                type="password"
-                required
-                disabled={!token || status === 'loading'}
-                value={form.new_password}
-                onChange={(e) => {
-                  setForm({ ...form, new_password: e.target.value })
-                  if (status === 'error') setStatus('idle')
-                }}
-                placeholder="Enter new password"
-                style={inp}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  required
+                  disabled={!token || status === 'loading'}
+                  value={form.new_password}
+                  onChange={(e) => {
+                    setForm({ ...form, new_password: e.target.value })
+                    if (status === 'error') setStatus('idle')
+                  }}
+                  placeholder="Enter new password"
+                  style={{ ...inp, marginBottom: 0, paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748d', padding: 0, display: 'flex' }}
+                >
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
-            <div>
+            <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--text)', fontWeight: 500 }}>
                 Confirm New Password
               </label>
-              <input
-                type="password"
-                required
-                disabled={!token || status === 'loading'}
-                value={form.confirm_password}
-                onChange={(e) => {
-                  setForm({ ...form, confirm_password: e.target.value })
-                  if (status === 'error') setStatus('idle')
-                }}
-                placeholder="Confirm new password"
-                style={inp}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  disabled={!token || status === 'loading'}
+                  value={form.confirm_password}
+                  onChange={(e) => {
+                    setForm({ ...form, confirm_password: e.target.value })
+                    if (status === 'error') setStatus('idle')
+                  }}
+                  placeholder="Confirm new password"
+                  style={{ ...inp, marginBottom: 0, paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748d', padding: 0, display: 'flex' }}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button
