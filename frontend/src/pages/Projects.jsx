@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle, ArrowDownUp } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
@@ -33,6 +34,7 @@ export default function Projects() {
   const [viewMode, setViewMode] = useState('board')
 
   const canManage = user?.role === 'Admin' || user?.role === 'ProjectManager'
+  const navigate = useNavigate()
 
   // Filter users to display only Project Managers and Admins as options
   const managers = users.filter(u => u.is_active && (u.role === 'ProjectManager' || u.role === 'Admin'))
@@ -211,6 +213,7 @@ export default function Projects() {
             return (
               <div
                 key={project.id}
+                onClick={() => navigate(`/projects/${project.id}`)}
                 style={{
                   background: color.bg,
                   border: `1.5px solid ${color.border}`,
@@ -222,6 +225,7 @@ export default function Projects() {
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 16px 40px ${color.accent}30` }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px ${color.accent}18` }}
