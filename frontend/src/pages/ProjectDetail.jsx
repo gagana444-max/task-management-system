@@ -94,7 +94,7 @@ export default function ProjectDetail() {
         <div style={{ position: 'absolute', bottom: -20, right: 80, width: 80, height: 80, borderRadius: '50%', background: color.dot, opacity: 0.1, pointerEvents: 'none' }} />
         <div style={{ height: 5, background: `linear-gradient(90deg, ${color.accent}, ${color.dot})` }} />
 
-        <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 20, position: 'relative', zIndex: 1, flexWrap: 'wrap' }}>
+        <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-5 relative z-10">
           <div style={{ width: 54, height: 54, borderRadius: 16, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)', flexShrink: 0 }}>
             <FolderKanban size={26} color="#fff" strokeWidth={1.8} />
           </div>
@@ -106,7 +106,7 @@ export default function ProjectDetail() {
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 shrink-0">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.15)', border: `1px solid rgba(255,255,255,0.3)`, borderRadius: 12, padding: '8px 12px', backdropFilter: 'blur(8px)' }}>
               <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: color.border, boxShadow: `0 2px 6px rgba(0,0,0,0.15)` }}>
                 {pmInitials}

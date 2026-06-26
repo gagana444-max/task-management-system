@@ -303,7 +303,7 @@ export default function TaskDetail() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
+      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-4">
 
         {/* Left */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

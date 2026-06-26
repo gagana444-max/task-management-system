@@ -162,7 +162,7 @@ export default function AdminPanel() {
       {showCreate && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', padding: 18, marginBottom: 16 }}>
           <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: 'var(--text)', marginBottom: 14 }}>Create New User</h2>
-          <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} noValidate>
+          <form onSubmit={handleCreate} className="flex flex-col md:grid md:grid-cols-2 gap-3" noValidate>
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
               { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
@@ -190,7 +190,7 @@ export default function AdminPanel() {
       )}
 
       {/* Filter bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..."
           style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: "'Inter', sans-serif" }} />
         <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
@@ -212,7 +212,7 @@ export default function AdminPanel() {
       ) : users.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>No users found.</div>
       ) : viewMode === 'board' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {users.map(user => {
             const rs = roleStyle[user.role] || roleStyle.Collaborator
             return (
@@ -252,8 +252,8 @@ export default function AdminPanel() {
           })}
         </div>
       ) : (
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 12 }}>
+        <div className="overflow-x-auto bg-[var(--bg-card)] border border-[var(--border)] rounded-xl">
+          <table className="min-w-[700px] w-full border-collapse text-left text-xs">
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
                 <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Name</th>

@@ -290,10 +290,10 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
           statColor="#533afd"
         />
       )}
-      <div className="flex items-center justify-between flex-shrink-0 mb-1 mt-1">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between flex-shrink-0 mb-3 mt-1 gap-3">
         {/* View Toggle */}
         {!hideHeader && (
-          <div className="flex items-center bg-[#fff] border border-[#e3e8ee] rounded-lg p-1 shadow-sm">
+          <div className="flex items-center bg-[#fff] border border-[#e3e8ee] rounded-lg p-1 shadow-sm w-fit">
             <button onClick={() => setViewMode('board')} className={`p-1.5 rounded-md flex items-center justify-center transition-all ${viewMode === 'board' ? 'bg-[#533afd] text-white' : 'text-[#64748d] hover:bg-[var(--bg)]'}`}>
               <LayoutGrid size={16} />
             </button>
@@ -304,7 +304,7 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
         )}
         
         {/* Filters & Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -346,7 +346,7 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flexShrink: 0 }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 shrink-0">
         {[
           { label: 'To Do', Icon: ClipboardList, chipBg: '#fdf6e8', chipColor: '#9b6829', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'todo').length },
           { label: 'In Progress', Icon: Zap, chipBg: '#eeedfe', chipColor: '#534ab7', count: visibleTasks.filter(t => normalizeStatus(t.status) === 'in_progress').length },
@@ -374,12 +374,16 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
             onDragStart={({ active }) => setDraggingTask(filtered.find(t => t.id.toString() === active.id) || null)}
             onDragEnd={handleDnDEnd}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)' }}>
+            <div 
+              className="flex md:grid md:grid-cols-3 gap-2.5 overflow-x-auto pb-2 snap-x"
+              style={{ flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)' }}
+            >
               {cols.map(status => {
                 const cs = colStyle[status]
                 const colTasks = filtered.filter(t => normalizeStatus(t.status) === status)
                 return (
-                  <DroppableColumn key={status} id={status} colBg={cs.colBg} dragBg={cs.dragBg} border={cs.border}>
+                  <div key={status} className="min-w-[280px] md:min-w-0 snap-center flex flex-col">
+                    <DroppableColumn id={status} colBg={cs.colBg} dragBg={cs.dragBg} border={cs.border}>
                     {/* Column header */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7, flexShrink: 0 }}>
                       <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
@@ -437,6 +441,7 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
                       )
                     })}
                   </DroppableColumn>
+                  </div>
                 )
               })}
             </div>
@@ -471,12 +476,14 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
         ) : (
           /* Table View */
           <div style={{ flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden', background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 1fr', padding: '12px 16px', background: 'var(--bg)', borderBottom: '1px solid var(--border)', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-              {['Task Title', 'Status', 'Priority', 'Project', 'Assignee', 'Due Date'].map(h => (
-                <div key={h} style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
-              ))}
-            </div>
-            <div style={{ overflowY: 'auto', flex: 1 }}>
+            <div className="overflow-x-auto flex-1 flex flex-col">
+              <div className="min-w-[800px] flex flex-col flex-1">
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 1fr', padding: '12px 16px', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+                  {['Task Title', 'Status', 'Priority', 'Project', 'Assignee', 'Due Date'].map(h => (
+                    <div key={h} style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
+                  ))}
+                </div>
+                <div style={{ overflowY: 'auto', flex: 1 }}>
               {loading ? (
                 <div style={{ textAlign: 'center', padding: 20, fontSize: 12, color: 'var(--border-input)' }}>Loading tasks...</div>
               ) : filtered.length === 0 ? (
@@ -523,6 +530,8 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
                   )
                 })
               )}
+            </div>
+              </div>
             </div>
           </div>
         )}
@@ -604,8 +613,8 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
 
       {/* Create Task Modal */}
       {showCreate && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,37,61,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 14, padding: 24, width: 440, maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,37,61,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 14, padding: 24, width: '100%', maxWidth: 440, maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 16, color: 'var(--text)' }}>New Task</span>
               <button onClick={() => setShowCreate(false)} style={{ background: 'var(--bg)', border: 'none', width: 24, height: 24, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
