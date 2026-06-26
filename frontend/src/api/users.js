@@ -31,3 +31,6 @@ export const checkFirstLogin = (id) =>
 
 export const resetPassword = (id, data) =>
   api.post(`/onboarding/reset-password/${id}`, data)
+
+export const resetFirstPassword = (data) =>
+  api.post('/onboarding/reset-first-password', data)

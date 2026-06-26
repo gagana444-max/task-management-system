@@ -54,3 +54,21 @@ async def reset_password(
         confirm_password=request.confirm_password,
         db=db
     )
+@router.post("/reset-first-password", status_code=200)
+async def reset_first_password(
+    request: PasswordResetRequest,
+    db: Session = Depends(get_db)
+):
+    if not request.validate_passwords_match():
+        raise HTTPException(status_code=400, detail={
+            "error_code": "PASSWORD_MISMATCH",
+            "message": "Passwords do not match",
+            "description": "New password and confirm password must be the same"
+        })
+
+    return onboarding_controller.reset_first_password(
+        temp_password=request.temp_password,
+        new_password=request.new_password,
+        confirm_password=request.confirm_password,
+        db=db
+    )
