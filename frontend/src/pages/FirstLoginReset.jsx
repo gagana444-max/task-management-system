@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { resetPassword } from '../api/users'
+import { resetFirstPassword } from '../api/users'
 import { Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function FirstLoginReset() {
@@ -49,18 +49,11 @@ export default function FirstLoginReset() {
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return }
 
-    const userId = getUserId()
-    if (!userId) {
-      setGlobalError('Session expired. Please log in again.')
-      logout()
-      navigate('/login')
-      return
-    }
-
     try {
       setLoading(true)
-      await resetPassword(userId, form)
-      navigate('/dashboard')
+      await resetFirstPassword(form)
+      logout()
+      navigate('/login')
     } catch (err) {
       const data = err.response?.data || {}
       const detail = data.detail || data
