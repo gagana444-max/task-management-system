@@ -34,7 +34,7 @@ export default function Projects() {
   const canManage = user?.role === 'Admin' || user?.role === 'ProjectManager'
 
   // Filter users to display only Project Managers and Admins as options
-  const managers = users.filter(u => u.is_active !== false && (u.role === 'ProjectManager' || u.role === 'Admin'))
+  const managers = users.filter(u => u.is_active && (u.role === 'ProjectManager' || u.role === 'Admin'))
   const managerOptions = [
     { value: '', label: 'Select Project Manager' },
     ...managers.map(m => ({ value: m.id, label: `${m.name} (${m.email})` }))

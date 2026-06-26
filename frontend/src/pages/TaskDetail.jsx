@@ -498,7 +498,7 @@ export default function TaskDetail() {
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: 'var(--text)', marginBottom: 5 }}>Assign To</label>
                   <select value={editForm.assigned_user_id} onChange={e => setEditForm({ ...editForm, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13, fontFamily: "'Inter', sans-serif", outline: 'none', boxSizing: 'border-box', background: 'var(--bg-card)' }}>
                     <option value="">Unassigned</option>
-                    {users.filter(u => u.is_active !== false).map(u => <option key={u.id} value={u.id}>{u.role === 'ProjectManager' ? 'Project Manager' : u.role} — {u.name}</option>)}
+                    {users.filter(u => u.is_active).map(u => <option key={u.id} value={u.id}>{u.role === 'ProjectManager' ? 'Project Manager' : u.role} — {u.name}</option>)}
                   </select>
                 </div>
               </div>

@@ -39,6 +39,7 @@ class UserOut(BaseModel):
     email: str
     role: RoleEnum
     is_active: bool
+    is_first_login: bool
 
 class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=100)

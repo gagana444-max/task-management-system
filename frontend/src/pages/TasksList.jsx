@@ -587,7 +587,7 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Assign To *</label>
                   <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
                     <option value="">Select Assignee</option>
-                    {users.map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
+                    {users.filter(u => u.is_active).map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
                   </select>
                 </div>
               </div>
