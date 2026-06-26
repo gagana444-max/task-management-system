@@ -198,7 +198,7 @@ export default function Projects() {
       {loading ? (
         <div className="text-center py-20 text-[#a8c3de] text-sm">Loading projects...</div>
       ) : filteredProjects.length === 0 ? (
-        <div className="text-center py-20 bg-[var(--bg-card)]/60 backdrop-blur-sm rounded-2xl border border-[var(--border)]/80 shadow-[0_4px_15px_rgba(0,0,0,0.02)]">
+        <div className="text-center py-20 bg-[var(--bg-card)] backdrop-blur-sm rounded-2xl border border-[var(--border)] shadow-[0_4px_15px_rgba(0,0,0,0.02)]">
           <FolderKanban size={48} className="mx-auto mb-4 text-[#a8c3de]" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-[#0d253d]">No projects found.</p>
           {canManage && search === '' && <p className="text-xs text-[#64748d] mt-1">Click New Project to get started.</p>}

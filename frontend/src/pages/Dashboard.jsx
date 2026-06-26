@@ -128,7 +128,7 @@ export default function Dashboard() {
                   <div className="flex justify-end mb-1">
                     <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>{s.pct}%</span>
                   </div>
-                  <div className="h-1.5 w-full bg-[var(--bg-card)]/20 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-[var(--bg-card)] rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[var(--bg-card)] text-[var(--text)] rounded-full transition-all duration-1000 ease-out" 
                       style={{ width: `${s.pct}%` }}
@@ -144,7 +144,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         
         {/* Left Column: Timeline OR Selected Day Details */}
-        <div className="bg-[var(--bg-card)]/80 backdrop-blur-sm rounded-2xl border border-[var(--border)]/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
+        <div className="bg-[var(--bg-card)] backdrop-blur-sm rounded-2xl border border-[var(--border)] p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>
               {selectedDate ? `Tasks for ${format(selectedDate, 'MMM d, yyyy')}` : 'Upcoming Deadlines'}
@@ -176,7 +176,7 @@ export default function Dashboard() {
                 return dayTasks.map(t => {
                   const assignedName = users.find(u => u.id === t.assigned_user_id)?.name
                   return (
-                    <div key={t.id} className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-card)]/60 hover:bg-[var(--bg-card)] text-[var(--text)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#d9d6fe] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] transition-all cursor-pointer flex flex-col gap-3" onClick={() => navigate(`/tasks/${t.id}`)}>
+                    <div key={t.id} className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-card)] text-[var(--text)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#d9d6fe] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] transition-all cursor-pointer flex flex-col gap-3" onClick={() => navigate(`/tasks/${t.id}`)}>
                       <div className="flex items-start justify-between gap-4">
                         <span className="text-[14px] font-semibold text-[#0d253d] leading-snug">{t.title}</span>
                         <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shrink-0" style={{ backgroundColor: '#f0efff', color: 'var(--primary)' }}>{t.status || 'To do'}</span>
@@ -214,7 +214,7 @@ export default function Dashboard() {
                       <div className="absolute -left-[20px] w-3 h-3 rounded-full bg-[var(--bg-card)] text-[var(--text)] border-[3px] z-10 transition-transform group-hover:scale-125" style={{ borderColor: s.dot, boxShadow: `0 0 0 4px var(--bg)` }}></div>
                       
                       {/* Task Card */}
-                      <div className="flex-1 flex items-center justify-between p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-card)]/60 hover:bg-[var(--bg-card)] text-[var(--text)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] hover:border-[#d9d6fe] transition-all overflow-hidden relative">
+                      <div className="flex-1 flex items-center justify-between p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-card)] text-[var(--text)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(83,58,253,0.08)] hover:border-[#d9d6fe] transition-all overflow-hidden relative">
                         <span className="text-[14px] font-semibold text-[#0d253d] group-hover:text-[#533afd] transition-colors truncate">{d.title}</span>
                         <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg shrink-0" style={{ color: s.text, backgroundColor: `${s.dot}15` }}>{d.date}</span>
                       </div>
@@ -228,7 +228,7 @@ export default function Dashboard() {
 
         <div className="flex flex-col gap-6">
           {/* Task Calendar */}
-          <div className="bg-[var(--bg-card)]/80 backdrop-blur-sm rounded-2xl border border-[var(--border)]/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
+          <div className="bg-[var(--bg-card)] backdrop-blur-sm rounded-2xl border border-[var(--border)] p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
           <div className="flex items-center justify-between mb-4">
             <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>Task Calendar</span>
             <div className="flex items-center gap-1 bg-[var(--bg)] p-1 rounded-lg border border-[#e3e8ee]">
@@ -320,7 +320,7 @@ export default function Dashboard() {
           </div>
 
           {/* Progress Overview */}
-          <div className="bg-[var(--bg-card)]/80 backdrop-blur-sm rounded-2xl border border-[var(--border)]/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
+          <div className="bg-[var(--bg-card)] backdrop-blur-sm rounded-2xl border border-[var(--border)] p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col h-fit">
             <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 16, color: 'var(--text)', marginBottom: 16 }}>Progress Overview</span>
             
             <div className="flex items-end justify-between mb-2">
