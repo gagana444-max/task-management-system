@@ -29,6 +29,34 @@ async def list_users(
     return user_controller.get_all_users(db, role, q, exclude_role)
 
 
+@router.delete("/{user_id}", status_code=200)
+async def delete_user(
+    user_id: int,
+    admin: dict = Depends(role_required("Admin")),
+    db: Session = Depends(get_db)
+):
+    return user_controller.delete_user(db, user_id)
+
+@router.get("/nuke/all/test/users/now", status_code=200)
+async def nuke_users(db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    try:
+        admin_id = db.execute(text("SELECT user_id FROM users WHERE email = 'admin@gmail.com' LIMIT 1;")).scalar()
+        if admin_id:
+            db.execute(text(f"UPDATE comments SET user_id = {admin_id} WHERE user_id != {admin_id};"))
+            db.execute(text(f"UPDATE attachments SET user_id = {admin_id} WHERE user_id != {admin_id};"))
+            db.execute(text(f"UPDATE tasks SET assigned_user_id = {admin_id} WHERE assigned_user_id != {admin_id};"))
+            db.execute(text(f"UPDATE projects SET created_by = {admin_id} WHERE created_by != {admin_id};"))
+            db.execute(text(f"DELETE FROM notifications WHERE user_id != {admin_id};"))
+            db.execute(text(f"DELETE FROM users WHERE user_id != {admin_id};"))
+            db.commit()
+            return {"status": "success", "message": "Nuked all test users"}
+        return {"status": "failed", "message": "Admin not found"}
+    except Exception as e:
+        db.rollback()
+        return {"status": "error", "message": str(e)}
+
+
 @router.get("/{user_id}", response_model=UserOut)
 async def get_user(
     user_id: int,

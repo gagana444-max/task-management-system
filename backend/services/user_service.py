@@ -42,21 +42,8 @@ def get_all_users(db: Session, role: str = None, q: str = None, exclude_role: st
         query = query.filter(DBUser.user_role != exclude_role)
     if q:
         query = query.filter(or_(DBUser.user_name.ilike(f"%{q}%"), DBUser.email.ilike(f"%{q}%")))
-    
-    users = query.all()
-    filtered = []
-    
-    from datetime import datetime, timezone
-    # Hide all dummy users created before right now
-    cutoff_date = datetime(2026, 6, 26, 15, 30) # UTC time right now
-    
-    for u in users:
-        email = u.email.lower()
-        # Keep the main admin and any NEW users created after today
-        if email == 'admin@gmail.com' or (u.created_at and u.created_at > cutoff_date):
-            filtered.append(u)
-            
-    return [to_dict(u) for u in filtered]
+        
+    return [to_dict(u) for u in query.all()]
 
 def _get_user_by_id(db: Session, user_id: int):
     user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
