@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
-import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, ArrowDownUp } from 'lucide-react'
+import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, ArrowDownUp, Clock } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import RichTextEditor from '../components/RichTextEditor'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
@@ -220,9 +220,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
 
   const cols = ['todo', 'in_progress', 'completed']
   const colStyle = {
-    todo: { bg: '#fdf6e8', border: '#f0dcb0', nameColor: '#9b6829', cntBg: '#f5e9d4', emptyBorder: '#f0dcb0' },
-    in_progress: { bg: '#f5f4fe', border: '#dcd9fb', nameColor: '#534ab7', cntBg: '#eeedfe', emptyBorder: '#dcd9fb' },
-    completed: { bg: '#eaf8f1', border: '#bfe4d6', nameColor: '#0f6e56', cntBg: '#e1f5ee', emptyBorder: '#bfe4d6' },
+    todo: { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', cntBg: '#fef9c3', emptyBorder: '#fef08a', colBg: 'rgba(250, 204, 21, 0.1)', dragBg: 'rgba(250, 204, 21, 0.25)' },
+    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', cntBg: '#dcfce7', emptyBorder: '#bbf7d0', colBg: 'rgba(74, 222, 128, 0.1)', dragBg: 'rgba(74, 222, 128, 0.25)' },
+    completed: { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', cntBg: '#e0e7ff', emptyBorder: '#c7d2fe', colBg: 'rgba(129, 140, 248, 0.1)', dragBg: 'rgba(129, 140, 248, 0.25)' },
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
 
@@ -333,10 +333,10 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                 return (
                   <Droppable key={status} droppableId={status}>
                     {(provided, snapshot) => (
-                      <div ref={provided.innerRef} {...provided.droppableProps} style={{ background: snapshot.isDraggingOver ? 'var(--bg-hover)' : cs.bg, border: `1px solid ${cs.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexShrink: 0 }}>
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: 11, letterSpacing: '0.3px', color: cs.nameColor }}>{colLabel[status]}</span>
-                          <span style={{ fontSize: 10, padding: '2px 9px', borderRadius: 9999, fontWeight: 400, background: cs.cntBg, color: cs.nameColor }}>{colTasks.length}</span>
+                      <div ref={provided.innerRef} {...provided.droppableProps} style={{ background: snapshot.isDraggingOver ? cs.dragBg : cs.colBg, backdropFilter: 'blur(16px)', border: `1px solid rgba(255, 255, 255, 0.9)`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s ease' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
+                          <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1, minHeight: 100 }}>
                           {loading ? (
@@ -358,37 +358,47 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
                                     {...provided.dragHandleProps}
                                     onClick={() => setActiveId(activeId === t.id ? null : t.id)}
                                     style={{
-                                      background: 'var(--bg-card)', borderRadius: 8, padding: '10px 12px 10px 10px', cursor: 'pointer',
-                                      borderTop: '1px solid var(--border)',
-                                      borderRight: '1px solid var(--border)',
-                                      borderBottom: '1px solid var(--border)',
-                                      borderLeft: activeId === t.id ? `3px solid var(--primary)` : `3px solid ${statusBorder(ns)}`,
-                                      boxShadow: snapshot.isDragging ? 'var(--shadow-md)' : 'none',
-                                      opacity: snapshot.isDragging ? 0.9 : 1,
+                                      background: '#fff', borderRadius: 12, padding: '14px', cursor: 'grab',
+                                      border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
+                                      boxShadow: snapshot.isDragging ? '0 15px 30px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)',
+                                      opacity: snapshot.isDragging ? 0.95 : 1,
                                       animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
                                       ...provided.draggableProps.style
                                     }}
+                                    className="group hover:border-[#cbd5e1] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)]"
                                   >
-                                    <div style={{ fontSize: 12, fontWeight: 400, color: ns === 'completed' ? 'var(--text-muted)' : 'var(--text)', lineHeight: 1.45, textDecoration: ns === 'completed' ? 'line-through' : 'none' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                                      <div style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
+                                        background: t.priority?.toLowerCase() === 'high' ? '#fee2e2' : t.priority?.toLowerCase() === 'medium' ? '#ffedd5' : '#e0f2fe',
+                                        color: t.priority?.toLowerCase() === 'high' ? '#dc2626' : t.priority?.toLowerCase() === 'medium' ? '#ea580c' : '#0284c7'
+                                      }}>
+                                        {t.priority || 'Low'}
+                                      </div>
+                                      {t.project_id && (
+                                        <div style={{ fontSize: 9, color: '#64748d', background: '#f8fafc', padding: '3px 8px', borderRadius: 6, fontWeight: 500, border: '1px solid #f1f5f9' }}>
+                                          {getProjectName(t.project_id) || `Project #${t.project_id}`}
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div style={{ fontSize: 13, fontWeight: 500, color: ns === 'completed' ? 'var(--text-muted)' : 'var(--text)', lineHeight: 1.4, textDecoration: ns === 'completed' ? 'line-through' : 'none', marginBottom: 14 }}>
                                       {t.title}
                                     </div>
-                                    {t.project_id && (
-                                      <div style={{ fontSize: 9, color: '#64748d', marginTop: 4, display: 'inline-block', background: '#f6f9fc', padding: '2px 6px', borderRadius: 4 }}>
-                                        {getProjectName(t.project_id) || `Project #${t.project_id}`}
-                                      </div>
-                                    )}
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
-                                      <div style={{ width: 18, height: 18, borderRadius: '50%', background: assignedName ? avc() : 'var(--border-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 500, color: '#fff' }}>
+                                    
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                      <span style={{ fontSize: 10, fontWeight: 600, color: isLate(t.due_date, ns) ? 'var(--danger)' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                        <Clock size={12} strokeWidth={2.5} /> {fmt(t.due_date)}
+                                      </span>
+                                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: assignedName ? avc() : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: assignedName ? '#fff' : '#64748d', border: '2px solid #fff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                                         {assignedName ? ini(assignedName) : '?'}
                                       </div>
-                                      <span style={{ fontSize: 9, color: isLate(t.due_date, ns) ? 'var(--danger)' : 'var(--text-muted)' }}>{fmt(t.due_date)}</span>
                                     </div>
                                   </div>
                                 )}
                               </Draggable>
                             )
                           })}
-                          {provided.placeholder}
+                          <div style={{ display: 'none' }}>{provided.placeholder}</div>
                         </div>
                       </div>
                     )}
