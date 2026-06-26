@@ -181,6 +181,24 @@ export default function TaskDetail() {
     }
   }
 
+  const downloadFile = async (attachmentId, filename) => {
+    try {
+      const res = await api.get(`/tasks/${id}/attachments/${attachmentId}/download`, {
+        headers: getHeaders(),
+        responseType: 'blob'
+      })
+      const url = window.URL.createObjectURL(new Blob([res.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', filename || 'download')
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+    } catch {
+      toast.error('Failed to download file.')
+    }
+  }
+
   const moveTask = async (status) => {
     try {
       await api.patch(`/tasks/${id}/status`, { status })
@@ -448,8 +466,8 @@ export default function TaskDetail() {
                       {(a.file_size || a.size) && <div style={{ fontSize: 10, color: 'var(--border-input)' }}>{formatSize(a.file_size || a.size)}</div>}
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-                      <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/tasks/${id}/attachments/${a.attachment_id || a.id}/download`} target="_blank" rel="noreferrer"
-                        style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 400, textDecoration: 'none' }}>Download</a>
+                      <button onClick={() => downloadFile(a.attachment_id || a.id, a.file_name || a.filename)}
+                        style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 400, textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Download</button>
                       <button onClick={() => deleteFile(a.attachment_id || a.id)}
                         style={{ fontSize: 10, color: '#ea2261', fontWeight: 400, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Delete</button>
                     </div>

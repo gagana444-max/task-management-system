@@ -79,12 +79,19 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+    message = "Invalid request parameters"
+    if errors and len(errors) > 0:
+        message = errors[0].get("msg", message)
+        if message.startswith("Value error, "):
+            message = message.replace("Value error, ", "", 1)
+            
     return JSONResponse(
         status_code=422,
         content={
             "error_code": "VALIDATION_ERROR",
-            "message": "Invalid request parameters",
-            "description": str(exc.errors())
+            "message": message,
+            "description": str(errors)
         }
     )
 
