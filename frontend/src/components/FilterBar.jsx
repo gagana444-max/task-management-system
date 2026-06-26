@@ -12,11 +12,11 @@ export default function FilterBar({ onFilterChange, assignedUsers = [] }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-      <h3 className="text-sm font-semibold text-gray-900 mb-3">Filters</h3>
+    <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-lg border border-[var(--border)] p-4 mb-4">
+      <h3 className="text-sm font-semibold text-[var(--text)] mb-3">Filters</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-medium text-[var(--text)] mb-2">
             Priority
           </label>
           <select
@@ -32,7 +32,7 @@ export default function FilterBar({ onFilterChange, assignedUsers = [] }) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-medium text-[var(--text)] mb-2">
             Status
           </label>
           <select
@@ -48,7 +48,7 @@ export default function FilterBar({ onFilterChange, assignedUsers = [] }) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-medium text-[var(--text)] mb-2">
             Assigned User
           </label>
           <select

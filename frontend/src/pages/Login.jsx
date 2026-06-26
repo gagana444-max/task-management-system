@@ -34,7 +34,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="flex flex-col md:flex-row min-h-screen bg-[var(--bg-card)] text-[var(--text)]" style={{ fontFamily: "'Inter', sans-serif" }}>
 
       {/* Left panel — gradient mesh hero */}
       <div className="hidden md:flex flex-1 flex-col justify-center p-16 relative overflow-hidden" style={{

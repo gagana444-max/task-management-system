@@ -1,6 +1,6 @@
 export default function TaskTableView({ tasks, onStatusChange }) {
   const statusColor = {
-    'to-do': 'text-gray-700',
+    'to-do': 'text-[var(--text)]',
     'in-progress': 'text-blue-700',
     'done': 'text-green-700',
   }
@@ -16,27 +16,27 @@ export default function TaskTableView({ tasks, onStatusChange }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-lg border border-[var(--border)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-[var(--bg-input)] border-b border-[var(--border)]">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-bold text-[var(--text)] uppercase">
                 Title
               </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-bold text-[var(--text)] uppercase">
                 Description
               </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-bold text-[var(--text)] uppercase">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-bold text-[var(--text)] uppercase">
                 Priority
               </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-bold text-[var(--text)] uppercase">
                 Due Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-bold text-[var(--text)] uppercase">
                 Assigned To
               </th>
             </tr>
@@ -50,11 +50,11 @@ export default function TaskTableView({ tasks, onStatusChange }) {
               </tr>
             ) : (
               tasks.map(task => (
-                <tr key={task.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                <tr key={task.id} className="hover:bg-[var(--bg-input)] transition-colors">
+                  <td className="px-6 py-4 text-sm font-medium text-[var(--text)]">
                     {task.title}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                  <td className="px-6 py-4 text-sm text-[var(--text-secondary)] max-w-xs truncate">
                     {task.description || '—'}
                   </td>
                   <td className="px-6 py-4 text-sm">
@@ -62,7 +62,7 @@ export default function TaskTableView({ tasks, onStatusChange }) {
                       <select
                         value={task.status}
                         onChange={(e) => handleStatusClick(task, e.target.value)}
-                        className={`px-2 py-1 rounded-lg text-xs font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${statusColor[task.status] || 'text-gray-700'}`}
+                        className={`px-2 py-1 rounded-lg text-xs font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${statusColor[task.status] || 'text-[var(--text)]'}`}
                       >
                         <option value="to-do">To Do</option>
                         <option value="in-progress">In Progress</option>
@@ -70,13 +70,13 @@ export default function TaskTableView({ tasks, onStatusChange }) {
                       </select>
                     </div>
                   </td>
-                  <td className={`px-6 py-4 text-sm font-medium ${priorityColor[task.priority] || 'text-gray-700'}`}>
+                  <td className={`px-6 py-4 text-sm font-medium ${priorityColor[task.priority] || 'text-[var(--text)]'}`}>
                     {task.priority || '—'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">
                     {task.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">
                     <div className="flex items-center gap-2">
                       {task.assigned_to && (
                         <>

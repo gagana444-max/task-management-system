@@ -4,8 +4,8 @@ export default function SortBar({ onSortChange }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+    <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-lg border border-[var(--border)] p-4 mb-4">
+      <label className="block text-sm font-medium text-[var(--text)] mb-2">
         Sort By
       </label>
       <select

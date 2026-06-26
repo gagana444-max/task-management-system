@@ -126,7 +126,7 @@ export default function RichTextEditor({ content, onChange, editable = true }) {
   }, [content, editor])
 
   return (
-    <div className={`border rounded-xl bg-white shadow-sm transition-all ${editable ? 'border-[#d9d6fe] hover:border-[#533afd]' : 'border-transparent bg-transparent shadow-none'}`}>
+    <div className={`border rounded-xl bg-[var(--bg-card)] text-[var(--text)] shadow-sm transition-all ${editable ? 'border-[#d9d6fe] hover:border-[#533afd]' : 'border-transparent bg-transparent shadow-none'}`}>
       {editable && <MenuBar editor={editor} />}
       <EditorContent editor={editor} className={!editable ? 'prose prose-sm max-w-none prose-p:text-[13px] prose-p:leading-relaxed text-[#0d253d] text-[13px]' : ''} />
     </div>

@@ -90,7 +90,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 max-w-xl w-full">
+    <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-lg shadow p-6 max-w-xl w-full">
       <h2 className="text-xl font-semibold mb-4">
         {task?.id ? 'Edit Task' : 'Create New Task'}
       </h2>
@@ -105,7 +105,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--text)] mb-1">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -123,7 +123,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--text)] mb-1">
             Description
           </label>
           <textarea
@@ -138,7 +138,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
 
         {/* Priority */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--text)] mb-1">
             Priority
           </label>
           <select
@@ -158,7 +158,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
 
         {/* Due Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--text)] mb-1">
             Due Date
           </label>
           <DatePicker
@@ -179,7 +179,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
 
         {/* Assign User */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--text)] mb-1">
             Assign To
           </label>
           <SearchableDropdown
@@ -203,7 +203,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="border border-gray-300 px-5 py-2 rounded text-sm hover:bg-gray-50"
+            className="border border-gray-300 px-5 py-2 rounded text-sm hover:bg-[var(--bg-input)]"
           >
             Cancel
           </button>

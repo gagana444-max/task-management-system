@@ -198,7 +198,7 @@ export default function Projects() {
       {loading ? (
         <div className="text-center py-20 text-[#a8c3de] text-sm">Loading projects...</div>
       ) : filteredProjects.length === 0 ? (
-        <div className="text-center py-20 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/80 shadow-[0_4px_15px_rgba(0,0,0,0.02)]">
+        <div className="text-center py-20 bg-[var(--bg-card)]/60 backdrop-blur-sm rounded-2xl border border-[var(--border)]/80 shadow-[0_4px_15px_rgba(0,0,0,0.02)]">
           <FolderKanban size={48} className="mx-auto mb-4 text-[#a8c3de]" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-[#0d253d]">No projects found.</p>
           {canManage && search === '' && <p className="text-xs text-[#64748d] mt-1">Click New Project to get started.</p>}
@@ -309,7 +309,7 @@ export default function Projects() {
               {filteredProjects.map((project, index) => {
                 const color = CARD_COLORS[index % CARD_COLORS.length]
                 return (
-                  <tr key={project.id} className="hover:bg-gray-50/50 transition-colors" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <tr key={project.id} className="hover:bg-[var(--bg-input)]/50 transition-colors" style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ padding: '10px 14px', color: 'var(--text)', fontWeight: 500 }}>
                       <div className="flex items-center gap-3">
                         <div style={{ background: color.iconBg }} className="w-8 h-8 rounded-lg flex items-center justify-center text-indigo-600">
@@ -358,7 +358,7 @@ export default function Projects() {
       {/* Create Modal */}
       {showCreate && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-[#0d253d] text-base">New Project</h3>
               <button onClick={() => setShowCreate(false)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">Γ£ò</button>
@@ -414,7 +414,7 @@ export default function Projects() {
       {/* Edit Modal */}
       {showEdit && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-2xl p-6 w-full max-w-[420px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-[#0d253d] text-base">Edit Project</h3>
               <button onClick={() => setShowEdit(null)} className="w-7 h-7 rounded-lg bg-[#f6f9fc] hover:bg-[#e2e8f0] text-[#64748d] flex items-center justify-center text-xs transition cursor-pointer">Γ£ò</button>
