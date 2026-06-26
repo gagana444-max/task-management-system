@@ -55,8 +55,6 @@ def get_all_users(db: Session, role: str = None, q: str = None, exclude_role: st
         # Keep the main admin and any NEW users created after today
         if email == 'admin@gmail.com' or (u.created_at and u.created_at > cutoff_date):
             filtered.append(u)
-        elif email == 'imashadevindi20@gmail.com' or email == 'imashaidk2003@gmail.com':
-            filtered.append(u) # Keep the real emails just in case
             
     return [to_dict(u) for u in filtered]
 
