@@ -20,6 +20,7 @@ router = APIRouter(prefix="/api/auth", tags=["Auth"])
 @router.post('/register', status_code=201)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     # create_user will hash the password internally
+    user.email = user.email.strip().lower()
     created = user_service.create_user(db, user)
     return created
 
@@ -27,7 +28,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 @router.post('/login')
 def login(form_data: dict, db: Session = Depends(get_db)):
     # Expect JSON with `email` and `password`
-    email = form_data.get('email', '').strip()
+    email = form_data.get('email', '').strip().lower()
     password = form_data.get('password')
     if not email or not password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password required")
@@ -42,7 +43,7 @@ def login(form_data: dict, db: Session = Depends(get_db)):
 
 @router.post('/forgot-password')
 def forgot_password(form_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    email = form_data.get('email', '').strip()
+    email = form_data.get('email', '').strip().lower()
     if not email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email required")
         
