@@ -48,16 +48,16 @@ export default function Notifications() {
           {notifications.map(n => (
             <div key={n.id} style={{
               borderRadius: 12,
-              border: `1px solid ${n.is_read ? '#e3e8ee' : '#dcd9fb'}`,
+              border: `1px solid ${n.is_read ? 'var(--border)' : 'var(--primary-subdued)'}`,
               padding: '14px 16px',
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              background: n.is_read ? '#fff' : '#f5f4fe',
+              background: n.is_read ? 'var(--bg-card)' : 'var(--bg-hover)',
               transition: 'all 0.2s'
             }}>
               {/* Icon */}
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: n.is_read ? '#f6f9fc' : '#eeedfe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: n.is_read ? 'var(--bg)' : 'var(--bg-active)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Bell size={16} color={n.is_read ? '#a8c3de' : '#534ab7'} strokeWidth={2} />
               </div>
 
