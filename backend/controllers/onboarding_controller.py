@@ -116,3 +116,51 @@ def check_first_login(user_id: int, db: Session):
         "email": user.email,
         "name": user.user_name
     }
+
+def reset_first_password(temp_password: str, new_password: str, confirm_password: str, db: Session):
+    user = db.query(DBUser).filter(DBUser.temp_password == temp_password).first()
+    if not user:
+        raise HTTPException(status_code=401, detail={
+            "error_code": "INVALID_TEMP_PASSWORD",
+            "message": "Invalid temporary password",
+            "description": "The temporary password you entered is incorrect or has expired"
+        })
+
+    if not user.is_first_login:
+        raise HTTPException(status_code=400, detail={
+            "error_code": "ALREADY_RESET",
+            "message": "Password already reset",
+            "description": "This account has already completed the first login password reset"
+        })
+
+    if new_password == temp_password:
+        raise HTTPException(status_code=400, detail={
+            "error_code": "SAME_AS_TEMP",
+            "message": "Cannot reuse temporary password",
+            "description": "For security reasons, your new password must be completely different from your temporary password"
+        })
+
+    if new_password != confirm_password:
+        raise HTTPException(status_code=400, detail={
+            "error_code": "PASSWORD_MISMATCH",
+            "message": "Passwords do not match",
+            "description": "New password and confirm password must be the same"
+        })
+
+    policy_errors = validate_password_policy(new_password)
+    if policy_errors:
+        raise HTTPException(status_code=400, detail={
+            "error_code": "PASSWORD_POLICY_ERROR",
+            "message": "Password does not meet requirements",
+            "description": " | ".join(policy_errors)
+        })
+
+    user.user_password = hash_password(new_password)
+    user.is_first_login = False
+    user.temp_password = None
+    db.commit()
+
+    return {
+        "message": "Password reset successfully. You can now log in with your new password.",
+        "user_id": user.user_id
+    }
