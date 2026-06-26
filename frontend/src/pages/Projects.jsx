@@ -280,8 +280,8 @@ export default function Projects() {
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.8)', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#fff1f2'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(220,38,38,0.1)' }}
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.8)', color: '#0d253d', border: '1px solid rgba(255,255,255,0.9)', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.8)'; e.currentTarget.style.boxShadow = 'none' }}
                       >
                         <Trash2 size={12} /> Delete
@@ -341,7 +341,7 @@ export default function Projects() {
                             <Edit size={13} />
                           </button>
                           <button onClick={() => handleDelete(project.id)} title="Delete"
-                            style={{ padding: 5, borderRadius: 6, border: '1px solid #fecaca', background: '#fff5f5', color: '#dc2626', cursor: 'pointer' }}>
+                            style={{ padding: 5, borderRadius: 6, border: '1px solid #e3e8ee', background: '#fff', color: '#1a1a2e', cursor: 'pointer' }}>
                             <Trash2 size={13} />
                           </button>
                         </div>
