@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Mail, CheckSquare } from 'lucide-react'
-import axios from 'axios'
+import api from '../api/axios'
 
 export default function ForgotPassword() {
   const [searchParams] = useSearchParams()
@@ -21,7 +21,7 @@ export default function ForgotPassword() {
 
     try {
       setStatus('loading')
-      await axios.post('/api/auth/forgot-password', { email: email.trim() })
+      await api.post('/auth/forgot-password', { email: email.trim() })
       setStatus('success')
     } catch (err) {
       const errMsg = err.response?.data?.message || err.response?.data?.detail || 'Failed to process request. Please try again later.'

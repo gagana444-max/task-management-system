@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Lock, CheckCircle2, AlertCircle, CheckSquare, ArrowLeft } from 'lucide-react'
-import axios from 'axios'
+import api from '../api/axios'
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams()
@@ -31,7 +31,7 @@ export default function ResetPassword() {
 
     try {
       setStatus('loading')
-      await axios.post('/api/auth/reset-password', {
+      await api.post('/auth/reset-password', {
         token,
         new_password: form.new_password,
         confirm_password: form.confirm_password
