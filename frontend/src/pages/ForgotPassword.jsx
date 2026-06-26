@@ -21,22 +21,21 @@ export default function ForgotPassword() {
 
     try {
       setStatus('loading')
-      await axios.post('/api/auth/forgot-password', { email })
+      await axios.post('/api/auth/forgot-password', { email: email.trim() })
       setStatus('success')
     } catch (err) {
-      setErrorMsg(err.response?.data?.detail || 'Failed to process request. Please try again later.')
+      const errMsg = err.response?.data?.message || err.response?.data?.detail || 'Failed to process request. Please try again later.'
+      setErrorMsg(errMsg)
       setStatus('error')
     }
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50" style={{ fontFamily: "'Inter', sans-serif" }}>
       
       {/* Left panel — gradient mesh hero */}
-      <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 64px',
+      <div className="hidden md:flex flex-1 flex-col justify-center p-16 relative overflow-hidden" style={{
         background: 'linear-gradient(115deg, #1c1e54 0%, #2e3070 35%, #533afd 60%, #ea2261 100%)',
-        position: 'relative', overflow: 'hidden'
       }}>
         {/* Soft gradient blobs for mesh feel */}
         <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,233,212,0.25), transparent 70%)' }} />
@@ -58,7 +57,7 @@ export default function ForgotPassword() {
       </div>
 
       {/* Right panel — forgot password form */}
-      <div style={{ width: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px' }}>
+      <div className="w-full md:w-[420px] flex flex-col items-center justify-center p-8 md:p-12 mx-auto">
         <div style={{ width: '100%', maxWidth: 340 }}>
           
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
