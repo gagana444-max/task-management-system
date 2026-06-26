@@ -2,19 +2,17 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
-import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle, ArrowDownUp } from 'lucide-react'
+import { FolderKanban, Plus, Edit, Trash2, User, Clock, CheckCircle, ArrowDownUp, ClipboardList, Zap, Users } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import SearchableDropdown from '../components/SearchableDropdown'
 import ViewToggle from '../components/ViewToggle'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
-  { bg: 'linear-gradient(135deg, #4f46e5, #6366f1)', accent: '#6366f1', border: '#4f46e5', iconBg: 'rgba(255,255,255,0.2)', dot1: '#818cf8', dot2: '#a5b4fc', text: '#ffffff' },
-  { bg: 'linear-gradient(135deg, #16a34a, #22c55e)', accent: '#22c55e', border: '#16a34a', iconBg: 'rgba(255,255,255,0.2)', dot1: '#4ade80', dot2: '#86efac', text: '#ffffff' },
-  { bg: 'linear-gradient(135deg, #ea580c, #f97316)', accent: '#f97316', border: '#ea580c', iconBg: 'rgba(255,255,255,0.2)', dot1: '#fb923c', dot2: '#fcd34d', text: '#ffffff' },
-  { bg: 'linear-gradient(135deg, #9333ea, #a855f7)', accent: '#a855f7', border: '#9333ea', iconBg: 'rgba(255,255,255,0.2)', dot1: '#c084fc', dot2: '#e879f9', text: '#ffffff' },
-  { bg: 'linear-gradient(135deg, #e11d48, #f43f5e)', accent: '#f43f5e', border: '#e11d48', iconBg: 'rgba(255,255,255,0.2)', dot1: '#fb7185', dot2: '#fda4af', text: '#ffffff' },
-  { bg: 'linear-gradient(135deg, #0284c7, #0ea5e9)', accent: '#0ea5e9', border: '#0284c7', iconBg: 'rgba(255,255,255,0.2)', dot1: '#38bdf8', dot2: '#7dd3fc', text: '#ffffff' },
+  { bg: 'linear-gradient(to right, #a855f7, #c084fc)' }, // Purple
+  { bg: 'linear-gradient(to right, #3b82f6, #60a5fa)' }, // Blue
+  { bg: 'linear-gradient(to right, #ef4444, #f97316)' }, // Orange/Red
+  { bg: 'linear-gradient(to right, #0ea5e9, #2dd4bf)' }, // Teal
 ]
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
@@ -214,73 +212,49 @@ export default function Projects() {
                 onClick={() => navigate(`/projects/${project.id}`)}
                 style={{
                   background: color.bg,
-                  borderRadius: 16,
-                  padding: '24px 20px',
+                  borderRadius: 12,
+                  padding: '20px 24px',
                   position: 'relative',
                   overflow: 'hidden',
-                  minHeight: 160,
+                  minHeight: 140,
                   display: 'flex',
                   flexDirection: 'column',
+                  justifyContent: 'space-between',
                   cursor: 'pointer',
                   border: 'none',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
                   transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.15)' }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)' }}
               >
                 {/* Huge watermark icon */}
-                <div style={{ position: 'absolute', right: -20, top: 10, opacity: 0.15, pointerEvents: 'none' }}>
-                  <FolderKanban size={110} color="#fff" strokeWidth={1.5} />
+                <div style={{ position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)', opacity: 0.1, pointerEvents: 'none' }}>
+                  {index % 4 === 0 && <ClipboardList size={120} color="#fff" strokeWidth={1.5} />}
+                  {index % 4 === 1 && <Zap size={120} color="#fff" strokeWidth={1.5} />}
+                  {index % 4 === 2 && <CheckCircle size={120} color="#fff" strokeWidth={1.5} />}
+                  {index % 4 === 3 && <Users size={120} color="#fff" strokeWidth={1.5} />}
                 </div>
 
-                {/* Content */}
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  {/* Label (Manager) */}
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginBottom: 4 }}>
-                    {project.manager_name || 'Unassigned'}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  {/* Top text */}
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginBottom: 2 }}>
+                    {project.manager_name || 'Project'}
                   </div>
                   
-                  {/* Huge Title (Project Name) */}
-                  <h3 style={{ fontSize: 28, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2, letterSpacing: '-0.5px' }} className="line-clamp-2">
+                  {/* Huge Title */}
+                  <h3 style={{ fontSize: 36, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.1, letterSpacing: '-0.5px' }} className="line-clamp-1">
                     {project.name}
                   </h3>
+                </div>
 
-                  {/* Spacer */}
-                  <div style={{ flex: 1, minHeight: 30 }} />
-
-                  {/* Bottom section matching the progress bar aesthetic */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      {/* Action buttons */}
-                      {canManage ? (
-                        <div style={{ display: 'flex', gap: 12 }}>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); openEdit(project); }}
-                            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}
-                            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.9)'}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
-                            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}
-                            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.9)'}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ) : <div />}
-                      
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{fmt(project.created_at)}</span>
-                    </div>
-                    
-                    {/* The thick white bar */}
-                    <div style={{ height: 6, background: 'rgba(255,255,255,0.3)', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: '100%', height: '100%', background: '#fff', borderRadius: 4 }} />
-                    </div>
+                <div style={{ position: 'relative', zIndex: 1, marginTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>100%</span>
+                  </div>
+                  {/* The thin progress bar */}
+                  <div style={{ height: 4, background: 'rgba(255,255,255,0.3)', borderRadius: 999, overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: '100%', background: '#fff', borderRadius: 999 }} />
                   </div>
                 </div>
               </div>
