@@ -109,12 +109,12 @@ export default function MainLayout({ children }) {
                 title={!isSidebarOpen ? label : ''}
                 onClick={() => setIsMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-base font-semibold transition-colors whitespace-nowrap ${
                     isActive ? 'bg-[#665efd] text-white' : 'text-[#b9b9f9] hover:text-white hover:bg-[#2e3070]'
                   } ${!isSidebarOpen && 'md:justify-center md:px-0'}`
                 }
               >
-                <Icon size={15} strokeWidth={2} className="min-w-[15px]" />
+                <Icon size={18} strokeWidth={2.2} className="min-w-[18px]" />
                 <span className={!isSidebarOpen ? 'md:hidden' : ''}>{label}</span>
               </NavLink>
             ))}
@@ -132,12 +132,12 @@ export default function MainLayout({ children }) {
                     title={!isSidebarOpen ? label : ''}
                     onClick={() => setIsMobileOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                      `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-base font-semibold transition-colors whitespace-nowrap ${
                         isActive ? 'bg-[#665efd] text-white' : 'text-[#b9b9f9] hover:text-white hover:bg-[#2e3070]'
                       } ${!isSidebarOpen && 'md:justify-center md:px-0'}`
                     }
                   >
-                    <Icon size={15} strokeWidth={2} className="min-w-[15px]" />
+                    <Icon size={18} strokeWidth={2.2} className="min-w-[18px]" />
                     <span className={!isSidebarOpen ? 'md:hidden' : ''}>{label}</span>
                   </NavLink>
                 ))}
