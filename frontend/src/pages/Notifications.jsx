@@ -18,7 +18,7 @@ export default function Notifications() {
   const unreadCount = notifications.filter(n => !n.is_read).length
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", padding: 22, minHeight: '100vh', background: 'var(--bg)' }}>
+    <div className="font-['Inter'] p-[22px] min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors">
 
       {/* Topbar */}
       <PageHeader
@@ -27,10 +27,11 @@ export default function Notifications() {
         statText="Live updates from your workspace"
         statColor="#533afd"
       />
+      
       {unreadCount > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <div className="flex justify-end mb-4">
           <button onClick={markAllRead}
-            style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400 }}>
+            className="bg-[var(--primary)] text-white border-none py-2 px-4 rounded-full text-xs cursor-pointer font-['Inter'] font-normal hover:bg-[var(--primary-deep)] transition-colors">
             Mark all as read
           </button>
         </div>
@@ -38,52 +39,50 @@ export default function Notifications() {
 
       {/* Notification list */}
       {notifications.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: 'var(--border-input)' }}>
-          <Bell size={28} style={{ marginBottom: 10 }} />
-          <div style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-muted)' }}>No notifications yet</div>
-          <div style={{ fontSize: 11, marginTop: 6, color: 'var(--border-input)' }}>You'll see live updates here when tasks are assigned or change status.</div>
+        <div className="text-center py-[60px] text-[var(--border-input)] flex flex-col items-center">
+          <Bell size={28} className="mb-2.5 opacity-50" />
+          <div className="text-[13px] font-normal text-[var(--text-muted)]">No notifications yet</div>
+          <div className="text-[11px] mt-1.5 text-[var(--border-input)]">You'll see live updates here when tasks are assigned or change status.</div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="flex flex-col gap-2">
           {notifications.map(n => (
-            <div key={n.id} style={{
-              borderRadius: 12,
-              border: `1px solid ${n.is_read ? 'var(--border)' : 'var(--primary-subdued)'}`,
-              padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              background: n.is_read ? 'var(--bg-card)' : 'var(--bg-hover)',
-              transition: 'all 0.2s'
-            }}>
+            <div key={n.id} className={`
+              rounded-xl p-3.5 flex items-center gap-3 transition-all duration-200 border
+              ${n.is_read 
+                ? 'border-[var(--border)] bg-[var(--bg-card)]' 
+                : 'border-[var(--primary-subdued)] bg-[var(--bg-hover)] dark:border-[var(--primary-press)] dark:bg-[var(--bg-active)]'}
+            `}>
               {/* Icon */}
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: n.is_read ? 'var(--bg)' : 'var(--bg-active)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Bell size={16} color={n.is_read ? '#a8c3de' : '#534ab7'} strokeWidth={2} />
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 
+                ${n.is_read ? 'bg-[var(--bg)]' : 'bg-[var(--primary-subdued)]/20'}
+              `}>
+                <Bell size={16} className={n.is_read ? 'text-[var(--border-input)]' : 'text-[var(--primary)]'} strokeWidth={2} />
               </div>
 
               {/* Body */}
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4, marginBottom: 3, fontWeight: n.is_read ? 400 : 500 }}>
+              <div className="flex-1">
+                <div className={`text-[13px] text-[var(--text)] leading-[1.4] mb-[3px] ${n.is_read ? 'font-normal' : 'font-medium'}`}>
                   {n.message}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--border-input)' }}>{fmt(n.created_at)}</div>
+                <div className="text-[11px] text-[var(--border-input)]">{fmt(n.created_at)}</div>
               </div>
 
               {/* Unread dot */}
               {!n.is_read && (
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} />
+                <div className="w-2 h-2 rounded-full bg-[var(--primary)] shrink-0" />
               )}
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <div className="flex gap-1.5 shrink-0">
                 {!n.is_read && (
                   <button onClick={() => markRead(n.id)}
-                    style={{ padding: '5px 12px', borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    className="py-1 px-3 rounded-full text-[10px] font-normal cursor-pointer font-['Inter'] border border-[var(--primary-subdued)] bg-[var(--primary-subdued)]/10 text-[var(--primary)] flex items-center gap-1 hover:bg-[var(--primary-subdued)]/20 transition-colors">
                     <Check size={10} /> Mark read
                   </button>
                 )}
                 <button onClick={() => deleteNotification(n.id)}
-                  style={{ padding: '5px 12px', borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #f7d4d0', background: '#fdecea', color: '#ea2261', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  className="py-1 px-3 rounded-full text-[10px] font-normal cursor-pointer font-['Inter'] border border-[var(--danger-border)] bg-[var(--danger-bg)] text-[var(--danger)] flex items-center gap-1 hover:opacity-80 transition-opacity">
                   <X size={10} /> Delete
                 </button>
               </div>
