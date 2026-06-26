@@ -208,90 +208,80 @@ export default function Projects() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project, index) => {
             const color = CARD_COLORS[index % CARD_COLORS.length]
-            const initials = project.name?.slice(0, 2).toUpperCase() || 'PR'
-            const pmInitials = project.manager_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?'
             return (
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
                 style={{
                   background: color.bg,
-                  border: `1.5px solid ${color.border}`,
-                  borderRadius: 20,
-                  padding: 0,
-                  overflow: 'hidden',
-                  boxShadow: `0 4px 20px ${color.accent}18`,
-                  transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                  borderRadius: 16,
+                  padding: '24px 20px',
                   position: 'relative',
+                  overflow: 'hidden',
+                  minHeight: 160,
                   display: 'flex',
                   flexDirection: 'column',
                   cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 16px 40px ${color.accent}30` }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px ${color.accent}18` }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.15)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)' }}
               >
-                {/* Decorative background circles */}
-                <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: color.dot1, opacity: 0.25, pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', top: 20, right: 20, width: 60, height: 60, borderRadius: '50%', background: color.dot2, opacity: 0.3, pointerEvents: 'none' }} />
+                {/* Huge watermark icon */}
+                <div style={{ position: 'absolute', right: -20, top: 10, opacity: 0.15, pointerEvents: 'none' }}>
+                  <FolderKanban size={110} color="#fff" strokeWidth={1.5} />
+                </div>
 
-                {/* Top accent bar */}
-                <div style={{ height: 4, background: `linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.8))`, flexShrink: 0 }} />
-
-                {/* Card body */}
-                <div style={{ padding: '18px 20px 16px', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
-                  {/* Header row */}
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-                    {/* Icon */}
-                    <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 12px rgba(0,0,0,0.1)`, flexShrink: 0 }}>
-                      <FolderKanban size={20} color="#fff" strokeWidth={1.8} />
-                    </div>
-                    {/* Date badge */}
-                    <span style={{ fontSize: 10, color: '#fff', background: 'rgba(255,255,255,0.2)', border: `1px solid rgba(255,255,255,0.3)`, padding: '4px 10px', borderRadius: 20, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)' }}>
-                      <Clock size={10} />
-                      {fmt(project.created_at)}
-                    </span>
+                {/* Content */}
+                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  {/* Label (Manager) */}
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginBottom: 4 }}>
+                    {project.manager_name || 'Unassigned'}
                   </div>
+                  
+                  {/* Huge Title (Project Name) */}
+                  <h3 style={{ fontSize: 28, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2, letterSpacing: '-0.5px' }} className="line-clamp-2">
+                    {project.name}
+                  </h3>
 
-                  {/* Project name */}
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#ffffff', marginBottom: 6, lineHeight: 1.3, letterSpacing: '-0.2px' }} className="line-clamp-1">{project.name}</h3>
+                  {/* Spacer */}
+                  <div style={{ flex: 1, minHeight: 30 }} />
 
-                  {/* Description */}
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, marginBottom: 16, minHeight: 38 }} className="line-clamp-2">
-                    {project.description || 'No description provided.'}
-                  </p>
-
-                  {/* PM row */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(8px)', marginBottom: canManage ? 14 : 0 }}>
-                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: color.border, flexShrink: 0, boxShadow: `0 2px 6px rgba(0,0,0,0.15)` }}>
-                      {pmInitials}
+                  {/* Bottom section matching the progress bar aesthetic */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      {/* Action buttons */}
+                      {canManage ? (
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); openEdit(project); }}
+                            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.9)'}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
+                            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.9)'}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ) : <div />}
+                      
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{fmt(project.created_at)}</span>
                     </div>
-                    <div>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project Manager</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#ffffff' }}>{project.manager_name || 'Unassigned'}</div>
+                    
+                    {/* The thick white bar */}
+                    <div style={{ height: 6, background: 'rgba(255,255,255,0.3)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: '100%', height: '100%', background: '#fff', borderRadius: 4 }} />
                     </div>
                   </div>
-
-                  {/* Action buttons */}
-                  {canManage && (
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); openEdit(project); }}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.95)', color: '#0d253d', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)' }}
-                      >
-                        <Edit size={12} /> Edit
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.95)', color: '#dc2626', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)' }}
-                      >
-                        <Trash2 size={12} /> Delete
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             )

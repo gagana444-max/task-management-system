@@ -68,7 +68,7 @@ export default function MainLayout({ children }) {
                 to={to}
                 title={!isSidebarOpen ? label : ''}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-normal transition-colors whitespace-nowrap ${
+                  `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive ? 'bg-[#665efd] text-white' : 'text-[#b9b9f9] hover:text-white hover:bg-[#2e3070]'
                   } ${!isSidebarOpen && 'justify-center px-0'}`
                 }
@@ -90,7 +90,7 @@ export default function MainLayout({ children }) {
                     to={to}
                     title={!isSidebarOpen ? label : ''}
                     className={({ isActive }) =>
-                      `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-normal transition-colors whitespace-nowrap ${
+                      `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                         isActive ? 'bg-[#665efd] text-white' : 'text-[#b9b9f9] hover:text-white hover:bg-[#2e3070]'
                       } ${!isSidebarOpen && 'justify-center px-0'}`
                     }

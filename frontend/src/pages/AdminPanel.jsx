@@ -19,7 +19,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
-  const [viewMode, setViewMode] = useState('board')
+  const [viewMode, setViewMode] = useState('table')
   const [showCreate, setShowCreate] = useState(false)
   const [creating, setCreating] = useState(false)
   const [globalError, setGlobalError] = useState('')
