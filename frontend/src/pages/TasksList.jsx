@@ -134,7 +134,7 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
 
   async function fetchUsers() {
     try {
-      const res = await api.get('/users')
+      const res = await api.get('/users?exclude_role=Admin')
       setUsers(res.data)
     } catch (e) { console.error(e) }
   }

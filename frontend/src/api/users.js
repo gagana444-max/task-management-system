@@ -1,7 +1,10 @@
 import api from './axios'
 
-export const getUsers = (role = '', q = '') =>
-  api.get(`/users?role=${role}&q=${q}`)
+export const getUsers = (role = '', q = '', excludeRole = '') => {
+  let url = `/users?role=${role}&q=${q}`
+  if (excludeRole) url += `&exclude_role=${excludeRole}`
+  return api.get(url)
+}
 
 export const createUser = (data) =>
   api.post('/users', data)

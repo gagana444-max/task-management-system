@@ -23,7 +23,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    api.get('/users')
+    api.get('/users?exclude_role=Admin')
       .then(res => setUsers(res.data))
       .catch(() => setUsers([]));
   }, []);

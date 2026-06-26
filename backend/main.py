@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
-from routes import user_routes, comment_routes, onboarding_routes, auth_routes, task_routes, project_routes
+from routes import user_routes, comment_routes, onboarding_routes, auth_routes, task_routes, project_routes, notification_routes
 from config.database import engine, Base
 from models import comment_model, db_models, notification_model, task_model, user_model, project_model
 
@@ -102,12 +102,13 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
 from config.socketio import socket_app, sio
 
 # --- Routes ---
-app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
+app.include_router(project_routes.router)
+app.include_router(task_routes.router)
 app.include_router(comment_routes.router)
 app.include_router(onboarding_routes.router)
-app.include_router(task_routes.router)
-app.include_router(project_routes.router)
+app.include_router(auth_routes.router)
+app.include_router(notification_routes.router)
 
 
 # Health check

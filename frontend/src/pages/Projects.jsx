@@ -56,7 +56,7 @@ export default function Projects() {
       setLoading(true)
       const [projRes, usersRes] = await Promise.all([
         api.get('/projects'),
-        api.get('/users').catch(() => ({ data: [] }))
+        api.get('/users?exclude_role=Admin').catch(() => ({ data: [] }))
       ])
       setProjects(projRes.data)
       setUsers(usersRes.data)
