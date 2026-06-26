@@ -13,7 +13,8 @@ def to_dict(db_user: DBUser):
         "email": db_user.email,
         "role": db_user.user_role,
         "is_active": bool(db_user.is_active),
-        "is_first_login": bool(db_user.is_first_login)
+        "is_first_login": bool(db_user.is_first_login),
+        "avatar_url": db_user.avatar_url
     }
 
 def create_user(db: Session, user_data: UserCreate):
@@ -77,3 +78,15 @@ def update_user_role(db: Session, user_id: int, role_update: UserRoleUpdate):
     db.commit()
     db.refresh(user)
     return to_dict(user)
+
+def change_password(db: Session, user_id: int, current_password: str, new_password: str):
+    from services.auth_service import verify_password
+    user = _get_user_by_id(db, user_id)
+    
+    if not verify_password(current_password, user.user_password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+        
+    user.user_password = get_password_hash(new_password)
+    db.commit()
+    db.refresh(user)
+    return {"message": "Password changed successfully"}

@@ -14,6 +14,7 @@ import FirstLoginReset from './pages/FirstLoginReset'
 import Notifications from './pages/Notifications'
 import Projects from './pages/Projects'
 import ProjectDetail from './pages/ProjectDetail'
+import Profile from './pages/Profile'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import { ToastContainer } from 'react-toastify'
@@ -64,6 +65,11 @@ export default function App() {
               <Route path="/projects/:id" element={
                 <ProtectedRoute>
                   <MainLayout><ProjectDetail /></MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <MainLayout><Profile /></MainLayout>
                 </ProtectedRoute>
               } />
 

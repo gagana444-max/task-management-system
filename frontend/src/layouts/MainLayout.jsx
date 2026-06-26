@@ -149,12 +149,16 @@ export default function MainLayout({ children }) {
         {/* User footer */}
         <div className={`mt-auto px-4 pt-3 border-t border-[#2e3070] overflow-hidden ${!isSidebarOpen && 'md:flex md:flex-col md:items-center md:px-2'}`}>
           <div className={`flex items-center mb-2 ${isSidebarOpen ? 'justify-between' : 'justify-between md:justify-center'}`}>
-            <div className={`whitespace-nowrap overflow-hidden ${!isSidebarOpen ? 'md:hidden' : ''}`}>
-              <div className="text-xs text-white font-normal truncate">{user?.name}</div>
-              <div className="inline-block mt-1 text-[9px] text-[#a9a3fd] bg-[#2e3070] px-2 py-0.5 rounded font-medium tracking-wide uppercase">
+            <NavLink 
+              to="/profile" 
+              onClick={() => setIsMobileOpen(false)}
+              className={`whitespace-nowrap overflow-hidden group cursor-pointer hover:bg-[#2e3070] p-1.5 -ml-1.5 rounded-lg transition-colors ${!isSidebarOpen ? 'md:hidden' : ''}`}
+            >
+              <div className="text-xs text-white font-normal truncate group-hover:text-indigo-200 transition-colors">{user?.name}</div>
+              <div className="inline-block mt-1 text-[9px] text-[#a9a3fd] bg-[#2e3070] group-hover:bg-[#1c1e54] px-2 py-0.5 rounded font-medium tracking-wide uppercase transition-colors">
                 {user?.role}
               </div>
-            </div>
+            </NavLink>
             <button
               onClick={toggleTheme}
               className="p-1.5 rounded-md text-[#b9b9f9] hover:text-white hover:bg-[#2e3070] transition-colors"
