@@ -8,11 +8,12 @@ import ViewToggle from '../components/ViewToggle'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
-  { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', iconBg: '#e0e7ff' }, // Bright Indigo
-  { bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', border: '#86efac', iconBg: '#dcfce7' }, // Bright Green
-  { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', iconBg: '#fefce8' }, // Softer Yellow
-  { bg: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)', border: '#d8b4fe', iconBg: '#f3e8ff' }, // Bright Purple
-  { bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', border: '#f9a8d4', iconBg: '#fce7f3' }, // Bright Pink
+  { bg: 'linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%)', accent: '#6366f1', border: '#c7d2fe', iconBg: '#6366f1', dot1: '#818cf8', dot2: '#a5b4fc', label: 'indigo' },
+  { bg: 'linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%)', accent: '#22c55e', border: '#86efac', iconBg: '#22c55e', dot1: '#4ade80', dot2: '#86efac', label: 'green' },
+  { bg: 'linear-gradient(145deg, #fff7ed 0%, #fed7aa 100%)', accent: '#f97316', border: '#fdba74', iconBg: '#f97316', dot1: '#fb923c', dot2: '#fcd34d', label: 'orange' },
+  { bg: 'linear-gradient(145deg, #fdf4ff 0%, #f3e8ff 100%)', accent: '#a855f7', border: '#d8b4fe', iconBg: '#a855f7', dot1: '#c084fc', dot2: '#e879f9', label: 'purple' },
+  { bg: 'linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)', accent: '#f43f5e', border: '#fda4af', iconBg: '#f43f5e', dot1: '#fb7185', dot2: '#fda4af', label: 'rose' },
+  { bg: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', accent: '#0ea5e9', border: '#7dd3fc', iconBg: '#0ea5e9', dot1: '#38bdf8', dot2: '#7dd3fc', label: 'sky' },
 ]
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
@@ -205,55 +206,85 @@ export default function Projects() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project, index) => {
             const color = CARD_COLORS[index % CARD_COLORS.length]
+            const initials = project.name?.slice(0, 2).toUpperCase() || 'PR'
+            const pmInitials = project.manager_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?'
             return (
               <div
                 key={project.id}
-                style={{ background: color.bg, borderColor: color.border }}
-                className="border rounded-2xl p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                style={{
+                  background: color.bg,
+                  border: `1.5px solid ${color.border}`,
+                  borderRadius: 20,
+                  padding: 0,
+                  overflow: 'hidden',
+                  boxShadow: `0 4px 20px ${color.accent}18`,
+                  transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 16px 40px ${color.accent}30` }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px ${color.accent}18` }}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div style={{ background: color.iconBg }} className="w-9 h-9 rounded-xl flex items-center justify-center text-indigo-600">
-                      <FolderKanban size={18} />
+                {/* Decorative background circles */}
+                <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: color.dot1, opacity: 0.15, pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: 20, right: 20, width: 60, height: 60, borderRadius: '50%', background: color.dot2, opacity: 0.2, pointerEvents: 'none' }} />
+
+                {/* Top accent bar */}
+                <div style={{ height: 4, background: `linear-gradient(90deg, ${color.accent}, ${color.dot1})`, flexShrink: 0 }} />
+
+                {/* Card body */}
+                <div style={{ padding: '18px 20px 16px', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
+                  {/* Header row */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+                    {/* Icon */}
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: color.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 12px ${color.accent}40`, flexShrink: 0 }}>
+                      <FolderKanban size={20} color="#fff" strokeWidth={1.8} />
                     </div>
-                    <span className="text-[10px] text-[#64748d] bg-white border border-[#e3e8ee] px-2.5 py-1 rounded-lg font-medium flex items-center gap-1">
+                    {/* Date badge */}
+                    <span style={{ fontSize: 10, color: color.accent, background: 'rgba(255,255,255,0.75)', border: `1px solid ${color.border}`, padding: '4px 10px', borderRadius: 20, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)' }}>
                       <Clock size={10} />
                       {fmt(project.created_at)}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-[#0d253d] mb-1.5 line-clamp-1">{project.name}</h3>
-                  <p className="text-xs text-[#64748d] line-clamp-2 mb-4 leading-relaxed min-h-[32px]">
+                  {/* Project name */}
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0d253d', marginBottom: 6, lineHeight: 1.3, letterSpacing: '-0.2px' }} className="line-clamp-1">{project.name}</h3>
+
+                  {/* Description */}
+                  <p style={{ fontSize: 12, color: '#64748d', lineHeight: 1.6, marginBottom: 16, minHeight: 38 }} className="line-clamp-2">
                     {project.description || 'No description provided.'}
                   </p>
-                </div>
 
-                <div className="border-t border-black/5 pt-4 mt-2">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-1.5 text-xs text-[#273951]">
-                      <User size={12} className="text-[#64748d]" />
-                      <span className="font-semibold">PM:</span>
-                      <span className="text-[#64748d]">
-                        {project.manager_name || 'Unassigned'}
-                      </span>
+                  {/* PM row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(255,255,255,0.6)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.9)', backdropFilter: 'blur(4px)', marginBottom: canManage ? 14 : 0 }}>
+                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: color.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#fff', flexShrink: 0, boxShadow: `0 2px 6px ${color.accent}40` }}>
+                      {pmInitials}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 9, color: color.accent, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project Manager</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#0d253d' }}>{project.manager_name || 'Unassigned'}</div>
                     </div>
                   </div>
 
+                  {/* Action buttons */}
                   {canManage && (
-                    <div className="flex gap-2.5 mt-2">
+                    <div style={{ display: 'flex', gap: 8 }}>
                       <button
                         onClick={() => openEdit(project)}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white text-[#1a1a2e] border border-[#e3e8ee] rounded-lg text-[11px] font-semibold hover:border-[#1a1a2e] transition cursor-pointer"
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.8)', color: '#0d253d', border: '1px solid rgba(255,255,255,0.9)', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.8)'; e.currentTarget.style.boxShadow = 'none' }}
                       >
-                        <Edit size={12} />
-                        Edit
+                        <Edit size={12} /> Edit
                       </button>
                       <button
                         onClick={() => handleDelete(project.id)}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[#fff5f5] text-[#dc2626] border border-[#fecaca] rounded-lg text-[11px] font-semibold hover:bg-[#fee2e2] transition cursor-pointer"
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.8)', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#fff1f2'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(220,38,38,0.1)' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.8)'; e.currentTarget.style.boxShadow = 'none' }}
                       >
-                        <Trash2 size={12} />
-                        Delete
+                        <Trash2 size={12} /> Delete
                       </button>
                     </div>
                   )}
