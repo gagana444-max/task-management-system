@@ -130,7 +130,7 @@ export default function Profile() {
         
         {/* Left Column: Avatar & Basic Info */}
         <div className="lg:col-span-1 space-y-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center text-center">
+          <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-2xl shadow-sm border border-[var(--border)] p-8 flex flex-col items-center text-center">
             
             <div 
               className="relative w-32 h-32 rounded-full mb-4 cursor-pointer group shadow-lg ring-4 ring-indigo-50 transition-all hover:ring-indigo-100"
@@ -156,15 +156,15 @@ export default function Profile() {
               />
             </div>
             
-            <h2 className="text-xl font-bold text-gray-900">{name || user.name}</h2>
+            <h2 className="text-xl font-bold text-[var(--text)]">{name || user.name}</h2>
             <p className="text-gray-500 text-sm mt-1">{user.role}</p>
             
-            <div className="mt-6 w-full pt-6 border-t border-gray-100 text-left space-y-4">
-              <div className="flex items-center text-sm text-gray-600">
+            <div className="mt-6 w-full pt-6 border-t border-[var(--border)] text-left space-y-4">
+              <div className="flex items-center text-sm text-[var(--text-secondary)]">
                 <Mail className="w-4 h-4 mr-3 text-gray-400" />
                 {user.email}
               </div>
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-[var(--text-secondary)]">
                 <ShieldCheck className="w-4 h-4 mr-3 text-emerald-500" />
                 Account Active
               </div>
@@ -176,34 +176,34 @@ export default function Profile() {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Personal Info Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-2xl shadow-sm border border-[var(--border)] overflow-hidden">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center gap-3">
               <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                 <User size={20} />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+              <h3 className="text-lg font-semibold text-[var(--text)]">Personal Information</h3>
             </div>
             
             <form onSubmit={handleProfileSubmit} className="p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Full Name</label>
+                  <label className="text-sm font-medium text-[var(--text)]">Full Name</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] focus:bg-[var(--bg-card)] text-[var(--text)] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
                     placeholder="Enter your name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Email Address <span className="text-xs text-gray-400 font-normal ml-1">(Read Only)</span></label>
+                  <label className="text-sm font-medium text-[var(--text)]">Email Address <span className="text-xs text-gray-400 font-normal ml-1">(Read Only)</span></label>
                   <input
                     type="email"
                     disabled
                     value={user.email}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-gray-100 text-gray-500 cursor-not-allowed outline-none"
                   />
                 </div>
               </div>
@@ -221,17 +221,17 @@ export default function Profile() {
           </div>
 
           {/* Security Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-[var(--bg-card)] text-[var(--text)] rounded-2xl shadow-sm border border-[var(--border)] overflow-hidden">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center gap-3">
               <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
                 <Shield size={20} />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
+              <h3 className="text-lg font-semibold text-[var(--text)]">Change Password</h3>
             </div>
             
             <form onSubmit={handlePasswordSubmit} className="p-8 space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Current Password</label>
+                <label className="text-sm font-medium text-[var(--text)]">Current Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -241,13 +241,13 @@ export default function Profile() {
                     required
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                    className="w-full pl-11 pr-12 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] focus:bg-[var(--bg-card)] text-[var(--text)] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
                     placeholder="Enter your current password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[var(--text-secondary)]"
                   >
                     {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -256,7 +256,7 @@ export default function Profile() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">New Password</label>
+                  <label className="text-sm font-medium text-[var(--text)]">New Password</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <Lock className="h-5 w-5 text-gray-400" />
@@ -266,20 +266,20 @@ export default function Profile() {
                       required
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full pl-11 pr-12 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                      className="w-full pl-11 pr-12 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] focus:bg-[var(--bg-card)] text-[var(--text)] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
                       placeholder="Enter new password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[var(--text-secondary)]"
                     >
                       {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Confirm New Password</label>
+                  <label className="text-sm font-medium text-[var(--text)]">Confirm New Password</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <Lock className="h-5 w-5 text-gray-400" />
@@ -289,13 +289,13 @@ export default function Profile() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-11 pr-12 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                      className="w-full pl-11 pr-12 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] focus:bg-[var(--bg-card)] text-[var(--text)] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
                       placeholder="Confirm new password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[var(--text-secondary)]"
                     >
                       {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>

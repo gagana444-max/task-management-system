@@ -13,7 +13,7 @@ export default function TaskCard({ task }) {
   }
 
   const statusBadgeColor = {
-    'to-do': 'bg-gray-100 text-gray-700',
+    'to-do': 'bg-gray-100 text-[var(--text)]',
     'in-progress': 'bg-blue-100 text-blue-700',
     'done': 'bg-green-100 text-green-700',
   }
@@ -29,23 +29,23 @@ export default function TaskCard({ task }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all ${
+      className={`bg-[var(--bg-card)] text-[var(--text)] rounded-lg p-4 shadow-sm hover:shadow-md transition-all ${
         isDragging ? 'opacity-50 scale-95 rotate-2' : 'cursor-move'
       } ${priorityColor[task.priority] || 'border-l-4 border-l-gray-300'}`}
     >
       <div className="flex justify-between items-start gap-2 mb-2">
-        <h4 className="font-semibold text-gray-900 text-sm flex-1 line-clamp-2">
+        <h4 className="font-semibold text-[var(--text)] text-sm flex-1 line-clamp-2">
           {task.title}
         </h4>
-        <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${statusBadgeColor[task.status] || 'bg-gray-100 text-gray-700'}`}>
+        <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${statusBadgeColor[task.status] || 'bg-gray-100 text-[var(--text)]'}`}>
           {task.status}
         </span>
       </div>
 
-      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description}</p>
+      <p className="text-xs text-[var(--text-secondary)] mb-3 line-clamp-2">{task.description}</p>
 
       <div className="flex justify-between items-center gap-2 mb-3">
-        <span className={`text-xs px-2 py-1 rounded ${priorityBadgeColor[task.priority] || 'bg-gray-100 text-gray-700'}`}>
+        <span className={`text-xs px-2 py-1 rounded ${priorityBadgeColor[task.priority] || 'bg-gray-100 text-[var(--text)]'}`}>
           {task.priority || 'N/A'}
         </span>
         {task.due_date && (
@@ -60,7 +60,7 @@ export default function TaskCard({ task }) {
           <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">
             {task.assigned_to?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-gray-600">{task.assigned_to}</span>
+          <span className="text-[var(--text-secondary)]">{task.assigned_to}</span>
         </div>
       )}
     </div>

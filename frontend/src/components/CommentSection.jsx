@@ -72,16 +72,16 @@ const CommentSection = ({ taskId }) => {
       ) : (
         <div className="space-y-3">
           {comments.map(comment => (
-            <div key={comment.id} className="bg-gray-50 rounded p-3">
+            <div key={comment.id} className="bg-[var(--bg-input)] rounded p-3">
               <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-sm font-medium text-[var(--text)]">
                   {comment.user?.name || 'Unknown User'}
                 </span>
                 <span className="text-xs text-gray-400">
                   {formatDate(comment.createdAt)}
                 </span>
               </div>
-              <p className="text-sm text-gray-700">{comment.content}</p>
+              <p className="text-sm text-[var(--text)]">{comment.content}</p>
             </div>
           ))}
         </div>

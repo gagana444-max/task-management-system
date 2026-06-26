@@ -61,7 +61,7 @@ const AttachmentUpload = ({ taskId }) => {
       <GlobalAlert type="error" message={error} onClose={() => setError('')} />
 
       <div className="mb-4">
-        <label className="cursor-pointer inline-block bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded">
+        <label className="cursor-pointer inline-block bg-gray-100 hover:bg-gray-200 border border-gray-300 text-[var(--text)] text-sm px-4 py-2 rounded">
           {uploading ? 'Uploading...' : 'Choose File to Upload'}
           <input
             type="file"
@@ -76,7 +76,7 @@ const AttachmentUpload = ({ taskId }) => {
 
       {preview && (
         <div className="mb-4">
-          <img src={preview} alt="Preview" className="max-h-40 rounded border border-gray-200" />
+          <img src={preview} alt="Preview" className="max-h-40 rounded border border-[var(--border)]" />
         </div>
       )}
 
@@ -85,10 +85,10 @@ const AttachmentUpload = ({ taskId }) => {
       ) : (
         <div className="space-y-2">
           {attachments.map(att => (
-            <div key={att.id} className="flex items-center justify-between bg-gray-50 rounded p-2 text-sm">
+            <div key={att.id} className="flex items-center justify-between bg-[var(--bg-input)] rounded p-2 text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-gray-500">📎</span>
-                <span className="text-gray-800">{att.filename}</span>
+                <span className="text-[var(--text)]">{att.filename}</span>
                 <span className="text-gray-400 text-xs">({formatSize(att.size)})</span>
               </div>
               <a

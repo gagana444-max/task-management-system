@@ -35,7 +35,7 @@ export default function SearchableDropdown({ options, value, onChange, placehold
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3.5 py-2 text-left bg-white border border-[#e3e8ee] rounded-xl text-xs flex items-center justify-between focus:outline-none focus:border-[#1a1a2e] transition"
+        className="w-full px-3.5 py-2 text-left bg-[var(--bg-card)] text-[var(--text)] border border-[#e3e8ee] rounded-xl text-xs flex items-center justify-between focus:outline-none focus:border-[#1a1a2e] transition"
       >
         <span className={selectedOption ? 'text-[#0d253d]' : 'text-[#64748d]'}>
           {selectedOption ? selectedOption.label : placeholder}
@@ -45,7 +45,7 @@ export default function SearchableDropdown({ options, value, onChange, placehold
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-[#e3e8ee] rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute z-50 w-full mt-1 bg-[var(--bg-card)] text-[var(--text)] border border-[#e3e8ee] rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
           
           {/* Search Input */}
           <div className="p-2 border-b border-[#e3e8ee] bg-[#f9fafb]">
@@ -57,7 +57,7 @@ export default function SearchableDropdown({ options, value, onChange, placehold
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="w-full pl-7 pr-3 py-1.5 bg-white border border-[#e3e8ee] rounded-lg text-[11px] focus:outline-none focus:border-[#533afd] transition"
+                className="w-full pl-7 pr-3 py-1.5 bg-[var(--bg-card)] text-[var(--text)] border border-[#e3e8ee] rounded-lg text-[11px] focus:outline-none focus:border-[#533afd] transition"
               />
             </div>
           </div>

@@ -32,11 +32,11 @@ export default function PageHeader({ title, subtitle, statText, statColor = '#ea
           {rightContent && <div>{rightContent}</div>}
           <button
             onClick={() => navigate('/notifications')}
-            className="w-9 h-9 rounded-lg bg-white border border-[#e3e8ee] flex items-center justify-center hover:border-[#533afd] transition shadow-sm relative"
+            className="w-9 h-9 rounded-lg bg-[var(--bg-card)] text-[var(--text)] border border-[#e3e8ee] flex items-center justify-center hover:border-[#533afd] transition shadow-sm relative"
             title="Notifications"
           >
             <Bell size={18} color="#64748d" strokeWidth={2} />
-            {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-[#ea2261] rounded-full border-2 border-white" />}
+            {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-[#ea2261] rounded-full border-2 border-[var(--border)]" />}
           </button>
         </div>
       </div>

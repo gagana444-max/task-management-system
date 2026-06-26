@@ -253,7 +253,7 @@ export default function KanbanBoard() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
-          <p className="text-gray-600">Loading tasks...</p>
+          <p className="text-[var(--text-secondary)]">Loading tasks...</p>
         </div>
       </div>
     )
@@ -272,7 +272,7 @@ export default function KanbanBoard() {
       )}
 
       <div className="flex justify-between items-center gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
+        <h1 className="text-2xl font-bold text-[var(--text)]">Tasks</h1>
         <ViewToggle currentView={currentView} onViewChange={handleViewChange} />
       </div>
 
