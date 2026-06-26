@@ -83,6 +83,9 @@ def change_password(db: Session, user_id: int, current_password: str, new_passwo
     from services.auth_service import verify_password
     user = _get_user_by_id(db, user_id)
     
+    if current_password == new_password:
+        raise HTTPException(status_code=400, detail="New password cannot be the same as the current password")
+        
     if not verify_password(current_password, user.user_password):
         raise HTTPException(status_code=400, detail="Incorrect current password")
         

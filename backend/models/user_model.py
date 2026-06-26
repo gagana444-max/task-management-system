@@ -1,6 +1,6 @@
 import html
 from typing import Optional, Literal
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
 
 RoleEnum = Literal['Admin', 'ProjectManager', 'Collaborator']
 
@@ -70,6 +70,12 @@ class UserPasswordChange(BaseModel):
     current_password: str
     new_password: str
     confirm_password: str
+
+    @model_validator(mode='after')
+    def check_passwords(self):
+        if self.new_password == self.current_password:
+            raise ValueError("New password cannot be the same as the current password")
+        return self
 
     @field_validator('new_password')
     @classmethod
