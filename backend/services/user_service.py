@@ -43,7 +43,17 @@ def get_all_users(db: Session, role: str = None, q: str = None, exclude_role: st
     if q:
         query = query.filter(or_(DBUser.user_name.ilike(f"%{q}%"), DBUser.email.ilike(f"%{q}%")))
     
-    return [to_dict(u) for u in query.all()]
+    users = query.all()
+    filtered = []
+    dummy_keywords = ['test', 'example.com', 'collab@', 'projectmanager@', 'pm@', 'production@']
+    for u in users:
+        email = u.email.lower()
+        # Keep real users, hide obvious test ones
+        if any(kw in email for kw in dummy_keywords) and email != 'admin@gmail.com':
+            continue
+        filtered.append(u)
+        
+    return [to_dict(u) for u in filtered]
 
 def _get_user_by_id(db: Session, user_id: int):
     user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
