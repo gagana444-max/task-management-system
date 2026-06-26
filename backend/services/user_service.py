@@ -45,14 +45,19 @@ def get_all_users(db: Session, role: str = None, q: str = None, exclude_role: st
     
     users = query.all()
     filtered = []
-    dummy_keywords = ['test', 'example.com', 'collab@', 'projectmanager@', 'pm@', 'production@']
+    
+    from datetime import datetime, timezone
+    # Hide all dummy users created before right now
+    cutoff_date = datetime(2026, 6, 26, 15, 30) # UTC time right now
+    
     for u in users:
         email = u.email.lower()
-        # Keep real users, hide obvious test ones
-        if any(kw in email for kw in dummy_keywords) and email != 'admin@gmail.com':
-            continue
-        filtered.append(u)
-        
+        # Keep the main admin and any NEW users created after today
+        if email == 'admin@gmail.com' or (u.created_at and u.created_at > cutoff_date):
+            filtered.append(u)
+        elif email == 'imashadevindi20@gmail.com' or email == 'imashaidk2003@gmail.com':
+            filtered.append(u) # Keep the real emails just in case
+            
     return [to_dict(u) for u in filtered]
 
 def _get_user_by_id(db: Session, user_id: int):
