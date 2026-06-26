@@ -16,8 +16,20 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
+from sqlalchemy import text
+
 app = FastAPI(title="Task Management System API")
 Base.metadata.create_all(bind=engine)
+
+with engine.begin() as conn:
+    try:
+        conn.execute(text("ALTER TABLE users ADD COLUMN failed_login_attempts INT DEFAULT 0 NOT NULL;"))
+    except Exception:
+        pass
+    try:
+        conn.execute(text("ALTER TABLE users ADD COLUMN locked_until TIMESTAMP NULL;"))
+    except Exception:
+        pass
 
 
 # CORS middleware
