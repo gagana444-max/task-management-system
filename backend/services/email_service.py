@@ -41,7 +41,7 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
     MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
     MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://taskmanagement.eastasia.cloudapp.azure.com:5173")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://20.205.129.119:5173")
 
     email_body = f"""
     <html>
@@ -143,7 +143,7 @@ def send_password_reset_email(email: str, name: str, reset_token: str):
     MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
     MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://taskmanagement.eastasia.cloudapp.azure.com:5173")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://20.205.129.119:5173")
 
     reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
 
@@ -217,7 +217,7 @@ def send_due_soon_email(email: str, name: str, task_title: str, due_date: str):
     MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
     MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://taskmanagement.eastasia.cloudapp.azure.com:5173")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://20.205.129.119:5173")
 
     email_body = f"""
     <html>
