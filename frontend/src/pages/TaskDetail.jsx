@@ -198,9 +198,11 @@ export default function TaskDetail() {
   }
 
   const getCommentUserName = (c) => {
+    if (c.user?.name) return c.user.name
     if (c.author_name) return c.author_name
-    if (c.user_id === user?.id) return user?.name
-    return `User ${c.user_id}`
+    const uid = c.userId || c.user_id
+    if (uid === user?.id) return user?.name
+    return `User ${uid}`
   }
 
   const handleDeleteTask = async () => {
@@ -399,7 +401,8 @@ export default function TaskDetail() {
                 ) : comments.map((c, i) => {
                   const name = getCommentUserName(c)
                   const cid = c.comment_id || c.id
-                  const canDeleteComment = canEdit || c.user_id === user?.id
+                  const uid = c.userId || c.user_id
+                  const canDeleteComment = canEdit || uid === user?.id
                   return (
                     <div key={cid || i} style={{ background: 'var(--bg)', borderRadius: 10, padding: '10px 12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
