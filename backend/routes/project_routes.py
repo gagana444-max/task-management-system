@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/projects", tags=["Projects"])
 
 @router.get("", response_model=List[ProjectOut])
 def get_projects(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    return project_controller.get_all_projects(db)
+    return project_controller.get_all_projects(db, current_user)
 
 
 @router.get("/{project_id}", response_model=ProjectOut)

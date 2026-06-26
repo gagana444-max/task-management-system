@@ -143,7 +143,7 @@ export default function KanbanBoard() {
         return
       }
       
-      const response = await api.get('/users')
+      const response = await api.get('/users?exclude_role=Admin')
       setUsers(response.data || [])
     } catch (err) {
       console.error('Error fetching users:', err)

@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
-from routes import user_routes, comment_routes, onboarding_routes, auth_routes, task_routes, project_routes
+from routes import user_routes, comment_routes, onboarding_routes, auth_routes, task_routes, project_routes, notification_routes
 from config.database import engine, Base
 from models import comment_model, db_models, notification_model, task_model, user_model, project_model
 
@@ -16,8 +16,20 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
+from sqlalchemy import text
+
 app = FastAPI(title="Task Management System API")
 Base.metadata.create_all(bind=engine)
+
+with engine.begin() as conn:
+    try:
+        conn.execute(text("ALTER TABLE users ADD COLUMN failed_login_attempts INT DEFAULT 0 NOT NULL;"))
+    except Exception:
+        pass
+    try:
+        conn.execute(text("ALTER TABLE users ADD COLUMN locked_until TIMESTAMP NULL;"))
+    except Exception:
+        pass
 
 
 # CORS middleware
@@ -97,12 +109,13 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
 from config.socketio import socket_app, sio
 
 # --- Routes ---
-app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
+app.include_router(project_routes.router)
+app.include_router(task_routes.router)
 app.include_router(comment_routes.router)
 app.include_router(onboarding_routes.router)
-app.include_router(task_routes.router)
-app.include_router(project_routes.router)
+app.include_router(auth_routes.router)
+app.include_router(notification_routes.router)
 
 
 # Health check

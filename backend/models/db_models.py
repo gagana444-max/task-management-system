@@ -14,6 +14,8 @@ class DBUser(Base):
     temp_password = Column(String(255), nullable=True)
     avatar_url = Column(String(500), nullable=True)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+    failed_login_attempts = Column(Integer, default=0, nullable=False)
+    locked_until = Column(TIMESTAMP, nullable=True)
 
     comments = relationship("DBComment", back_populates="author")
     attachments = relationship("DBAttachment", back_populates="uploader")

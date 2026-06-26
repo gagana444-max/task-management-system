@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
+import SearchableDropdown from '../components/SearchableDropdown'
 import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, ArrowDownUp, Clock } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import RichTextEditor from '../components/RichTextEditor'
@@ -134,7 +135,7 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
 
   async function fetchUsers() {
     try {
-      const res = await api.get('/users')
+      const res = await api.get('/users?exclude_role=Admin')
       setUsers(res.data)
     } catch (e) { console.error(e) }
   }
@@ -655,10 +656,15 @@ export default function TasksList({ projectId = null, hideHeader = false, initia
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginBottom: 5 }}>Assign To *</label>
-                  <select value={form.assigned_user_id} onChange={e => setForm({ ...form, assigned_user_id: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, fontFamily: "'Inter', sans-serif", outline: 'none' }}>
-                    <option value="">Select Assignee</option>
-                    {users.filter(u => u.is_active).map(u => <option key={u.id} value={u.id}>{roleLabel(u.role)} — {u.name}</option>)}
-                  </select>
+                  <SearchableDropdown
+                    options={[
+                      { value: '', label: 'Select Assignee' },
+                      ...users.filter(u => u.is_active).map(u => ({ value: u.id, label: `${roleLabel(u.role)} — ${u.name}` }))
+                    ]}
+                    value={form.assigned_user_id}
+                    onChange={(val) => setForm({ ...form, assigned_user_id: val })}
+                    placeholder="Select Assignee"
+                  />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
