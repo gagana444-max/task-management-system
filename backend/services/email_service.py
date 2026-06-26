@@ -3,12 +3,56 @@ import random
 import string
 import ssl
 import smtplib
+import traceback
 from urllib.parse import quote
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 load_dotenv()
+
+def _get_email_config():
+    """Returns a dict of email config from environment. MAIL_FROM always matches MAIL_USERNAME to satisfy Gmail."""
+    username = os.getenv("EMAIL_USER") or os.getenv("MAIL_USERNAME") or ""
+    password = os.getenv("EMAIL_PASS") or os.getenv("MAIL_PASSWORD") or ""
+    server   = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER") or "smtp.gmail.com"
+    port     = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT") or "465")
+    # IMPORTANT: MAIL_FROM MUST match the authenticated account for Gmail to accept the send.
+    # If a custom MAIL_FROM is set and differs from username, Gmail will reject the email.
+    mail_from = os.getenv("MAIL_FROM") or username
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    return {
+        "username": username,
+        "password": password,
+        "server": server,
+        "port": port,
+        "mail_from": mail_from,
+        "frontend_url": frontend_url,
+    }
+
+def _send_email(cfg: dict, to_email: str, subject: str, text_body: str, html_body: str):
+    """Core send helper. Raises on failure so callers can handle/log it."""
+    if not cfg["username"] or not cfg["password"]:
+        raise RuntimeError("Email credentials (EMAIL_USER / EMAIL_PASS) are not configured in .env")
+
+    msg = MIMEMultipart('alternative')
+    msg['From']    = cfg["mail_from"]
+    msg['To']      = to_email
+    msg['Subject'] = subject
+    msg.add_header('Reply-To', cfg["mail_from"])
+    msg.attach(MIMEText(text_body, 'plain'))
+    msg.attach(MIMEText(html_body, 'html'))
+
+    context = ssl.create_default_context()
+    if cfg["port"] == 465:
+        with smtplib.SMTP_SSL(cfg["server"], cfg["port"], context=context) as server:
+            server.login(cfg["username"], cfg["password"])
+            server.sendmail(cfg["mail_from"], to_email, msg.as_string())
+    else:
+        with smtplib.SMTP(cfg["server"], cfg["port"]) as server:
+            server.starttls(context=context)
+            server.login(cfg["username"], cfg["password"])
+            server.sendmail(cfg["mail_from"], to_email, msg.as_string())
 
 def generate_temp_password(length=10):
     characters = string.ascii_letters + string.digits + "!@#$%"
@@ -36,14 +80,10 @@ def validate_password_policy(password: str):
     return errors
 
 def send_onboarding_email(email: str, name: str, temp_password: str):
-    MAIL_USERNAME = os.getenv("EMAIL_USER") or os.getenv("MAIL_USERNAME")
-    MAIL_PASSWORD = os.getenv("EMAIL_PASS") or os.getenv("MAIL_PASSWORD")
-    MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
-    MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://20.205.129.119:5173")
+    cfg = _get_email_config()
+    FRONTEND_URL = cfg["frontend_url"]
 
-    email_body = f"""
+    html_body = f"""
     <html>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -108,46 +148,18 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
     """
 
     try:
-        msg = MIMEMultipart('alternative')
-        msg['From'] = MAIL_FROM
-        msg['To'] = email
-        msg['Subject'] = "Welcome to Taskify - Your Login Credentials"
-        msg.add_header('Reply-To', MAIL_FROM)
-        
-        # Attach plain text first, then HTML (standard for multipart/alternative)
-        msg.attach(MIMEText(text_body, 'plain'))
-        msg.attach(MIMEText(email_body, 'html'))
-
-        print(f"[DEV MODE] Email to {email}:")
-        print(email_body)
-
-        if MAIL_USERNAME and MAIL_PASSWORD:
-            context = ssl.create_default_context()
-            if MAIL_PORT == 465:
-                with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
-                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                    server.sendmail(MAIL_FROM, email, msg.as_string())
-            else:
-                with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
-                    server.starttls(context=context)
-                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                    server.sendmail(MAIL_FROM, email, msg.as_string())
-            print(f"Email sent successfully to {email}")
-
+        _send_email(cfg, email, "Welcome to Taskify - Your Login Credentials", text_body, html_body)
+        print(f"[EMAIL] Onboarding email sent successfully to {email}")
     except Exception as e:
-        print(f"Email sending failed: {e}")
+        print(f"[EMAIL ERROR] Onboarding email to {email} failed: {e}")
+        traceback.print_exc()
 
 def send_password_reset_email(email: str, name: str, reset_token: str):
-    MAIL_USERNAME = os.getenv("EMAIL_USER") or os.getenv("MAIL_USERNAME")
-    MAIL_PASSWORD = os.getenv("EMAIL_PASS") or os.getenv("MAIL_PASSWORD")
-    MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
-    MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://20.205.129.119:5173")
-
+    cfg = _get_email_config()
+    FRONTEND_URL = cfg["frontend_url"]
     reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
 
-    email_body = f"""
+    html_body = f"""
     <html>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -186,38 +198,15 @@ def send_password_reset_email(email: str, name: str, reset_token: str):
     """
 
     try:
-        msg = MIMEMultipart('alternative')
-        msg['From'] = MAIL_FROM
-        msg['To'] = email
-        msg['Subject'] = "Reset Your Taskify Password"
-        msg.add_header('Reply-To', MAIL_FROM)
-        
-        msg.attach(MIMEText(text_body, 'plain'))
-        msg.attach(MIMEText(email_body, 'html'))
-
-        if MAIL_USERNAME and MAIL_PASSWORD:
-            context = ssl.create_default_context()
-            if MAIL_PORT == 465:
-                with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
-                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                    server.sendmail(MAIL_FROM, email, msg.as_string())
-            else:
-                with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
-                    server.starttls(context=context)
-                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                    server.sendmail(MAIL_FROM, email, msg.as_string())
-            print(f"Password reset email sent successfully to {email}")
-
+        _send_email(cfg, email, "Reset Your Taskify Password", text_body, html_body)
+        print(f"[EMAIL] Password reset email sent successfully to {email}")
     except Exception as e:
-        print(f"Password reset email sending failed: {e}")
+        print(f"[EMAIL ERROR] Password reset email to {email} failed: {e}")
+        traceback.print_exc()
 
 def send_due_soon_email(email: str, name: str, task_title: str, due_date: str):
-    MAIL_USERNAME = os.getenv("EMAIL_USER") or os.getenv("MAIL_USERNAME")
-    MAIL_PASSWORD = os.getenv("EMAIL_PASS") or os.getenv("MAIL_PASSWORD")
-    MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
-    MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://20.205.129.119:5173")
+    cfg = _get_email_config()
+    FRONTEND_URL = cfg["frontend_url"]
 
     email_body = f"""
     <html>
@@ -261,27 +250,8 @@ def send_due_soon_email(email: str, name: str, task_title: str, due_date: str):
     """
 
     try:
-        msg = MIMEMultipart('alternative')
-        msg['From'] = MAIL_FROM
-        msg['To'] = email
-        msg['Subject'] = f"Reminder: Task '{task_title}' is due soon!"
-        msg.add_header('Reply-To', MAIL_FROM)
-        
-        msg.attach(MIMEText(text_body, 'plain'))
-        msg.attach(MIMEText(email_body, 'html'))
-
-        if MAIL_USERNAME and MAIL_PASSWORD:
-            context = ssl.create_default_context()
-            if MAIL_PORT == 465:
-                with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
-                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                    server.sendmail(MAIL_FROM, email, msg.as_string())
-            else:
-                with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
-                    server.starttls(context=context)
-                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                    server.sendmail(MAIL_FROM, email, msg.as_string())
-            print(f"Due soon email sent successfully to {email}")
-
+        _send_email(cfg, email, f"Reminder: Task '{task_title}' is due soon!", text_body, email_body)
+        print(f"[EMAIL] Due soon email sent successfully to {email}")
     except Exception as e:
-        print(f"Due soon email sending failed: {e}")
+        print(f"[EMAIL ERROR] Due soon email to {email} failed: {e}")
+        traceback.print_exc()
