@@ -74,7 +74,7 @@ const EMPTY_MESSAGES = {
   completed: 'No completed tasks yet',
 }
 
-export default function TasksList({ projectId = null, hideHeader = false }) {
+export default function TasksList({ projectId = null, hideHeader = false, initialViewMode = 'board' }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
@@ -90,7 +90,7 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
   const [error, setError] = useState('')
   const [newlyCreatedId, setNewlyCreatedId] = useState(null)
   
-  const [viewMode, setViewMode] = useState('board')
+  const [viewMode, setViewMode] = useState(initialViewMode)
   const [sortBy, setSortBy] = useState('newest')
   const [draggingTask, setDraggingTask] = useState(null)
 
@@ -292,14 +292,16 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
       )}
       <div className="flex items-center justify-between flex-shrink-0 mb-1 mt-1">
         {/* View Toggle */}
-        <div className="flex items-center bg-[#fff] border border-[#e3e8ee] rounded-lg p-1 shadow-sm">
-          <button onClick={() => setViewMode('board')} className={`p-1.5 rounded-md flex items-center justify-center transition-all ${viewMode === 'board' ? 'bg-[#533afd] text-white' : 'text-[#64748d] hover:bg-[var(--bg)]'}`}>
-            <LayoutGrid size={16} />
-          </button>
-          <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md flex items-center justify-center transition-all ${viewMode === 'table' ? 'bg-[#533afd] text-white' : 'text-[#64748d] hover:bg-[var(--bg)]'}`}>
-            <List size={16} />
-          </button>
-        </div>
+        {!hideHeader && (
+          <div className="flex items-center bg-[#fff] border border-[#e3e8ee] rounded-lg p-1 shadow-sm">
+            <button onClick={() => setViewMode('board')} className={`p-1.5 rounded-md flex items-center justify-center transition-all ${viewMode === 'board' ? 'bg-[#533afd] text-white' : 'text-[#64748d] hover:bg-[var(--bg)]'}`}>
+              <LayoutGrid size={16} />
+            </button>
+            <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md flex items-center justify-center transition-all ${viewMode === 'table' ? 'bg-[#533afd] text-white' : 'text-[#64748d] hover:bg-[var(--bg)]'}`}>
+              <List size={16} />
+            </button>
+          </div>
+        )}
         
         {/* Filters & Actions */}
         <div className="flex items-center gap-2">

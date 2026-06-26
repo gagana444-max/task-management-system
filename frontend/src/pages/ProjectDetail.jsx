@@ -9,12 +9,12 @@ import { toast } from 'react-toastify'
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 const ACCENT_COLORS = [
-  { accent: '#6366f1', bg: 'linear-gradient(135deg, #eef2ff, #e0e7ff)', border: '#c7d2fe', dot: '#818cf8' },
-  { accent: '#22c55e', bg: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '#86efac', dot: '#4ade80' },
-  { accent: '#f97316', bg: 'linear-gradient(135deg, #fff7ed, #fed7aa)', border: '#fdba74', dot: '#fb923c' },
-  { accent: '#a855f7', bg: 'linear-gradient(135deg, #fdf4ff, #f3e8ff)', border: '#d8b4fe', dot: '#c084fc' },
-  { accent: '#f43f5e', bg: 'linear-gradient(135deg, #fff1f2, #ffe4e6)', border: '#fda4af', dot: '#fb7185' },
-  { accent: '#0ea5e9', bg: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)', border: '#7dd3fc', dot: '#38bdf8' },
+  { accent: '#c7d2fe', bg: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '#4f46e5', dot: '#818cf8', text: '#ffffff' },
+  { accent: '#bbf7d0', bg: 'linear-gradient(135deg, #16a34a, #22c55e)', border: '#16a34a', dot: '#4ade80', text: '#ffffff' },
+  { accent: '#fed7aa', bg: 'linear-gradient(135deg, #ea580c, #f97316)', border: '#ea580c', dot: '#fb923c', text: '#ffffff' },
+  { accent: '#e9d5ff', bg: 'linear-gradient(135deg, #9333ea, #a855f7)', border: '#9333ea', dot: '#c084fc', text: '#ffffff' },
+  { accent: '#fecdd3', bg: 'linear-gradient(135deg, #e11d48, #f43f5e)', border: '#e11d48', dot: '#fb7185', text: '#ffffff' },
+  { accent: '#bae6fd', bg: 'linear-gradient(135deg, #0284c7, #0ea5e9)', border: '#0284c7', dot: '#38bdf8', text: '#ffffff' },
 ]
 
 export default function ProjectDetail() {
@@ -95,33 +95,33 @@ export default function ProjectDetail() {
         <div style={{ height: 5, background: `linear-gradient(90deg, ${color.accent}, ${color.dot})` }} />
 
         <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 20, position: 'relative', zIndex: 1, flexWrap: 'wrap' }}>
-          <div style={{ width: 54, height: 54, borderRadius: 16, background: color.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 6px 16px ${color.accent}50`, flexShrink: 0 }}>
+          <div style={{ width: 54, height: 54, borderRadius: 16, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)', flexShrink: 0 }}>
             <FolderKanban size={26} color="#fff" strokeWidth={1.8} />
           </div>
 
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0d253d', margin: 0, letterSpacing: '-0.4px', lineHeight: 1.2 }}>{project?.name}</h1>
-            <p style={{ fontSize: 13, color: '#64748d', margin: '6px 0 0', lineHeight: 1.5 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', margin: 0, letterSpacing: '-0.4px', lineHeight: 1.2 }}>{project?.name}</h1>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '6px 0 0', lineHeight: 1.5 }}>
               {project?.description || 'No description provided.'}
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.7)', border: `1px solid ${color.border}`, borderRadius: 12, padding: '8px 12px', backdropFilter: 'blur(4px)' }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: color.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff', boxShadow: `0 2px 6px ${color.accent}40` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.15)', border: `1px solid rgba(255,255,255,0.3)`, borderRadius: 12, padding: '8px 12px', backdropFilter: 'blur(8px)' }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: color.border, boxShadow: `0 2px 6px rgba(0,0,0,0.15)` }}>
                 {pmInitials}
               </div>
               <div>
-                <div style={{ fontSize: 9, color: color.accent, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project Manager</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#0d253d' }}>{project?.manager_name || 'Unassigned'}</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project Manager</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#ffffff' }}>{project?.manager_name || 'Unassigned'}</div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.7)', border: `1px solid ${color.border}`, borderRadius: 12, padding: '8px 12px', backdropFilter: 'blur(4px)' }}>
-              <CalendarDays size={14} color={color.accent} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.15)', border: `1px solid rgba(255,255,255,0.3)`, borderRadius: 12, padding: '8px 12px', backdropFilter: 'blur(8px)' }}>
+              <CalendarDays size={14} color="#fff" />
               <div>
-                <div style={{ fontSize: 9, color: color.accent, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#0d253d' }}>{fmt(project?.created_at)}</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#ffffff' }}>{fmt(project?.created_at)}</div>
               </div>
             </div>
 
@@ -129,7 +129,7 @@ export default function ProjectDetail() {
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
                   onClick={handleDelete}
-                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: 'rgba(255,255,255,0.8)', border: '1px solid #fecaca', borderRadius: 10, fontSize: 11, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: 'rgba(255,255,255,0.95)', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 600, color: '#dc2626', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                 >
                   <Trash2 size={13} /> Delete Project
                 </button>
@@ -141,7 +141,7 @@ export default function ProjectDetail() {
 
       {/* Task board filtered to this project */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <TasksList projectId={parseInt(id)} hideHeader={true} />
+        <TasksList projectId={parseInt(id)} hideHeader={true} initialViewMode="table" />
       </div>
     </div>
   )

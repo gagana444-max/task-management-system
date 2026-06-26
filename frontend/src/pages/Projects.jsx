@@ -9,12 +9,12 @@ import ViewToggle from '../components/ViewToggle'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
-  { bg: 'linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%)', accent: '#6366f1', border: '#c7d2fe', iconBg: '#6366f1', dot1: '#818cf8', dot2: '#a5b4fc', label: 'indigo' },
-  { bg: 'linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%)', accent: '#22c55e', border: '#86efac', iconBg: '#22c55e', dot1: '#4ade80', dot2: '#86efac', label: 'green' },
-  { bg: 'linear-gradient(145deg, #fff7ed 0%, #fed7aa 100%)', accent: '#f97316', border: '#fdba74', iconBg: '#f97316', dot1: '#fb923c', dot2: '#fcd34d', label: 'orange' },
-  { bg: 'linear-gradient(145deg, #fdf4ff 0%, #f3e8ff 100%)', accent: '#a855f7', border: '#d8b4fe', iconBg: '#a855f7', dot1: '#c084fc', dot2: '#e879f9', label: 'purple' },
-  { bg: 'linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)', accent: '#f43f5e', border: '#fda4af', iconBg: '#f43f5e', dot1: '#fb7185', dot2: '#fda4af', label: 'rose' },
-  { bg: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', accent: '#0ea5e9', border: '#7dd3fc', iconBg: '#0ea5e9', dot1: '#38bdf8', dot2: '#7dd3fc', label: 'sky' },
+  { bg: 'linear-gradient(135deg, #4f46e5, #6366f1)', accent: '#6366f1', border: '#4f46e5', iconBg: 'rgba(255,255,255,0.2)', dot1: '#818cf8', dot2: '#a5b4fc', text: '#ffffff' },
+  { bg: 'linear-gradient(135deg, #16a34a, #22c55e)', accent: '#22c55e', border: '#16a34a', iconBg: 'rgba(255,255,255,0.2)', dot1: '#4ade80', dot2: '#86efac', text: '#ffffff' },
+  { bg: 'linear-gradient(135deg, #ea580c, #f97316)', accent: '#f97316', border: '#ea580c', iconBg: 'rgba(255,255,255,0.2)', dot1: '#fb923c', dot2: '#fcd34d', text: '#ffffff' },
+  { bg: 'linear-gradient(135deg, #9333ea, #a855f7)', accent: '#a855f7', border: '#9333ea', iconBg: 'rgba(255,255,255,0.2)', dot1: '#c084fc', dot2: '#e879f9', text: '#ffffff' },
+  { bg: 'linear-gradient(135deg, #e11d48, #f43f5e)', accent: '#f43f5e', border: '#e11d48', iconBg: 'rgba(255,255,255,0.2)', dot1: '#fb7185', dot2: '#fda4af', text: '#ffffff' },
+  { bg: 'linear-gradient(135deg, #0284c7, #0ea5e9)', accent: '#0ea5e9', border: '#0284c7', iconBg: 'rgba(255,255,255,0.2)', dot1: '#38bdf8', dot2: '#7dd3fc', text: '#ffffff' },
 ]
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
@@ -231,43 +231,43 @@ export default function Projects() {
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px ${color.accent}18` }}
               >
                 {/* Decorative background circles */}
-                <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: color.dot1, opacity: 0.15, pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', top: 20, right: 20, width: 60, height: 60, borderRadius: '50%', background: color.dot2, opacity: 0.2, pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: color.dot1, opacity: 0.25, pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: 20, right: 20, width: 60, height: 60, borderRadius: '50%', background: color.dot2, opacity: 0.3, pointerEvents: 'none' }} />
 
                 {/* Top accent bar */}
-                <div style={{ height: 4, background: `linear-gradient(90deg, ${color.accent}, ${color.dot1})`, flexShrink: 0 }} />
+                <div style={{ height: 4, background: `linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.8))`, flexShrink: 0 }} />
 
                 {/* Card body */}
                 <div style={{ padding: '18px 20px 16px', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
                   {/* Header row */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                     {/* Icon */}
-                    <div style={{ width: 44, height: 44, borderRadius: 14, background: color.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 12px ${color.accent}40`, flexShrink: 0 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 12px rgba(0,0,0,0.1)`, flexShrink: 0 }}>
                       <FolderKanban size={20} color="#fff" strokeWidth={1.8} />
                     </div>
                     {/* Date badge */}
-                    <span style={{ fontSize: 10, color: color.accent, background: 'rgba(255,255,255,0.75)', border: `1px solid ${color.border}`, padding: '4px 10px', borderRadius: 20, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)' }}>
+                    <span style={{ fontSize: 10, color: '#fff', background: 'rgba(255,255,255,0.2)', border: `1px solid rgba(255,255,255,0.3)`, padding: '4px 10px', borderRadius: 20, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)' }}>
                       <Clock size={10} />
                       {fmt(project.created_at)}
                     </span>
                   </div>
 
                   {/* Project name */}
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0d253d', marginBottom: 6, lineHeight: 1.3, letterSpacing: '-0.2px' }} className="line-clamp-1">{project.name}</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#ffffff', marginBottom: 6, lineHeight: 1.3, letterSpacing: '-0.2px' }} className="line-clamp-1">{project.name}</h3>
 
                   {/* Description */}
-                  <p style={{ fontSize: 12, color: '#64748d', lineHeight: 1.6, marginBottom: 16, minHeight: 38 }} className="line-clamp-2">
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, marginBottom: 16, minHeight: 38 }} className="line-clamp-2">
                     {project.description || 'No description provided.'}
                   </p>
 
                   {/* PM row */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(255,255,255,0.6)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.9)', backdropFilter: 'blur(4px)', marginBottom: canManage ? 14 : 0 }}>
-                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: color.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#fff', flexShrink: 0, boxShadow: `0 2px 6px ${color.accent}40` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(8px)', marginBottom: canManage ? 14 : 0 }}>
+                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: color.border, flexShrink: 0, boxShadow: `0 2px 6px rgba(0,0,0,0.15)` }}>
                       {pmInitials}
                     </div>
                     <div>
-                      <div style={{ fontSize: 9, color: color.accent, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project Manager</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#0d253d' }}>{project.manager_name || 'Unassigned'}</div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project Manager</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#ffffff' }}>{project.manager_name || 'Unassigned'}</div>
                     </div>
                   </div>
 
@@ -275,18 +275,18 @@ export default function Projects() {
                   {canManage && (
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
-                        onClick={() => openEdit(project)}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.8)', color: '#0d253d', border: '1px solid rgba(255,255,255,0.9)', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.8)'; e.currentTarget.style.boxShadow = 'none' }}
+                        onClick={(e) => { e.stopPropagation(); openEdit(project); }}
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.95)', color: '#0d253d', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)' }}
                       >
                         <Edit size={12} /> Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(project.id)}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.8)', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#fff1f2'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(220,38,38,0.1)' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.8)'; e.currentTarget.style.boxShadow = 'none' }}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: 'rgba(255,255,255,0.95)', color: '#dc2626', border: 'none', borderRadius: 10, fontSize: 11, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)' }}
                       >
                         <Trash2 size={12} /> Delete
                       </button>
