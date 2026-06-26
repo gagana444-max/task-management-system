@@ -34,7 +34,7 @@ export default function Dashboard() {
       setLoading(true)
       const [tasksRes, usersRes] = await Promise.all([
         api.get('/tasks').catch(() => ({ data: [] })),
-        api.get('/users').catch(() => ({ data: [] })),
+        api.get('/users?exclude_role=Admin').catch(() => ({ data: [] })),
       ])
       setTasks(tasksRes.data)
       setUsers(usersRes.data)

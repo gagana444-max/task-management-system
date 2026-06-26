@@ -21,10 +21,11 @@ async def create_user(
 async def list_users(
     role: Optional[str] = None,
     q: Optional[str] = None,
+    exclude_role: Optional[str] = None,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return user_controller.get_all_users(db, role, q)
+    return user_controller.get_all_users(db, role, q, exclude_role)
 
 
 @router.get("/{user_id}", response_model=UserOut)

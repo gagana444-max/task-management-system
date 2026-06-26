@@ -6,8 +6,8 @@ from services import user_service
 def create_user(db: Session, user_data: UserCreate):
     return user_service.create_user(db, user_data)
 
-def get_all_users(db: Session, role: str = None, q: str = None):
-    return user_service.get_all_users(db, role, q)
+def get_all_users(db: Session, role: str = None, q: str = None, exclude_role: str = None):
+    return user_service.get_all_users(db, role, q, exclude_role)
 
 def get_user(db: Session, user_id: int):
     try:

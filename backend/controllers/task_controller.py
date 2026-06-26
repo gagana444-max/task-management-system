@@ -3,8 +3,8 @@ from models.task_model import TaskCreate, TaskUpdate
 from services import task_service
 from services.task_service import update_task
 from services.task_service import delete_task
-from config.socketio import sio
-
+from config.database import SessionLocal
+from services.notification_service import broadcast_notification_to_admins
 
 def create_task(task_data: TaskCreate):
     return task_service.create_task(task_data)
@@ -12,19 +12,16 @@ def create_task(task_data: TaskCreate):
 
 async def create_task_with_notify(task_data: TaskCreate):
     task = task_service.create_task(task_data)
-    if task_data.assigned_user_id:
-        print(f"[NOTIFY] Emitting task_assigned to room {task_data.assigned_user_id}")
-        try:
-            await sio.emit('task_assigned', {
-                'task_id': task['id'],
-                'title': task['title'],
-                'message': f"You have been assigned to task: {task['title']}"
-            }, room=str(task_data.assigned_user_id))
-            print(f"[NOTIFY] Emit succeeded")
-        except Exception as e:
-            print(f"[NOTIFY] Socket emit failed: {e}")
-    else:
-        print(f"[NOTIFY] No assigned_user_id, skipping emit")
+    try:
+        with SessionLocal() as db:
+            await broadcast_notification_to_admins(
+                db, 
+                task_data.assigned_user_id, 
+                f"New task created: {task['title']}", 
+                'task_updated'
+            )
+    except Exception as e:
+        print(f"[NOTIFY] Socket emit failed: {e}")
     return task
 
 
@@ -46,45 +43,39 @@ async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
     if old_assignee != new_assignee:
         if old_assignee:
             try:
-                await sio.emit('task_unassigned', {
-                    'task_id': task_id,
-                    'title': task['title'],
-                    'message': f"You have been unassigned from task: {task['title']}"
-                }, room=str(old_assignee))
+                with SessionLocal() as db:
+                    await broadcast_notification_to_admins(
+                        db, old_assignee, f"You have been unassigned from task: {task['title']}", 'task_unassigned'
+                    )
             except Exception as e:
                 print(f"Socket emit failed: {e}")
         if new_assignee:
             try:
-                await sio.emit('task_assigned', {
-                    'task_id': task_id,
-                    'title': task['title'],
-                    'message': f"You have been assigned to task: {task['title']}"
-                }, room=str(new_assignee))
+                with SessionLocal() as db:
+                    await broadcast_notification_to_admins(
+                        db, new_assignee, f"You have been assigned to task: {task['title']}", 'task_assigned'
+                    )
             except Exception as e:
                 print(f"Socket emit failed: {e}")
                 
     # 2. Handle other updates (status or general fields) when assignee is the same
     else:
-        if new_assignee:
-            if task_data.status and old_task.get('status') != task_data.status:
-                try:
-                    await sio.emit('status_changed', {
-                        'task_id': task_id,
-                        'title': task['title'],
-                        'status': task_data.status,
-                        'message': f"Task status changed to: {task_data.status} — {task['title']}"
-                    }, room=str(new_assignee))
-                except Exception as e:
-                    print(f"Socket emit failed: {e}")
-            elif task_data.title or task_data.description or task_data.priority or task_data.due_date:
-                try:
-                    await sio.emit('task_updated', {
-                        'task_id': task_id,
-                        'title': task['title'],
-                        'message': f"Task details updated: {task['title']}"
-                    }, room=str(new_assignee))
-                except Exception as e:
-                    print(f"Socket emit failed: {e}")
+        if task_data.status and old_task.get('status') != task_data.status:
+            try:
+                with SessionLocal() as db:
+                    await broadcast_notification_to_admins(
+                        db, new_assignee, f"Task status changed to: {task_data.status} — {task['title']}", 'status_changed'
+                    )
+            except Exception as e:
+                print(f"Socket emit failed: {e}")
+        elif task_data.title or task_data.description or task_data.priority or task_data.due_date:
+            try:
+                with SessionLocal() as db:
+                    await broadcast_notification_to_admins(
+                        db, new_assignee, f"Task details updated: {task['title']}", 'task_updated'
+                    )
+            except Exception as e:
+                print(f"Socket emit failed: {e}")
 
     return task
 
@@ -92,16 +83,13 @@ async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
 async def update_task_status_with_notify(task_id: int, status: str):
     updated_task = task_service.update_task_status(task_id, status)
 
-    if updated_task.get('assigned_user_id'):
-        try:
-            await sio.emit('status_changed', {
-                'task_id': task_id,
-                'title': updated_task['title'],
-                'status': status,
-                'message': f"Task status changed to: {status} — {updated_task['title']}"
-            }, room=str(updated_task['assigned_user_id']))
-        except Exception as e:
-            print(f"Socket emit failed: {e}")
+    try:
+        with SessionLocal() as db:
+            await broadcast_notification_to_admins(
+                db, updated_task.get('assigned_user_id'), f"Task status changed to: {status} — {updated_task['title']}", 'status_changed'
+            )
+    except Exception as e:
+        print(f"Socket emit failed: {e}")
 
     return updated_task
 
@@ -122,11 +110,10 @@ async def delete_task_api(task_id: int):
     result = delete_task(task_id)
     if old_task and old_task.get('assigned_user_id'):
         try:
-            await sio.emit('task_deleted', {
-                'task_id': task_id,
-                'title': old_task['title'],
-                'message': f"Task was deleted: {old_task['title']}"
-            }, room=str(old_task['assigned_user_id']))
+            with SessionLocal() as db:
+                await broadcast_notification_to_admins(
+                    db, old_task['assigned_user_id'], f"Task was deleted: {old_task['title']}", 'task_deleted'
+                )
         except Exception as e:
             print(f"Socket emit failed: {e}")
     return result

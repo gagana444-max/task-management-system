@@ -33,16 +33,16 @@ def create_user(db: Session, user_data: UserCreate):
     db.refresh(db_user)
     return to_dict(db_user)
 
-def get_all_users(db: Session, role: str = None, q: str = None):
+def get_all_users(db: Session, role: str = None, q: str = None, exclude_role: str = None):
     query = db.query(DBUser)
     if role:
         query = query.filter(DBUser.user_role == role)
+    if exclude_role:
+        query = query.filter(DBUser.user_role != exclude_role)
     if q:
-        search = f"%{q}%"
-        query = query.filter(or_(DBUser.user_name.ilike(search), DBUser.email.ilike(search)))
+        query = query.filter(or_(DBUser.user_name.ilike(f"%{q}%"), DBUser.email.ilike(f"%{q}%")))
     
-    users = query.all()
-    return [to_dict(u) for u in users]
+    return [to_dict(u) for u in query.all()]
 
 def _get_user_by_id(db: Session, user_id: int):
     user = db.query(DBUser).filter(DBUser.user_id == user_id).first()

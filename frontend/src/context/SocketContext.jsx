@@ -23,6 +23,21 @@ export function SocketProvider({ children }) {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
     const socketUrl = apiUrl.replace(/\/api\/?$/, '')
 
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/notifications`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setNotifications(data)
+        }
+      } catch (err) {
+        console.error("Failed to load notifications", err)
+      }
+    }
+    fetchNotifications()
+
     const newSocket = io(socketUrl, {
       path: '/socket.io',
       auth: { token: `Bearer ${token}` },
@@ -39,7 +54,7 @@ export function SocketProvider({ children }) {
 
     newSocket.on('task_assigned', (data) => {
       console.log('Received task_assigned:', data)
-      setNotifications(prev => [{ id: Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
+      setNotifications(prev => [{ id: data.notification_id || Date.now(), message: data.message, is_read: false, created_at: new Date().toISOString() }, ...prev])
       toast.info(`🔔 ${data.message}`)
     })
 
@@ -99,12 +114,28 @@ export function SocketProvider({ children }) {
     }
   }, [user])
 
-  const markRead = (id) => {
+  const markRead = async (id) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const token = localStorage.getItem('token')
+      await fetch(`${apiUrl}/notifications/read?notification_id=${id}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    } catch (e) {}
   }
 
-  const markAllRead = () => {
+  const markAllRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const token = localStorage.getItem('token')
+      await fetch(`${apiUrl}/notifications/read`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    } catch (e) {}
   }
 
   const deleteNotification = (id) => {
