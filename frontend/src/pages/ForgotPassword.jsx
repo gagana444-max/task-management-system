@@ -21,10 +21,11 @@ export default function ForgotPassword() {
 
     try {
       setStatus('loading')
-      await axios.post('/api/auth/forgot-password', { email })
+      await axios.post('/api/auth/forgot-password', { email: email.trim() })
       setStatus('success')
     } catch (err) {
-      setErrorMsg(err.response?.data?.detail || 'Failed to process request. Please try again later.')
+      const errMsg = err.response?.data?.message || err.response?.data?.detail || 'Failed to process request. Please try again later.'
+      setErrorMsg(errMsg)
       setStatus('error')
     }
   }

@@ -42,7 +42,7 @@ def login(form_data: dict, db: Session = Depends(get_db)):
 
 @router.post('/forgot-password')
 def forgot_password(form_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    email = form_data.get('email')
+    email = form_data.get('email', '').strip()
     if not email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email required")
         
