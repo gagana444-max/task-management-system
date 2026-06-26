@@ -207,7 +207,8 @@ export default function Projects() {
       ) : viewMode === 'board' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project) => {
-            const color = CARD_COLORS[(parseInt(project.id) - 1) % CARD_COLORS.length]
+            const hash = String(project.id).split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)
+            const color = CARD_COLORS[Math.abs(hash) % CARD_COLORS.length]
             const initials = project.name?.slice(0, 2).toUpperCase() || 'PR'
             const pmInitials = project.manager_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?'
             return (

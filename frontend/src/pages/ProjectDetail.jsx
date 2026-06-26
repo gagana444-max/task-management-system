@@ -26,7 +26,8 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true)
 
   const canManage = user?.role === 'Admin' || user?.role === 'ProjectManager'
-  const color = ACCENT_COLORS[(parseInt(id) - 1) % ACCENT_COLORS.length]
+  const hash = String(id).split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)
+  const color = ACCENT_COLORS[Math.abs(hash) % ACCENT_COLORS.length]
 
   useEffect(() => {
     const fetchProject = async () => {
