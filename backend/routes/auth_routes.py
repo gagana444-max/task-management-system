@@ -27,7 +27,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 @router.post('/login')
 def login(form_data: dict, db: Session = Depends(get_db)):
     # Expect JSON with `email` and `password`
-    email = form_data.get('email')
+    email = form_data.get('email', '').strip()
     password = form_data.get('password')
     if not email or not password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password required")

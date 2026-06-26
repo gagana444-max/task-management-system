@@ -22,7 +22,7 @@ export default function Login() {
     if (!form.password) return setError('Password is required.')
     try {
       setLoading(true)
-      const user = await login(form.email, form.password)
+      const user = await login(form.email.trim(), form.password)
       if (user.requiresPasswordReset) navigate('/first-login-reset')
       else if (user.role === 'Admin') navigate('/admin')
       else navigate('/dashboard')
