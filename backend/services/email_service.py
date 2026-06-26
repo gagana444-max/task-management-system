@@ -212,7 +212,9 @@ def send_due_soon_email(email: str, name: str, task_title: str, due_date: str):
     FRONTEND_URL = cfg["frontend_url"]
 
     email_body = f"""
-    <html>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head><meta charset="UTF-8"></head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="color: #4F46E5; margin: 0;">Taskify</h1>
