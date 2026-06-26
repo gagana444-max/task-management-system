@@ -10,7 +10,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import user_routes, comment_routes, onboarding_routes, auth_routes, task_routes, project_routes, notification_routes
 from config.database import engine, Base
 from models import comment_model, db_models, notification_model, task_model, user_model, project_model
-
+try:
+    from services.scheduler_service import start_scheduler, shutdown_scheduler
+    SCHEDULER_AVAILABLE = True
+except ImportError:
+    SCHEDULER_AVAILABLE = False
+    print("[SCHEDULER] apscheduler not installed — due-soon notifications disabled. Install via: pip install apscheduler")
 
 BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
@@ -58,6 +63,16 @@ ENFORCE_HTTPS = os.getenv("ENFORCE_HTTPS", "False").lower() in ("true", "1", "ye
 if ENFORCE_HTTPS:
     from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
     app.add_middleware(HTTPSRedirectMiddleware)
+
+@app.on_event("startup")
+def startup_event():
+    if SCHEDULER_AVAILABLE:
+        start_scheduler()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    if SCHEDULER_AVAILABLE:
+        shutdown_scheduler()
 
 
 # --- Structured Error Handlers ---

@@ -15,10 +15,11 @@ async def create_task_with_notify(task_data: TaskCreate):
     try:
         with SessionLocal() as db:
             await broadcast_notification_to_admins(
-                db, 
-                task_data.assigned_user_id, 
-                f"New task created: {task['title']}", 
-                'task_updated'
+                db,
+                task_data.assigned_user_id,
+                f"New task created: {task['title']}",
+                'task_updated',
+                project_id=task_data.project_id
             )
     except Exception as e:
         print(f"[NOTIFY] Socket emit failed: {e}")
@@ -32,12 +33,13 @@ def update_task_api(task_id: int, task_data: TaskUpdate):
 async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
     old_task = task_service.get_task_by_id(task_id)
     task = update_task(task_id, task_data)
-    
+
     if not old_task:
         return task
 
     old_assignee = old_task.get('assigned_user_id')
     new_assignee = task.get('assigned_user_id')
+    project_id = task.get('project_id') or old_task.get('project_id')
 
     # 1. Handle assignee changes
     if old_assignee != new_assignee:
@@ -45,7 +47,8 @@ async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
             try:
                 with SessionLocal() as db:
                     await broadcast_notification_to_admins(
-                        db, old_assignee, f"You have been unassigned from task: {task['title']}", 'task_unassigned'
+                        db, old_assignee, f"You have been unassigned from task: {task['title']}", 'task_unassigned',
+                        project_id=project_id
                     )
             except Exception as e:
                 print(f"Socket emit failed: {e}")
@@ -53,18 +56,20 @@ async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
             try:
                 with SessionLocal() as db:
                     await broadcast_notification_to_admins(
-                        db, new_assignee, f"You have been assigned to task: {task['title']}", 'task_assigned'
+                        db, new_assignee, f"You have been assigned to task: {task['title']}", 'task_assigned',
+                        project_id=project_id
                     )
             except Exception as e:
                 print(f"Socket emit failed: {e}")
-                
+
     # 2. Handle other updates (status or general fields) when assignee is the same
     else:
         if task_data.status and old_task.get('status') != task_data.status:
             try:
                 with SessionLocal() as db:
                     await broadcast_notification_to_admins(
-                        db, new_assignee, f"Task status changed to: {task_data.status} — {task['title']}", 'status_changed'
+                        db, new_assignee, f"Task status changed to: {task_data.status} — {task['title']}", 'status_changed',
+                        project_id=project_id
                     )
             except Exception as e:
                 print(f"Socket emit failed: {e}")
@@ -72,7 +77,8 @@ async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
             try:
                 with SessionLocal() as db:
                     await broadcast_notification_to_admins(
-                        db, new_assignee, f"Task details updated: {task['title']}", 'task_updated'
+                        db, new_assignee, f"Task details updated: {task['title']}", 'task_updated',
+                        project_id=project_id
                     )
             except Exception as e:
                 print(f"Socket emit failed: {e}")
@@ -82,11 +88,15 @@ async def update_task_with_notify(task_id: int, task_data: TaskUpdate):
 
 async def update_task_status_with_notify(task_id: int, status: str):
     updated_task = task_service.update_task_status(task_id, status)
+    project_id = updated_task.get('project_id')
 
     try:
         with SessionLocal() as db:
             await broadcast_notification_to_admins(
-                db, updated_task.get('assigned_user_id'), f"Task status changed to: {status} — {updated_task['title']}", 'status_changed'
+                db, updated_task.get('assigned_user_id'),
+                f"Task status changed to: {status} — {updated_task['title']}",
+                'status_changed',
+                project_id=project_id
             )
     except Exception as e:
         print(f"Socket emit failed: {e}")
@@ -94,7 +104,10 @@ async def update_task_status_with_notify(task_id: int, status: str):
     return updated_task
 
 
-def get_all_tasks(priority=None, status=None, assigned_user_id=None, project_id=None):
+def get_all_tasks(current_user=None, priority=None, status=None, assigned_user_id=None, project_id=None):
+    # Collaborators can only see tasks assigned to them
+    if current_user and current_user.get('role') == 'Collaborator':
+        assigned_user_id = current_user['id']
     return task_service.get_all_tasks(priority, status, assigned_user_id, project_id)
 
 

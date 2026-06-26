@@ -6,6 +6,7 @@ from services.auth_service import (
     authenticate_user,
     create_password_reset_token,
     decode_password_reset_token,
+    decode_access_token,
     get_password_hash
 )
 from services.email_service import send_password_reset_email, validate_password_policy
@@ -98,3 +99,26 @@ def reset_password(form_data: dict, db: Session = Depends(get_db)):
     db.commit()
     
     return {"message": "Password has been successfully reset"}
+
+
+@router.post('/refresh')
+def refresh_token(form_data: dict, db: Session = Depends(get_db)):
+    """Refresh an expiring JWT. Client sends current valid token, gets a new one."""
+    token = form_data.get('token')
+    if not token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token required")
+
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+
+    user_id = payload.get('sub')
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+
+    user = db.query(DBUser).filter(DBUser.user_id == int(user_id)).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+
+    new_token = create_access_token({"sub": str(user.user_id), "role": user.user_role})
+    return {"access_token": new_token, "token_type": "bearer"}

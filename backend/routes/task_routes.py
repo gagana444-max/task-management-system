@@ -30,7 +30,7 @@ async def get_tasks(
     project_id: Optional[int] = Query(None, description="Filter by project ID"),
     current_user: dict = Depends(get_current_user)
 ):
-    return task_controller.get_all_tasks(priority, status, assigned_user_id, project_id)
+    return task_controller.get_all_tasks(current_user, priority, status, assigned_user_id, project_id)
 
 
 @router.get("/{task_id}", response_model=TaskOut)

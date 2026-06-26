@@ -3,6 +3,7 @@ import random
 import string
 import ssl
 import smtplib
+from urllib.parse import quote
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
@@ -64,7 +65,7 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-            <a href="{FRONTEND_URL}/first-login-reset?temp={temp_password}" style="background-color: #4F46E5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Set Your Password Now</a>
+            <a href="{FRONTEND_URL}/first-login-reset?temp={quote(temp_password, safe='')}" style="background-color: #4F46E5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Set Your Password Now</a>
         </div>
         
         <div style="font-size: 13px; color: #6B7280; border-top: 1px solid #E5E7EB; padding-top: 20px;">
@@ -94,7 +95,7 @@ def send_onboarding_email(email: str, name: str, temp_password: str):
     
     IMPORTANT: You must change your password on your first login.
     
-    Set Your Password Now: {FRONTEND_URL}/first-login-reset?temp={temp_password}
+    Set Your Password Now: {FRONTEND_URL}/first-login-reset?temp={quote(temp_password, safe='')}
     
     Password Requirements:
     - Minimum 8 characters
@@ -209,3 +210,78 @@ def send_password_reset_email(email: str, name: str, reset_token: str):
 
     except Exception as e:
         print(f"Password reset email sending failed: {e}")
+
+def send_due_soon_email(email: str, name: str, task_title: str, due_date: str):
+    MAIL_USERNAME = os.getenv("EMAIL_USER") or os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("EMAIL_PASS") or os.getenv("MAIL_PASSWORD")
+    MAIL_FROM = os.getenv("MAIL_FROM", "taskify.tms@gmail.com")
+    MAIL_SERVER = os.getenv("EMAIL_HOST") or os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_PORT = int(os.getenv("EMAIL_PORT") or os.getenv("MAIL_PORT", "465"))
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+    email_body = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4F46E5; margin: 0;">Taskify</h1>
+        </div>
+        
+        <div style="background-color: #FFFBEB; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #F59E0B;">
+            <p style="margin-top: 0; font-size: 16px;">Hello <strong>{name}</strong>,</p>
+            <p>This is a quick reminder that you have a task due very soon!</p>
+            
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                <p style="margin: 0 0 5px 0;">Task: <strong>{task_title}</strong></p>
+                <p style="margin: 0;">Due Date: <strong style="color: #DC2626;">{due_date}</strong></p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{FRONTEND_URL}" style="background-color: #4F46E5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">View Dashboard</a>
+            </div>
+        </div>
+        
+        <p style="font-size: 14px; margin-top: 30px;">Best regards,<br><strong>The Taskify Team</strong></p>
+    </body>
+    </html>
+    """
+
+    text_body = f"""
+    Taskify
+    
+    Hello {name},
+    This is a quick reminder that you have a task due very soon!
+    
+    Task: {task_title}
+    Due Date: {due_date}
+    
+    View your dashboard here: {FRONTEND_URL}
+    
+    Best regards,
+    The Taskify Team
+    """
+
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['From'] = MAIL_FROM
+        msg['To'] = email
+        msg['Subject'] = f"Reminder: Task '{task_title}' is due soon!"
+        msg.add_header('Reply-To', MAIL_FROM)
+        
+        msg.attach(MIMEText(text_body, 'plain'))
+        msg.attach(MIMEText(email_body, 'html'))
+
+        if MAIL_USERNAME and MAIL_PASSWORD:
+            context = ssl.create_default_context()
+            if MAIL_PORT == 465:
+                with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, context=context) as server:
+                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
+                    server.sendmail(MAIL_FROM, email, msg.as_string())
+            else:
+                with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
+                    server.starttls(context=context)
+                    server.login(MAIL_USERNAME, MAIL_PASSWORD)
+                    server.sendmail(MAIL_FROM, email, msg.as_string())
+            print(f"Due soon email sent successfully to {email}")
+
+    except Exception as e:
+        print(f"Due soon email sending failed: {e}")

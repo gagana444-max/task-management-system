@@ -5,7 +5,7 @@ import { resetPassword } from '../api/users'
 import { Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function FirstLoginReset() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const tempFromUrl = searchParams.get('temp') || ''
@@ -14,6 +14,16 @@ export default function FirstLoginReset() {
   const [loading, setLoading] = useState(false)
   const [globalError, setGlobalError] = useState('')
   const [showPassword, setShowPassword] = useState({ temp_password: false, new_password: false, confirm_password: false })
+
+  // Get user ID reliably - from context or from stored token
+  const getUserId = () => {
+    if (user?.id) return user.id
+    try {
+      const stored = localStorage.getItem('user')
+      if (stored) return JSON.parse(stored).id
+    } catch (_) {}
+    return null
+  }
 
   const toggleVisibility = (field) => {
     setShowPassword(prev => ({ ...prev, [field]: !prev[field] }))
@@ -38,14 +48,28 @@ export default function FirstLoginReset() {
     setGlobalError('')
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return }
+
+    const userId = getUserId()
+    if (!userId) {
+      setGlobalError('Session expired. Please log in again.')
+      logout()
+      navigate('/login')
+      return
+    }
+
     try {
       setLoading(true)
-      await resetPassword(user.id, form)
+      await resetPassword(userId, form)
       navigate('/dashboard')
     } catch (err) {
-      const detail = err.response?.data?.detail;
-      const errorMessage = typeof detail === 'object' ? detail.message : detail;
-      setGlobalError(err.response?.data?.message || errorMessage || 'Password reset failed.')
+      const detail = err.response?.data?.detail
+      let msg = 'Password reset failed.'
+      if (typeof detail === 'object' && detail !== null) {
+        msg = detail.description || detail.message || msg
+      } else if (typeof detail === 'string') {
+        msg = detail
+      }
+      setGlobalError(msg)
     } finally {
       setLoading(false)
     }
