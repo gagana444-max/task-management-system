@@ -63,7 +63,7 @@ export default function Profile() {
       toast.success('Avatar updated successfully')
       
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to upload avatar')
+      toast.error(err.response?.data?.message || err.response?.data?.detail || 'Failed to upload avatar')
       // reload original profile data to reset preview
       try {
         const profile = await api.get(`/users/${user.id}`)
@@ -85,7 +85,7 @@ export default function Profile() {
       const res = await api.get(`/users/${user.id}`)
       login(res.data, localStorage.getItem('token'))
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to update profile')
+      toast.error(err.response?.data?.message || err.response?.data?.detail || 'Failed to update profile')
     } finally {
       setIsSavingProfile(false)
     }
@@ -111,7 +111,7 @@ export default function Profile() {
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to change password')
+      toast.error(err.response?.data?.message || err.response?.data?.detail || 'Failed to change password')
     } finally {
       setIsSavingPassword(false)
     }
