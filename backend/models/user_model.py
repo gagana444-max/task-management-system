@@ -1,6 +1,6 @@
 import html
 from typing import Optional, Literal
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
 
 RoleEnum = Literal['Admin', 'ProjectManager', 'Collaborator']
 
@@ -40,6 +40,7 @@ class UserOut(BaseModel):
     role: RoleEnum
     is_active: bool
     is_first_login: bool
+    avatar_url: Optional[str] = None
 
 class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=100)
@@ -65,3 +66,22 @@ class UserRoleUpdate(BaseModel):
 class UserStatusUpdate(BaseModel):
     is_active: bool
 
+class UserPasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+    @model_validator(mode='after')
+    def check_passwords(self):
+        if self.new_password == self.current_password:
+            raise ValueError("New password cannot be the same as the current password")
+        return self
+
+    @field_validator('new_password')
+    @classmethod
+    def validate_password(cls, v):
+        from services.email_service import validate_password_policy
+        errors = validate_password_policy(v)
+        if errors:
+            raise ValueError(" | ".join(errors))
+        return v

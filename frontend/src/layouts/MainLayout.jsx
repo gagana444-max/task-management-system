@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { LayoutGrid, KanbanSquare, Bell, Users, LogOut, Moon, Sun, FolderKanban, ChevronLeft, ChevronRight, CheckSquare, Menu, X } from 'lucide-react'
+import { LayoutGrid, KanbanSquare, Bell, Users, LogOut, Moon, Sun, FolderKanban, ChevronLeft, ChevronRight, CheckSquare, Menu, X, User } from 'lucide-react'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', Icon: LayoutGrid },
   { to: '/tasks', label: 'Task Board', Icon: KanbanSquare },
   { to: '/projects', label: 'Projects', Icon: FolderKanban },
   { to: '/notifications', label: 'Notifications', Icon: Bell },
+  { to: '/profile', label: 'My Profile', Icon: User },
 ]
 
 

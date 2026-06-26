@@ -12,6 +12,7 @@ class DBUser(Base):
     is_active = Column(Boolean, default=True)
     is_first_login = Column(Boolean, default=True)
     temp_password = Column(String(255), nullable=True)
+    avatar_url = Column(String(500), nullable=True)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     locked_until = Column(TIMESTAMP, nullable=True)
