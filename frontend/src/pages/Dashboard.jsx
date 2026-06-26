@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useSocket } from '../context/SocketContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { ClipboardList, Zap, CheckCircle2, Users, Bell, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -22,6 +23,7 @@ const getGreeting = () => {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const { notifications } = useSocket()
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
   const [users, setUsers] = useState([])
@@ -56,6 +58,8 @@ export default function Dashboard() {
   const completedPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
   const activeUsers = users.filter(u => u.is_active).length
 
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0
+
   const today = new Date()
   const dueTodayCount = tasks.filter(t => t.due_date && normalizeStatus(t.status) !== 'completed' && isSameDay(new Date(t.due_date), today)).length
 
@@ -88,27 +92,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-6 min-h-screen bg-[var(--bg)]">
+    <div style={{ fontFamily: "'Inter', sans-serif" }} className="p-4 md:p-6 min-h-screen bg-[var(--bg)]">
 
       <PageHeader
-        title="Dashboard"
-        subtitle={`${getGreeting()}, ${user?.name}`}
-        statText={loading ? 'Loading your tasks...' : `You have ${dueTodayCount} task${dueTodayCount !== 1 ? 's' : ''} due today`}
+        title={`Welcome back, ${user?.name?.split(' ')[0]}! 👋`}
+        subtitle="Here's what's happening with your projects today."
+        statText={`You have ${dueTodayCount} tasks due today`}
       />
 
-      {/* Notification bell, top right (kept separate from header) */}
-      <div className="flex justify-end mb-3" style={{ marginTop: -56 }}>
-        <button
-          onClick={() => navigate('/notifications')}
-          className="w-9 h-9 rounded-lg bg-white border border-[#e3e8ee] flex items-center justify-center relative hover:border-[#533afd] transition"
-          style={{ position: 'relative', zIndex: 2 }}
-        >
-          <Bell size={16} color="#64748d" strokeWidth={2} />
-        </button>
-      </div>
-
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         {stats.map((s) => {
           return (
             <div
@@ -148,7 +141,7 @@ export default function Dashboard() {
         })}
       </div>
       {/* Two Column Layout */}
-      <div className="grid grid-cols-[1fr_320px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         
         {/* Left Column: Timeline OR Selected Day Details */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 p-5 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col">

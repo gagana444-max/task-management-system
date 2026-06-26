@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { useSocket } from '../context/SocketContext'
 import { LayoutGrid, KanbanSquare, Bell, Users, LogOut, Moon, Sun, FolderKanban, ChevronLeft, ChevronRight, CheckSquare, Menu, X, User } from 'lucide-react'
 
 const navItems = [
@@ -20,9 +21,12 @@ const adminItems = [
 export default function MainLayout({ children }) {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { notifications } = useSocket()
   const navigate = useNavigate()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0
 
   const handleLogout = () => {
     logout()
@@ -35,10 +39,10 @@ export default function MainLayout({ children }) {
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between bg-[#1c1e54] px-5 py-3 shrink-0 z-40">
         <div className="flex items-center gap-2.5">
-          <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 5, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', flexShrink: 0 }}>
-            <CheckSquare size={16} color="#533afd" strokeWidth={2.5} />
+          <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 6, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', flexShrink: 0 }}>
+            <CheckSquare size={20} color="#533afd" strokeWidth={2.5} />
           </div>
-          <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: '20px', letterSpacing: '-0.5px', lineHeight: 1 }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: '24px', letterSpacing: '-0.5px', lineHeight: 1 }}>
             <span style={{ color: '#ffffff' }}>Task</span>
             <span style={{ color: '#fbd786' }}>ify</span>
           </div>
@@ -81,20 +85,20 @@ export default function MainLayout({ children }) {
         </button>
 
         {/* Logo */}
-        <div className="px-5 pb-5 border-b border-[#2e3070] mb-3 overflow-hidden whitespace-nowrap flex items-center gap-2.5">
+        <div className="px-5 pb-5 border-b border-[#2e3070] mb-3 overflow-hidden whitespace-nowrap flex items-center gap-3">
           {isSidebarOpen ? (
             <>
-              <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 6, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', flexShrink: 0 }}>
-                <CheckSquare size={16} color="#533afd" strokeWidth={2.5} />
+              <div style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 8, borderRadius: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', flexShrink: 0 }}>
+                <CheckSquare size={22} color="#533afd" strokeWidth={2.5} />
               </div>
-              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: '22px', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: '28px', letterSpacing: '-1px', lineHeight: 1 }}>
                 <span style={{ color: '#ffffff' }}>Task</span>
                 <span style={{ color: '#fbd786' }}>ify</span>
               </div>
             </>
           ) : (
-            <div className="hidden md:block" style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 7, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', marginLeft: -5 }}>
-              <CheckSquare size={16} color="#533afd" strokeWidth={2.5} />
+            <div className="hidden md:block" style={{ background: 'linear-gradient(135deg, #fff, #f5e9d4)', padding: 8, borderRadius: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', marginLeft: -5 }}>
+              <CheckSquare size={22} color="#533afd" strokeWidth={2.5} />
             </div>
           )}
         </div>
@@ -115,8 +119,18 @@ export default function MainLayout({ children }) {
                   } ${!isSidebarOpen && 'md:justify-center md:px-0'}`
                 }
               >
-                <Icon size={18} strokeWidth={2.2} className="min-w-[18px]" />
-                <span className={!isSidebarOpen ? 'md:hidden' : ''}>{label}</span>
+                <div className="relative flex items-center justify-center">
+                  <Icon size={18} strokeWidth={2.2} className="min-w-[18px]" />
+                  {to === '/notifications' && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#ea2261] rounded-full border border-[#1c1e54]" />
+                  )}
+                </div>
+                <span className={!isSidebarOpen ? 'md:hidden flex-1' : 'flex-1'}>{label}</span>
+                {to === '/notifications' && unreadCount > 0 && isSidebarOpen && (
+                  <span className="ml-auto bg-[#ea2261] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </NavLink>
             ))}
           </div>
