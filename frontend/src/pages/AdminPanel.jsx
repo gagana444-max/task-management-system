@@ -234,15 +234,27 @@ export default function AdminPanel() {
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
 
-                <div style={{ display: 'flex', gap: 5, width: '100%' }}>
+                <div style={{ display: 'flex', gap: 5, width: '100%', flexWrap: 'wrap' }}>
                   <button onClick={() => handleDeactivate(user)}
-                    style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: user.is_active ? '1px solid #f7d4d0' : '1px solid #bfe4d6', background: user.is_active ? '#fdecea' : '#eaf8f1', color: user.is_active ? '#ea2261' : '#0f6e56', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: user.is_active ? '1px solid #f7d4d0' : '1px solid #bfe4d6', background: user.is_active ? '#fdecea' : '#eaf8f1', color: user.is_active ? '#ea2261' : '#0f6e56', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, minWidth: '45%' }}>
                     {user.is_active ? <UserX size={11} /> : <UserCheck size={11} />}
                     {user.is_active ? 'Deactivate' : 'Activate'}
                   </button>
+                  <button onClick={async () => {
+                    if (!window.confirm(`Are you sure you want to completely delete ${user.name}? This cannot be undone.`)) return;
+                    try {
+                      await api.delete(`/users/${user.id}`);
+                      setGlobalSuccess(`User ${user.name} deleted successfully!`);
+                      fetchData();
+                    } catch (err) {
+                      setGlobalError(err.response?.data?.message || err.response?.data?.detail || 'Failed to delete user.');
+                    }
+                  }} style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #f7d4d0', background: '#fdecea', color: '#ea2261', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, minWidth: '45%' }}>
+                    <Trash2 size={11} /> Delete
+                  </button>
                   {user.is_first_login && (
                     <button onClick={() => handleSendCredentials(user)}
-                      style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      style={{ flex: 1, padding: 6, borderRadius: 9999, fontSize: 10, fontWeight: 400, cursor: 'pointer', fontFamily: "'Inter', sans-serif", border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, minWidth: '45%' }}>
                       <Mail size={11} /> Email
                     </button>
                   )}
