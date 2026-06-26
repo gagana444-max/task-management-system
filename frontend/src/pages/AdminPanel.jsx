@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getUsers, createUser, deactivateUser, updateUserRole, sendOnboardingEmail } from '../api/users'
 import { Users, CheckCircle2, Lock, Plus, X, Mail, UserX, UserCheck } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
+import ViewToggle from '../components/ViewToggle'
 
 const ROLES = ['Admin', 'ProjectManager', 'Collaborator']
 
@@ -18,6 +19,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
+  const [viewMode, setViewMode] = useState('board')
   const [showCreate, setShowCreate] = useState(false)
   const [creating, setCreating] = useState(false)
   const [globalError, setGlobalError] = useState('')
@@ -196,6 +198,7 @@ export default function AdminPanel() {
           <option value="">All Roles</option>
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
+        <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
         <button onClick={() => { setShowCreate(!showCreate); setFormErrors({}); setGlobalError(''); setGlobalSuccess('') }}
           style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           {showCreate ? <X size={13} /> : <Plus size={13} />}
@@ -208,7 +211,7 @@ export default function AdminPanel() {
         <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>Loading...</div>
       ) : users.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 40, color: 'var(--border-input)', fontSize: 13 }}>No users found.</div>
-      ) : (
+      ) : viewMode === 'board' ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
           {users.map(user => {
             const rs = roleStyle[user.role] || roleStyle.Collaborator
@@ -247,6 +250,63 @@ export default function AdminPanel() {
               </div>
             )
           })}
+        </div>
+      ) : (
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 12 }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Name</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Email</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Role</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)' }}>Status</th>
+                <th style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-muted)', textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(user => {
+                const rs = roleStyle[user.role] || roleStyle.Collaborator
+                return (
+                  <tr key={user.id} style={{ borderBottom: '1px solid var(--border)', opacity: user.is_active ? 1 : 0.6 }}>
+                    <td style={{ padding: '10px 14px', color: 'var(--text)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 24, height: 24, borderRadius: '50%', background: rs.av, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 500, color: '#fff' }}>
+                          {ini(user.name)}
+                        </div>
+                        {user.name}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>{user.email}</td>
+                    <td style={{ padding: '10px 14px' }}>
+                      <select value={user.role} onChange={e => handleRoleChange(user, e.target.value)}
+                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--bg)', fontSize: 11, outline: 'none', color: 'var(--text)' }}>
+                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </td>
+                    <td style={{ padding: '10px 14px' }}>
+                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 9999, background: user.is_active ? '#e1f5ee' : '#fdecea', color: user.is_active ? '#0f6e56' : '#ea2261' }}>
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        <button onClick={() => handleDeactivate(user)} title={user.is_active ? 'Deactivate' : 'Activate'}
+                          style={{ padding: 4, borderRadius: 6, border: user.is_active ? '1px solid #f7d4d0' : '1px solid #bfe4d6', background: user.is_active ? '#fdecea' : '#eaf8f1', color: user.is_active ? '#ea2261' : '#0f6e56', cursor: 'pointer' }}>
+                          {user.is_active ? <UserX size={13} /> : <UserCheck size={13} />}
+                        </button>
+                        {user.is_first_login && (
+                          <button onClick={() => handleSendCredentials(user)} title="Send Email"
+                            style={{ padding: 4, borderRadius: 6, border: '1px solid #dcd9fb', background: '#f5f4fe', color: '#534ab7', cursor: 'pointer' }}>
+                            <Mail size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

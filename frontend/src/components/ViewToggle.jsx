@@ -1,25 +1,29 @@
+import { LayoutGrid, List } from 'lucide-react'
+
 export default function ViewToggle({ currentView, onViewChange }) {
   return (
-    <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-2">
+    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e3e8ee', borderRadius: 8, padding: 4, gap: 4 }}>
       <button
         onClick={() => onViewChange('board')}
-        className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-          currentView === 'board'
-            ? 'bg-indigo-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-        }`}
+        title="Board View"
+        style={{
+          width: 32, height: 32, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+          background: currentView === 'board' ? 'var(--primary)' : 'transparent',
+          color: currentView === 'board' ? '#fff' : '#64748d'
+        }}
       >
-        📊 Board View
+        <LayoutGrid size={16} strokeWidth={currentView === 'board' ? 2 : 1.5} />
       </button>
       <button
         onClick={() => onViewChange('table')}
-        className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-          currentView === 'table'
-            ? 'bg-indigo-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-        }`}
+        title="Table View"
+        style={{
+          width: 32, height: 32, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+          background: currentView === 'table' ? 'var(--primary)' : 'transparent',
+          color: currentView === 'table' ? '#fff' : '#64748d'
+        }}
       >
-        📋 Table View
+        <List size={18} strokeWidth={currentView === 'table' ? 2 : 1.5} />
       </button>
     </div>
   )

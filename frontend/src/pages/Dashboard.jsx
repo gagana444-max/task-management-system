@@ -60,10 +60,10 @@ export default function Dashboard() {
   const dueTodayCount = tasks.filter(t => t.due_date && normalizeStatus(t.status) !== 'completed' && isSameDay(new Date(t.due_date), today)).length
 
   const stats = [
-    { Icon: ClipboardList, label: 'Total Tasks', value: totalTasks, trendLabel: `${todoCount} pending`, trendBg: '#fdf6e8', trendColor: '#c4922f', chipBg: '#fdf6e8', chipColor: '#c4922f' },
-    { Icon: Zap, label: 'In Progress', value: inProgressCount, trendLabel: 'Active', trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#e6f1fb', chipColor: '#185fa5' },
-    { Icon: CheckCircle2, label: 'Completed', value: completedCount, trendLabel: `${completedPct}%`, trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#e1f5ee', chipColor: '#0f6e56' },
-    { Icon: Users, label: 'Team Members', value: activeUsers, trendLabel: 'Active', trendBg: '#e1f5ee', trendColor: '#0f6e56', chipBg: '#eeedfe', chipColor: '#534ab7' },
+    { Icon: ClipboardList, label: 'Total Tasks', value: totalTasks, bg: 'linear-gradient(135deg, #a855f7 0%, #c084fc 100%)', shadow: 'rgba(168, 85, 247, 0.3)', pct: 100 },
+    { Icon: Zap, label: 'In Progress', value: inProgressCount, bg: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', shadow: 'rgba(59, 130, 246, 0.3)', pct: totalTasks ? Math.round((inProgressCount / totalTasks) * 100) : 0 },
+    { Icon: CheckCircle2, label: 'Completed', value: completedCount, bg: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)', shadow: 'rgba(244, 63, 94, 0.3)', pct: completedPct },
+    { Icon: Users, label: 'Team Members', value: activeUsers, bg: 'linear-gradient(135deg, #06b6d4 0%, #2dd4bf 100%)', shadow: 'rgba(6, 182, 212, 0.3)', pct: users.length ? Math.round((activeUsers / users.length) * 100) : 0 },
   ]
 
 
@@ -109,63 +109,39 @@ export default function Dashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        {stats.map(s => {
-          const isCompleted = s.label === 'Completed';
-          const isTeam = s.label === 'Team Members';
-
+        {stats.map((s) => {
           return (
             <div
               key={s.label}
-              className="group border border-white/80 rounded-2xl p-4 shadow-[0_4px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_35px_rgba(83,58,253,0.12)] hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 100%)', backdropFilter: 'blur(12px)' }}
+              className="group rounded-xl p-5 shadow-lg hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden text-white"
+              style={{ background: s.bg, boxShadow: `0 10px 20px -5px ${s.shadow}` }}
             >
-              <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none" style={{ background: s.chipColor }}></div>
-              <div className="relative z-10 flex items-center justify-between mb-3">
-                <div style={{ width: 38, height: 38, borderRadius: 12, background: s.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <s.Icon size={18} color={s.chipColor} strokeWidth={2} />
-                </div>
-                {!isCompleted && !isTeam && (
-                  <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 9999, fontWeight: 500, background: s.trendBg, color: s.trendColor }}>
-                    {s.trendLabel}
-                  </span>
-                )}
-                {isCompleted && (
-                  <div style={{ position: 'relative', width: 40, height: 40 }}>
-                    <svg width="40" height="40" viewBox="0 0 40 40">
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="#e1f5ee" strokeWidth="4" />
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="#0f6e56" strokeWidth="4" strokeDasharray="100.53" strokeDashoffset={100.53 - (100.53 * completedPct / 100)} strokeLinecap="round" transform="rotate(-90 20 20)" style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#0f6e56]">
-                      {completedPct}%
-                    </div>
-                  </div>
-                )}
+              {/* Large faded icon in the background (Right) */}
+              <div className="absolute -right-4 -top-2 opacity-[0.15] group-hover:opacity-25 transition-all duration-500 pointer-events-none transform group-hover:scale-110">
+                <s.Icon size={100} strokeWidth={1.5} />
               </div>
-
-              <div className="flex items-end justify-between">
+              
+              <div className="relative z-10 flex flex-col h-full justify-between">
                 <div>
-                  <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 32, color: 'var(--text)', lineHeight: 1 }}>
-                    {loading ? '—' : s.value}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, opacity: 0.9, marginBottom: 4 }}>
                     {s.label}
                   </div>
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 32, lineHeight: 1 }}>
+                    {loading ? '—' : s.value}
+                  </div>
                 </div>
 
-                {isTeam && (
-                  <div className="flex -space-x-2">
-                    {users.filter(u => u.is_active).slice(0, 3).map((u, i) => (
-                      <div key={u.id} className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white shadow-sm" style={{ backgroundColor: ['#533afd', '#ea2261', '#c4922f', '#0f6e56'][i % 4], zIndex: 3 - i }}>
-                        {ini(u.name)}
-                      </div>
-                    ))}
-                    {activeUsers > 3 && (
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-[#533afd] bg-[#eeedfe] border-2 border-white shadow-sm" style={{ zIndex: 0 }}>
-                        +{activeUsers - 3}
-                      </div>
-                    )}
+                <div className="mt-6">
+                  <div className="flex justify-end mb-1">
+                    <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>{s.pct}%</span>
                   </div>
-                )}
+                  <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-white rounded-full transition-all duration-1000 ease-out" 
+                      style={{ width: `${s.pct}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )
