@@ -5,8 +5,22 @@ from models.project_model import Project, ProjectCreate, ProjectUpdate
 from models.db_models import DBUser
 from services.notification_service import broadcast_notification_to_admins
 
-def get_all_projects(db: Session):
-    return db.query(Project).order_by(Project.created_at.desc()).all()
+def get_all_projects(db: Session, current_user: dict):
+    role = current_user.get("role")
+    user_id = current_user.get("id")
+    query = db.query(Project)
+
+    if role == "Admin":
+        return query.order_by(Project.created_at.desc()).all()
+    elif role == "ProjectManager":
+        return query.filter((Project.manager_id == user_id) | (Project.created_by == user_id)).order_by(Project.created_at.desc()).all()
+    else:
+        # Collaborator: only see projects they have tasks in
+        res = db.execute(text("SELECT DISTINCT project_id FROM tasks WHERE assigned_user_id = :uid"), {"uid": user_id})
+        project_ids = [r[0] for r in res.fetchall() if r[0] is not None]
+        if not project_ids:
+            return []
+        return query.filter(Project.id.in_(project_ids)).order_by(Project.created_at.desc()).all()
 
 
 def get_project(db: Session, project_id: int):
