@@ -9,12 +9,20 @@ import ViewToggle from '../components/ViewToggle'
 import { toast } from 'react-toastify'
 
 const CARD_COLORS = [
-  { bg: 'linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%)', accent: '#6366f1', border: '#c7d2fe', iconBg: '#6366f1', dot1: '#818cf8', dot2: '#a5b4fc', text: '#5b21b6' },
-  { bg: 'linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%)', accent: '#22c55e', border: '#86efac', iconBg: '#22c55e', dot1: '#4ade80', dot2: '#86efac', text: '#166534' },
-  { bg: 'linear-gradient(145deg, #fff7ed 0%, #fed7aa 100%)', accent: '#f97316', border: '#fdba74', iconBg: '#f97316', dot1: '#fb923c', dot2: '#fcd34d', text: '#9a3412' },
-  { bg: 'linear-gradient(145deg, #fdf4ff 0%, #f3e8ff 100%)', accent: '#a855f7', border: '#d8b4fe', iconBg: '#a855f7', dot1: '#c084fc', dot2: '#e879f9', text: '#5b21b6' },
-  { bg: 'linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)', accent: '#f43f5e', border: '#fda4af', iconBg: '#f43f5e', dot1: '#fb7185', dot2: '#fda4af', text: '#9f1239' },
-  { bg: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', accent: '#0ea5e9', border: '#7dd3fc', iconBg: '#0ea5e9', dot1: '#38bdf8', dot2: '#7dd3fc', text: '#075985' },
+  { bg: 'linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%)', accent: '#6366f1', border: '#c7d2fe', iconBg: '#6366f1', dot1: '#818cf8', dot2: '#a5b4fc', text: '#5b21b6' }, // Indigo
+  { bg: 'linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%)', accent: '#22c55e', border: '#86efac', iconBg: '#22c55e', dot1: '#4ade80', dot2: '#86efac', text: '#166534' }, // Green
+  { bg: 'linear-gradient(145deg, #fff7ed 0%, #fed7aa 100%)', accent: '#f97316', border: '#fdba74', iconBg: '#f97316', dot1: '#fb923c', dot2: '#fcd34d', text: '#9a3412' }, // Orange
+  { bg: 'linear-gradient(145deg, #fdf4ff 0%, #f3e8ff 100%)', accent: '#a855f7', border: '#d8b4fe', iconBg: '#a855f7', dot1: '#c084fc', dot2: '#e879f9', text: '#5b21b6' }, // Purple
+  { bg: 'linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)', accent: '#f43f5e', border: '#fda4af', iconBg: '#f43f5e', dot1: '#fb7185', dot2: '#fda4af', text: '#9f1239' }, // Rose
+  { bg: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', accent: '#0ea5e9', border: '#7dd3fc', iconBg: '#0ea5e9', dot1: '#38bdf8', dot2: '#7dd3fc', text: '#075985' }, // Sky
+  { bg: 'linear-gradient(145deg, #fdf8e6 0%, #fef08a 100%)', accent: '#eab308', border: '#fde047', iconBg: '#eab308', dot1: '#facc15', dot2: '#fde047', text: '#854d0e' }, // Yellow
+  { bg: 'linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%)', accent: '#14b8a6', border: '#99f6e4', iconBg: '#14b8a6', dot1: '#2dd4bf', dot2: '#99f6e4', text: '#115e59' }, // Teal
+  { bg: 'linear-gradient(145deg, #fdf2f8 0%, #fce7f3 100%)', accent: '#ec4899', border: '#fbcfe8', iconBg: '#ec4899', dot1: '#f472b6', dot2: '#fbcfe8', text: '#831843' }, // Pink
+  { bg: 'linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%)', accent: '#8b5cf6', border: '#ddd6fe', iconBg: '#8b5cf6', dot1: '#a78bfa', dot2: '#ddd6fe', text: '#4c1d95' }, // Violet
+  { bg: 'linear-gradient(145deg, #ecfeff 0%, #cffafe 100%)', accent: '#06b6d4', border: '#a5f3fc', iconBg: '#06b6d4', dot1: '#22d3ee', dot2: '#a5f3fc', text: '#164e63' }, // Cyan
+  { bg: 'linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%)', accent: '#ef4444', border: '#fecaca', iconBg: '#ef4444', dot1: '#f87171', dot2: '#fecaca', text: '#7f1d1d' }, // Red
+  { bg: 'linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%)', accent: '#64748b', border: '#e2e8f0', iconBg: '#64748b', dot1: '#94a3b8', dot2: '#e2e8f0', text: '#0f172a' }, // Slate
+  { bg: 'linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%)', accent: '#3b82f6', border: '#bfdbfe', iconBg: '#3b82f6', dot1: '#60a5fa', dot2: '#bfdbfe', text: '#1e3a8a' }, // Blue
 ]
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''

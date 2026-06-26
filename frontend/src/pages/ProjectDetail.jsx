@@ -15,6 +15,14 @@ const ACCENT_COLORS = [
   { bg: 'linear-gradient(145deg, #fdf4ff 0%, #f3e8ff 100%)', accent: '#a855f7', border: '#d8b4fe', iconBg: '#a855f7', dot: '#c084fc', dot2: '#e879f9' },
   { bg: 'linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)', accent: '#f43f5e', border: '#fda4af', iconBg: '#f43f5e', dot: '#fb7185', dot2: '#fda4af' },
   { bg: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', accent: '#0ea5e9', border: '#7dd3fc', iconBg: '#0ea5e9', dot: '#38bdf8', dot2: '#7dd3fc' },
+  { bg: 'linear-gradient(145deg, #fdf8e6 0%, #fef08a 100%)', accent: '#eab308', border: '#fde047', iconBg: '#eab308', dot: '#facc15', dot2: '#fde047' },
+  { bg: 'linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%)', accent: '#14b8a6', border: '#99f6e4', iconBg: '#14b8a6', dot: '#2dd4bf', dot2: '#99f6e4' },
+  { bg: 'linear-gradient(145deg, #fdf2f8 0%, #fce7f3 100%)', accent: '#ec4899', border: '#fbcfe8', iconBg: '#ec4899', dot: '#f472b6', dot2: '#fbcfe8' },
+  { bg: 'linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%)', accent: '#8b5cf6', border: '#ddd6fe', iconBg: '#8b5cf6', dot: '#a78bfa', dot2: '#ddd6fe' },
+  { bg: 'linear-gradient(145deg, #ecfeff 0%, #cffafe 100%)', accent: '#06b6d4', border: '#a5f3fc', iconBg: '#06b6d4', dot: '#22d3ee', dot2: '#a5f3fc' },
+  { bg: 'linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%)', accent: '#ef4444', border: '#fecaca', iconBg: '#ef4444', dot: '#f87171', dot2: '#fecaca' },
+  { bg: 'linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%)', accent: '#64748b', border: '#e2e8f0', iconBg: '#64748b', dot: '#94a3b8', dot2: '#e2e8f0' },
+  { bg: 'linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%)', accent: '#3b82f6', border: '#bfdbfe', iconBg: '#3b82f6', dot: '#60a5fa', dot2: '#bfdbfe' },
 ]
 
 export default function ProjectDetail() {
