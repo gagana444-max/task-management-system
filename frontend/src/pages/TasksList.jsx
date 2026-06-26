@@ -1,13 +1,56 @@
 import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { ClipboardList, Zap, CheckCircle2, X, MessageSquare, LayoutGrid, List, ArrowDownUp, Clock } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import RichTextEditor from '../components/RichTextEditor'
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'react-toastify'
+
+// ---------- DnD sub-components (must be top-level for hooks) ----------
+function DroppableColumn({ id, colBg, dragBg, border, children }) {
+  const { setNodeRef, isOver } = useDroppable({ id })
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        background: isOver ? dragBg : colBg,
+        borderRadius: 16,
+        border: `1.5px solid ${isOver ? border : 'rgba(255,255,255,0.9)'}`,
+        padding: 14,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 7,
+        overflowY: 'auto',
+        boxShadow: isOver ? `0 0 0 2px ${border}40` : '0 4px 15px rgba(0,0,0,0.04)',
+        transition: 'background 0.15s ease, box-shadow 0.15s ease',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function DraggableCard({ id, children }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id })
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        opacity: isDragging ? 0.35 : 1,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        touchAction: 'none',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
 
 const ini = (n) => n?.split(' ').map(x => x[0]).join('').toUpperCase().slice(0, 2) || '?'
 const avc = () => '#533afd'
@@ -47,8 +90,11 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
   const [error, setError] = useState('')
   const [newlyCreatedId, setNewlyCreatedId] = useState(null)
   
-  const [viewMode, setViewMode] = useState('board') // 'board' or 'table'
-  const [sortBy, setSortBy] = useState('newest') // 'due_asc', 'due_desc', 'priority', 'newest'
+  const [viewMode, setViewMode] = useState('board')
+  const [sortBy, setSortBy] = useState('newest')
+  const [draggingTask, setDraggingTask] = useState(null)
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const canCreate = user?.role === 'Admin' || user?.role === 'ProjectManager'
   const isCollaborator = user?.role === 'Collaborator'
@@ -67,25 +113,20 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
     }
   }
 
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return
-    const { source, destination, draggableId } = result
-    if (source.droppableId === destination.droppableId) return
+  const handleDnDEnd = async ({ active, over }) => {
+    setDraggingTask(null)
+    if (!over) return
+    const taskId = parseInt(active.id)
+    const newStatus = over.id
+    const taskObj = tasks.find(t => t.id === taskId)
+    if (!taskObj || normalizeStatus(taskObj.status) === newStatus) return
 
-    const newStatus = destination.droppableId
-    const taskObj = tasks.find(t => t.id === parseInt(draggableId))
-    setTasks(prev => prev.map(t => t.id === parseInt(draggableId) ? { ...t, status: newStatus } : t))
-
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t))
     try {
-      const statusMap = {
-        'todo': 'To Do',
-        'in_progress': 'In Progress',
-        'completed': 'Completed'
-      }
-      const displayStatus = statusMap[newStatus] || newStatus
-      await api.patch(`/tasks/${draggableId}/status`, { status: displayStatus })
-      toast.success(`Updated "${taskObj?.title || 'task'}" status to ${displayStatus}`)
-    } catch (err) {
+      const statusMap = { 'todo': 'To Do', 'in_progress': 'In Progress', 'completed': 'Completed' }
+      await api.patch(`/tasks/${taskId}/status`, { status: statusMap[newStatus] })
+      toast.success(`Moved "${taskObj.title}" to ${statusMap[newStatus]}`)
+    } catch {
       fetchTasks()
       toast.error('Failed to update task status')
     }
@@ -221,9 +262,9 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
 
   const cols = ['todo', 'in_progress', 'completed']
   const colStyle = {
-    todo: { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', emptyBorder: '#fde047', colBg: '#fdf8e1', dragBg: '#fef3c0' },
-    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', emptyBorder: '#bbf7d0', colBg: '#f0fdf4', dragBg: '#dcfce7' },
-    completed: { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', emptyBorder: '#c7d2fe', colBg: '#eef2ff', dragBg: '#e0e7ff' },
+    todo:        { bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)', border: '#fde047', nameColor: '#ca8a04', emptyBorder: '#fde047', colBg: '#fdf8e1', dragBg: '#fef3c0' },
+    in_progress: { bg: 'linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)', border: '#86efac', nameColor: '#16a34a', emptyBorder: '#86efac', colBg: '#f0fdf4', dragBg: '#dcfce7' },
+    completed:   { bg: 'linear-gradient(135deg, #e0eaff 0%, #c7d2fe 100%)', border: '#a5b4fc', nameColor: '#4f46e5', emptyBorder: '#a5b4fc', colBg: '#eef2ff', dragBg: '#e0e7ff' },
   }
   const colLabel = { todo: 'TO DO', in_progress: 'IN PROGRESS', completed: 'COMPLETED' }
 
@@ -325,107 +366,106 @@ export default function TasksList({ projectId = null, hideHeader = false }) {
       <div style={{ flex: 1, display: 'flex', gap: 0, overflow: 'hidden' }}>
         
         {viewMode === 'board' ? (
-          /* Kanban Board */
-          <DragDropContext onDragEnd={handleDragEnd}>
+          /* Kanban Board — @dnd-kit/core (no position:fixed offset issues) */
+          <DndContext
+            sensors={sensors}
+            onDragStart={({ active }) => setDraggingTask(filtered.find(t => t.id.toString() === active.id) || null)}
+            onDragEnd={handleDnDEnd}
+          >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)' }}>
               {cols.map(status => {
                 const cs = colStyle[status]
                 const colTasks = filtered.filter(t => normalizeStatus(t.status) === status)
                 return (
-                  <Droppable key={status} droppableId={status}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        style={{
-                          background: snapshot.isDraggingOver ? cs.dragBg : cs.colBg,
-                          borderRadius: 16,
-                          border: `1.5px solid ${snapshot.isDraggingOver ? cs.border : 'rgba(255,255,255,0.9)'}`,
-                          padding: 14,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 7,
-                          overflowY: 'auto',
-                          boxShadow: snapshot.isDraggingOver ? `0 0 0 2px ${cs.border}40` : '0 4px 15px rgba(0,0,0,0.04)',
-                          transition: 'background 0.2s ease, box-shadow 0.2s ease',
-                        }}
-                      >
-                        {/* Column header */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7, flexShrink: 0 }}>
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
-                          <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
-                        </div>
+                  <DroppableColumn key={status} id={status} colBg={cs.colBg} dragBg={cs.dragBg} border={cs.border}>
+                    {/* Column header */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7, flexShrink: 0 }}>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11, padding: '5px 12px', borderRadius: 9999, background: cs.bg, color: cs.nameColor, boxShadow: `0 2px 6px ${cs.border}` }}>{colLabel[status]}</span>
+                      <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 600, background: 'rgba(255,255,255,0.8)', color: 'var(--text)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>{colTasks.length}</span>
+                    </div>
 
-                        {/* Cards */}
-                        {loading ? (
-                          <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)' }}>Loading...</div>
-                        ) : colTasks.length === 0 && !snapshot.isDraggingOver ? (
-                          <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)', border: `1px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
-                            {EMPTY_MESSAGES[status]}
-                          </div>
-                        ) : colTasks.map((t, index) => {
-                          const assignedName = getUserName(t.assigned_user_id)
-                          const ns = normalizeStatus(t.status)
-                          const isNew = t.id === newlyCreatedId
-                          return (
-                            <Draggable key={t.id.toString()} draggableId={t.id.toString()} index={index}>
-                              {(provided, snapshot) => {
-                                const card = (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    onClick={() => setActiveId(activeId === t.id ? null : t.id)}
-                                    style={{
-                                      background: '#fff',
-                                      borderRadius: 12,
-                                      padding: '14px',
-                                      cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                                      border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
-                                      boxShadow: snapshot.isDragging ? '0 20px 40px rgba(0,0,0,0.18)' : '0 2px 5px rgba(0,0,0,0.03)',
-                                      animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
-                                      ...provided.draggableProps.style,
-                                    }}
-                                  >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                                      <div style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
-                                        background: t.priority?.toLowerCase() === 'high' ? '#fee2e2' : t.priority?.toLowerCase() === 'medium' ? '#ffedd5' : '#e0f2fe',
-                                        color: t.priority?.toLowerCase() === 'high' ? '#dc2626' : t.priority?.toLowerCase() === 'medium' ? '#ea580c' : '#0284c7'
-                                      }}>
-                                        {t.priority || 'Low'}
-                                      </div>
-                                      {t.project_id && (
-                                        <div style={{ fontSize: 9, color: '#64748d', background: '#f8fafc', padding: '3px 8px', borderRadius: 6, fontWeight: 500, border: '1px solid #f1f5f9' }}>
-                                          {getProjectName(t.project_id) || `Project #${t.project_id}`}
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div style={{ fontSize: 13, fontWeight: 500, color: ns === 'completed' ? 'var(--text-muted)' : 'var(--text)', lineHeight: 1.4, textDecoration: ns === 'completed' ? 'line-through' : 'none', marginBottom: 14 }}>
-                                      {t.title}
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                      <span style={{ fontSize: 10, fontWeight: 600, color: isLate(t.due_date, ns) ? 'var(--danger)' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                        <Clock size={12} strokeWidth={2.5} /> {fmt(t.due_date)}
-                                      </span>
-                                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: assignedName ? avc() : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: assignedName ? '#fff' : '#64748d', border: '2px solid #fff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                                        {assignedName ? ini(assignedName) : '?'}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                                return snapshot.isDragging ? createPortal(card, document.body) : card
-                              }}
-                            </Draggable>
-                          )
-                        })}
-                        {provided.placeholder}
+                    {/* Cards */}
+                    {loading ? (
+                      <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)' }}>Loading...</div>
+                    ) : colTasks.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: 16, fontSize: 10, color: 'var(--border-input)', border: `1px dashed ${cs.emptyBorder}`, borderRadius: 8 }}>
+                        {EMPTY_MESSAGES[status]}
                       </div>
-                    )}
-                  </Droppable>
+                    ) : colTasks.map(t => {
+                      const assignedName = getUserName(t.assigned_user_id)
+                      const ns = normalizeStatus(t.status)
+                      const isNew = t.id === newlyCreatedId
+                      return (
+                        <DraggableCard key={t.id} id={t.id.toString()}>
+                          <div
+                            onClick={() => setActiveId(activeId === t.id ? null : t.id)}
+                            style={{
+                              background: '#fff', borderRadius: 12, padding: '14px',
+                              border: activeId === t.id ? `2px solid var(--primary)` : `1px solid #e3e8ee`,
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
+                              animation: isNew ? 'taskPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                              <div style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
+                                background: t.priority?.toLowerCase() === 'high' ? '#fee2e2' : t.priority?.toLowerCase() === 'medium' ? '#ffedd5' : '#e0f2fe',
+                                color: t.priority?.toLowerCase() === 'high' ? '#dc2626' : t.priority?.toLowerCase() === 'medium' ? '#ea580c' : '#0284c7'
+                              }}>
+                                {t.priority || 'Low'}
+                              </div>
+                              {t.project_id && (
+                                <div style={{ fontSize: 9, color: '#64748d', background: '#f8fafc', padding: '3px 8px', borderRadius: 6, fontWeight: 500, border: '1px solid #f1f5f9' }}>
+                                  {getProjectName(t.project_id) || `Project #${t.project_id}`}
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: ns === 'completed' ? 'var(--text-muted)' : 'var(--text)', lineHeight: 1.4, textDecoration: ns === 'completed' ? 'line-through' : 'none', marginBottom: 14 }}>
+                              {t.title}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: 10, fontWeight: 600, color: isLate(t.due_date, ns) ? 'var(--danger)' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Clock size={12} strokeWidth={2.5} /> {fmt(t.due_date)}
+                              </span>
+                              <div style={{ width: 24, height: 24, borderRadius: '50%', background: assignedName ? avc() : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: assignedName ? '#fff' : '#64748d', border: '2px solid #fff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                                {assignedName ? ini(assignedName) : '?'}
+                              </div>
+                            </div>
+                          </div>
+                        </DraggableCard>
+                      )
+                    })}
+                  </DroppableColumn>
                 )
               })}
             </div>
-          </DragDropContext>
+
+            {/* Floating card while dragging — uses transform3d, no offset issues */}
+            <DragOverlay dropAnimation={null}>
+              {draggingTask ? (() => {
+                const assignedName = getUserName(draggingTask.assigned_user_id)
+                const ns = normalizeStatus(draggingTask.status)
+                return (
+                  <div style={{ background: '#fff', borderRadius: 12, padding: '14px', border: `1px solid #e3e8ee`, boxShadow: '0 20px 40px rgba(0,0,0,0.18)', cursor: 'grabbing', transform: 'rotate(1.5deg)', opacity: 0.97, width: 220 }}>
+                    <div style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'inline-block', marginBottom: 10,
+                      background: draggingTask.priority?.toLowerCase() === 'high' ? '#fee2e2' : draggingTask.priority?.toLowerCase() === 'medium' ? '#ffedd5' : '#e0f2fe',
+                      color: draggingTask.priority?.toLowerCase() === 'high' ? '#dc2626' : draggingTask.priority?.toLowerCase() === 'medium' ? '#ea580c' : '#0284c7'
+                    }}>
+                      {draggingTask.priority || 'Low'}
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4, marginBottom: 14 }}>{draggingTask.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Clock size={12} strokeWidth={2.5} /> {fmt(draggingTask.due_date)}
+                      </span>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: assignedName ? avc() : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: assignedName ? '#fff' : '#64748d', border: '2px solid #fff' }}>
+                        {assignedName ? ini(assignedName) : '?'}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })() : null}
+            </DragOverlay>
+          </DndContext>
         ) : (
           /* Table View */
           <div style={{ flex: activeId ? '0 0 calc(100% - 295px)' : 1, transition: 'flex 0.38s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden', background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
