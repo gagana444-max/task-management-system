@@ -59,9 +59,9 @@ async def check_due_tasks():
 
 def start_scheduler():
     # Run every minute for testing purposes as specified in the plan
-    scheduler.add_job(check_due_tasks, 'cron', minute='*')
-    scheduler.start()
-    print("Background scheduler started successfully.")
+    # scheduler.add_job(check_due_tasks, 'cron', minute='*')
+    # scheduler.start()
+    print("Background scheduler started successfully (DISABLED).")
 
 def shutdown_scheduler():
     scheduler.shutdown()
