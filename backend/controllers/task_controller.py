@@ -105,10 +105,7 @@ async def update_task_status_with_notify(task_id: int, status: str):
 
 
 def get_all_tasks(current_user=None, priority=None, status=None, assigned_user_id=None, project_id=None):
-    # Collaborators can only see tasks assigned to them
-    if current_user and current_user.get('role') == 'Collaborator':
-        assigned_user_id = current_user['id']
-    return task_service.get_all_tasks(priority, status, assigned_user_id, project_id)
+    return task_service.get_all_tasks(current_user, priority, status, assigned_user_id, project_id)
 
 
 def get_task(task_id: int):

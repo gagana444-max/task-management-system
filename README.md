@@ -1,79 +1,88 @@
-# Task Management System
+# Task Management System (TMS) 🚀
 
-A full-stack web application for managing tasks collaboratively in real time, designed for personal productivity, team collaboration, and structured project management.
+A full-stack, enterprise-grade web application for managing tasks collaboratively in real time. Designed for personal productivity, team collaboration, and structured project management with role-based access control.
 
-## 🚀 Live Demo
-- **Frontend URL:** [Insert Hosted Frontend URL Here]
-- **Backend API URL:** [Insert Hosted Backend URL Here]
+## 🌐 Live Demo & Access
+- **Frontend App:** [http://taskmanagement.eastasia.cloudapp.azure.com:5173](http://taskmanagement.eastasia.cloudapp.azure.com:5173)
+- **Backend API:** [http://taskmanagement.eastasia.cloudapp.azure.com:8000](http://taskmanagement.eastasia.cloudapp.azure.com:8000)
+- **Interactive API Docs (Swagger):** [http://taskmanagement.eastasia.cloudapp.azure.com:8000/docs](http://taskmanagement.eastasia.cloudapp.azure.com:8000/docs)
 
-## 🛠 Technologies Used
+---
 
-- **Frontend:** React, Vite, Tailwind CSS
-- **Backend:** Python, FastAPI
-- **Database:** PostgreSQL (via SQLAlchemy ORM)
-- **Real-Time:** WebSockets (Socket.IO)
-- **Auth:** JWT (JSON Web Tokens), bcrypt for secure password hashing
-- **DevOps:** Docker, Docker Compose, GitHub Actions
+## ✨ Key Features
 
-## 📂 Folder Structure
+- **Role-Based Access Control (RBAC):** Distinct permissions for Admins, Project Managers, and Collaborators.
+- **Real-Time Notifications:** Instant WebSockets updates for task assignments, project creations, and status changes.
+- **Secure Authentication:** JWT-based stateless authentication with securely hashed passwords using bcrypt.
+- **Project & Task Isolation:** Project managers and collaborators only see projects and tasks assigned to them.
+- **Modern User Interface:** Fully responsive design built with Tailwind CSS, utilizing glassmorphism and modern UI components.
+- **Dockerized Environment:** Seamless one-click deployment using Docker and Docker Compose.
 
-The application follows a clean, modular Model-View-Controller (MVC) architecture, strictly separated into frontend and backend layers.
+---
 
-```text
-task-management-system/
-├── backend/
-│   ├── config/          # Database and Socket.io configurations
-│   ├── controllers/     # Business logic and request handling
-│   ├── middleware/      # Authentication & Security middleware
-│   ├── models/          # SQLAlchemy DB models & Pydantic validation schemas
-│   ├── routes/          # FastAPI REST API endpoints
-│   └── services/        # Reusable service layer (Email, Auth, DB queries)
-├── frontend/
-│   ├── src/
-│   │   ├── api/         # Axios API interceptors and endpoint definitions
-│   │   ├── components/  # Reusable UI components
-│   │   ├── context/     # React Context providers (Auth, Theme, WebSockets)
-│   │   ├── layouts/     # Application layouts (Sidebar, Nav)
-│   │   └── pages/       # Core application pages
-├── database/            # ER Diagrams and database schema designs
-└── testing/             # Functional test reports
-```
+## 🛠 Technologies & Architecture
 
-## 👥 Team Member Contributions
+### **Frontend Layer**
+- **React 18:** Component-based UI rendering.
+- **Vite:** High-performance local development and optimized build tooling.
+- **Tailwind CSS:** Utility-first styling framework.
+- **Socket.IO-client:** Real-time bi-directional event listening.
+- **Axios:** Managed HTTP client with JWT interceptors.
 
-| Member | Role | Tasks |
-|--------|------|-------|
-| Member 1 | Auth + Security | Tasks 3, 9, 12 |
-| Member 2 | Database + Deployment | Tasks 2, 6, 14 |
-| Member 3 | User API + WebSocket + Docs | Tasks 5, 8, 15 |
-| Member 4 | Frontend + Admin | Tasks 4, 7, 11 |
-| Member 5 | DevOps + UI + Testing | Tasks 1, 10, 13 |
+### **Backend Layer**
+- **Python 3.10+ & FastAPI:** High-performance async API routing.
+- **SQLAlchemy ORM:** Database abstraction and schema management.
+- **MySQL:** Relational database for persistent storage.
+- **Socket.IO (ASGI):** Async WebSockets server.
+- **PyJWT & Passlib:** Token encoding and cryptographic password hashing.
 
-## ⚙️ Setup Instructions
+---
+
+## ⚙️ Environment Configuration
+
+To run the application, you need to configure environment variables. Example templates are provided in `.env.example`.
+
+### **Backend (`backend/.env`)**
+| Variable | Description |
+|----------|-------------|
+| `DB_HOST` | Database host (e.g., `localhost` or `db`) |
+| `DB_PORT` | Database port (usually `3306`) |
+| `DB_NAME` | Database name (`tms_db`) |
+| `DB_USER` | MySQL root user |
+| `DB_PASSWORD` | MySQL root password |
+| `JWT_SECRET` | Secret key for JWT signing |
+| `JWT_EXPIRES_IN` | Token lifespan (e.g., `7d`) |
+| `FRONTEND_URL` | Used for CORS and email callbacks |
+
+### **Frontend (`frontend/.env`)** *(Optional for local dev)*
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | The base URL for the backend API (defaults to `/api` for proxy) |
+
+---
+
+## 🚀 Setup & Installation Instructions
 
 ### Prerequisites
 - Node.js 20+
-- Python 3.10+ (for local backend development)
-- Docker Desktop
+- Python 3.10+
+- Docker & Docker Compose
 - Git
 
-### Option 1: Run via Docker (Recommended)
+### Option 1: Run via Docker Compose (Recommended)
 1. Clone the repository:
    ```bash
    git clone https://github.com/YourOrg/task-management-system.git
    cd task-management-system
    ```
-2. Set up environment variables:
+2. Set up environment variables based on the tables above.
+3. Start all services (Database, Backend, Frontend):
    ```bash
-   cp .env.example .env
-   ```
-3. Start all services using Docker Compose:
-   ```bash
-   docker compose up --build
+   docker-compose up -d --build
    ```
 4. Access the application:
    - **Frontend:** `http://localhost:3000`
-   - **Backend API:** `http://localhost:5000`
+   - **Backend API:** `http://localhost:8000`
 
 ### Option 2: Run Locally (Without Docker)
 
@@ -84,7 +93,7 @@ python -m venv venv
 # Windows: venv\Scripts\activate
 # Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload --port 5000
+uvicorn main:app --reload --port 8000
 ```
 
 **Frontend Setup:**
@@ -93,21 +102,64 @@ cd frontend
 npm install
 npm run dev
 ```
-*(The frontend will be available at `http://localhost:5173` if running locally without Docker)*
+*(The frontend will be available at `http://localhost:5173`)*
 
-## 📖 API Usage & Documentation
+---
 
-The backend REST endpoints are fully documented using Swagger/OpenAPI. 
+## 📡 API Endpoints Overview
 
-Once the backend server is running, navigate to the following URL to view interactive API documentation, test endpoints directly from the browser, and view data schemas:
-- **Swagger UI:** [http://localhost:5000/docs](http://localhost:5000/docs)
+The backend exposes a comprehensive RESTful API. Below are the primary resource groups:
 
-*Note: All protected routes require a valid JWT token in the `Authorization` header (`Bearer <token>`).*
+- **`/api/auth`**: User registration, login, token generation, and password resets.
+- **`/api/users`**: User retrieval and management (Admin only).
+- **`/api/projects`**: Project creation, retrieval (filtered by role), and deletion.
+- **`/api/tasks`**: Task assignment, status updates (To Do, In Progress, Review, Done), and management.
+- **`/api/notifications`**: Fetch unread notifications, mark as read, and delete.
+
+For full schemas and interactive testing, visit the **[Swagger UI Documentation](http://localhost:8000/docs)**.
+
+---
+
+## 📂 Project Structure
+
+```text
+task-management-system/
+├── backend/
+│   ├── config/          # Database, Socket.io, and Env config
+│   ├── controllers/     # Route logic and business rules
+│   ├── middleware/      # Auth & Role verification decorators
+│   ├── models/          # SQLAlchemy DB models & Pydantic schemas
+│   ├── routes/          # FastAPI API routers
+│   └── services/        # Reusable service layer (Email, Auth)
+├── frontend/
+│   ├── src/
+│   │   ├── api/         # Axios interceptors
+│   │   ├── components/  # Atomic and shared UI components
+│   │   ├── context/     # React Context (Auth, Sockets)
+│   │   ├── layouts/     # Application structure (Sidebar, Nav)
+│   │   └── pages/       # Core views (Dashboard, Projects, Tasks)
+├── database/            # ER Diagrams and database designs
+└── testing/             # QA Functional test reports
+```
+
+---
+
+## 👥 Team Contributions
+
+| Member | Role | Core Contributions |
+|--------|------|--------------------|
+| **Member 1** | Auth + Security | Implemented JWT architecture, password hashing, password reset flow, and RBAC middleware. |
+| **Member 2** | DB + Deployment | Designed MySQL schema, wrote Dockerfiles, composed `docker-compose.yml`, and deployed to Azure. |
+| **Member 3** | User API + Sockets | Built the Socket.IO real-time notification engine and REST endpoints for User Management. |
+| **Member 4** | Frontend + Admin | Developed React UI components, Admin dashboard, and Tailwind glassmorphism aesthetics. |
+| **Member 5** | DevOps + Testing | Handled GitHub Actions CI/CD pipelines, QA testing reports, and API bug fixing. |
+
+---
 
 ## 📄 Deliverables Reference
 
-The required project deliverables can be found in the following locations within this repository:
-- **ER / Class Diagrams:** Located in the root directory (`Class Diagram.drawio.png`, `database/ER diagram.png`)
-- **Deployment Diagrams:** Located in the root directory (`Deployment Diagram.drawio.png`)
-- **Functional Testing:** Located in `testing/test-report.md`
-- **UI Design System:** Located in `Design.md`
+The required university/course deliverables are located throughout the repository:
+- **ER / Class Diagrams:** Root directory (`Class Diagram.drawio.png`, `database/ER diagram.png`)
+- **Deployment Diagrams:** Root directory (`Deployment Diagram.drawio.png`)
+- **Functional Testing:** Detailed test cases in `testing/test-report.md`
+- **UI Design System:** Figma link or design specs in `Design.md`

@@ -156,6 +156,7 @@ def create_task(task_data: TaskCreate):
 
 
 def get_all_tasks(
+    current_user=None,
     priority=None,
     status=None,
     assigned_user_id=None,
@@ -179,6 +180,22 @@ def get_all_tasks(
         """
 
         params = []
+        
+        if current_user:
+            role = current_user.get('role')
+            uid = current_user.get('id')
+            if role == 'Collaborator':
+                query += " AND assigned_user_id = %s"
+                params.append(uid)
+            elif role == 'ProjectManager':
+                query += """ AND (
+                    assigned_user_id = %s 
+                    OR project_id IN (
+                        SELECT id FROM projects WHERE manager_id = %s
+                    )
+                )"""
+                params.extend([uid, uid])
+
 
         if priority:
             query += " AND priority = %s"

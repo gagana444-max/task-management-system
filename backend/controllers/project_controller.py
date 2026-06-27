@@ -13,7 +13,7 @@ def get_all_projects(db: Session, current_user: dict):
     if role == "Admin":
         return query.order_by(Project.created_at.desc()).all()
     elif role == "ProjectManager":
-        return query.filter((Project.manager_id == user_id) | (Project.created_by == user_id)).order_by(Project.created_at.desc()).all()
+        return query.filter(Project.manager_id == user_id).order_by(Project.created_at.desc()).all()
     else:
         # Collaborator: only see projects they have tasks in
         res = db.execute(text("SELECT DISTINCT project_id FROM tasks WHERE assigned_user_id = :uid"), {"uid": user_id})
