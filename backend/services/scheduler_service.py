@@ -44,13 +44,13 @@ async def check_due_tasks():
                 # 1. In-app notification
                 await send_notification(db, task["user_id"], task["message"], 'task_due_soon')
                 
-                # 2. Email notification
-                send_due_soon_email(
-                    email=task["email"],
-                    name=task["user_name"],
-                    task_title=task["title"],
-                    due_date=task["due_date"]
-                )
+                # 2. Email notification (DISABLED BY REQUEST)
+                # send_due_soon_email(
+                #     email=task["email"],
+                #     name=task["user_name"],
+                #     task_title=task["title"],
+                #     due_date=task["due_date"]
+                # )
 
         print(f"[{datetime.datetime.utcnow().isoformat()}] Due-soon checker completed. Notified {len(tasks_to_notify)} tasks.")
     
